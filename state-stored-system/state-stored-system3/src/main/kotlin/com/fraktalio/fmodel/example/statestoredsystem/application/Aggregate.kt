@@ -20,7 +20,7 @@ import arrow.core.Either
 import com.fraktalio.fmodel.application.StateRepository
 import com.fraktalio.fmodel.application.StateStoredAggregate
 import com.fraktalio.fmodel.domain.Decider
-import com.fraktalio.fmodel.domain.combineDeciders
+import com.fraktalio.fmodel.domain.extension.combineDeciders
 import com.fraktalio.fmodel.example.statestoredsystem.domain.*
 
 /**

@@ -20,7 +20,7 @@ import arrow.core.Either
 import com.fraktalio.fmodel.application.ActionPublisher
 import com.fraktalio.fmodel.application.SagaManager
 import com.fraktalio.fmodel.domain.Saga
-import com.fraktalio.fmodel.domain.combineSagas
+import com.fraktalio.fmodel.domain.extension.combineSagas
 import com.fraktalio.fmodel.example.statestoredsystem.domain.RestaurantCommand
 import com.fraktalio.fmodel.example.statestoredsystem.domain.RestaurantEvent
 import com.fraktalio.fmodel.example.statestoredsystem.domain.RestaurantOrderCommand
