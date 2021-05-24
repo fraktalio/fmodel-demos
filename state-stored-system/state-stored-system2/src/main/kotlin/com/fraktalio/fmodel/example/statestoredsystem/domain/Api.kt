@@ -24,11 +24,14 @@ import java.util.*
 
 // *************************************** Value objects ********************************************
 // **************************************************************************************************
+@JvmInline
+value class RestaurantId(val identifier: UUID = UUID.randomUUID())
 
-inline class RestaurantId(val identifier: UUID = UUID.randomUUID())
-inline class RestaurantOrderId(val identifier: UUID = UUID.randomUUID())
+@JvmInline
+value class RestaurantOrderId(val identifier: UUID = UUID.randomUUID())
 
-inline class Money(val amount: BigDecimal) {
+@JvmInline
+value class Money(val amount: BigDecimal) {
 
     operator fun plus(delta: Money): Money {
         return Money(amount.add(delta.amount))
