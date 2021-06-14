@@ -35,7 +35,7 @@ import java.util.*
  *
  * @author Иван Дугалић / Ivan Dugalic / @idugalic
  */
-internal class AggregateRepositoryImpl(
+internal class AggregateStateStoredRepositoryImpl(
     private val restaurantRepository: RestaurantRepository,
     private val restaurantOrderRepository: RestaurantOrderRepository
 ) : StateRepository<Command?, Pair<RestaurantOrder?, Restaurant?>> {

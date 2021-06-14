@@ -21,10 +21,10 @@ import com.fraktalio.fmodel.application.StateRepository
 import com.fraktalio.fmodel.application.StateStoredAggregate
 import com.fraktalio.fmodel.domain.Decider
 import com.fraktalio.fmodel.domain.Saga
-import com.fraktalio.fmodel.example.statestoredsystem.adapter.persistence.AggregateRepositoryImpl
+import com.fraktalio.fmodel.example.statestoredsystem.adapter.persistence.AggregateStateStoredRepositoryImpl
 import com.fraktalio.fmodel.example.statestoredsystem.adapter.persistence.RestaurantOrderRepository
 import com.fraktalio.fmodel.example.statestoredsystem.adapter.persistence.RestaurantRepository
-import com.fraktalio.fmodel.example.statestoredsystem.adapter.publisher.ActionPublisher
+import com.fraktalio.fmodel.example.statestoredsystem.adapter.publisher.SagaActionPublisher
 import com.fraktalio.fmodel.example.statestoredsystem.application.CommandBus
 import com.fraktalio.fmodel.example.statestoredsystem.application.aggregate
 import com.fraktalio.fmodel.example.statestoredsystem.application.sagaManager
@@ -71,7 +71,7 @@ class Configuration {
     ) = sagaManager(
         restaurantSaga,
         restaurantOrderSaga,
-        ActionPublisher(aggregate)
+        SagaActionPublisher(aggregate)
     )
 
     @Bean
@@ -79,7 +79,7 @@ class Configuration {
         restaurantRepository: RestaurantRepository,
         restaurantOrderRepository: RestaurantOrderRepository
     ): StateRepository<Command?, Pair<RestaurantOrder?, Restaurant?>> =
-        AggregateRepositoryImpl(restaurantRepository, restaurantOrderRepository)
+        AggregateStateStoredRepositoryImpl(restaurantRepository, restaurantOrderRepository)
 
     @Bean
     internal fun aggregate(

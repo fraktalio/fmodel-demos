@@ -26,7 +26,6 @@ import com.fraktalio.fmodel.example.statestoredsystem.domain.Command
 import com.fraktalio.fmodel.example.statestoredsystem.domain.Event
 import com.fraktalio.fmodel.example.statestoredsystem.domain.Restaurant
 import com.fraktalio.fmodel.example.statestoredsystem.domain.RestaurantOrder
-import org.springframework.transaction.annotation.Transactional
 
 /**
  * Command bus - entry point of the application layer
@@ -39,7 +38,7 @@ internal open class CommandBus(
     private val aggregate: StateStoredAggregate<Command?, Pair<RestaurantOrder?, Restaurant?>, Event?>,
     private val sagaManager: SagaManager<Event?, Command?>
 ) {
-    @Transactional
+
     open suspend fun publish(command: Command?): Either<Error, Success> =
 
         either {

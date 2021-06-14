@@ -16,15 +16,10 @@
 
 package com.fraktalio.fmodel.example.statestoredsystem.adapter.persistence
 
-import arrow.core.Either
-import com.fraktalio.fmodel.application.Error
-import com.fraktalio.fmodel.application.StateRepository
-import com.fraktalio.fmodel.application.Success
-import com.fraktalio.fmodel.example.statestoredsystem.domain.*
+import com.fraktalio.fmodel.example.statestoredsystem.domain.Restaurant
+import com.fraktalio.fmodel.example.statestoredsystem.domain.RestaurantMenuCuisine
 import org.springframework.data.repository.PagingAndSortingRepository
-import org.springframework.data.repository.findByIdOrNull
 import java.math.BigDecimal
-import java.util.*
 import javax.persistence.*
 
 /**
@@ -114,58 +109,3 @@ internal data class MenuItemEmbedable(var menuId: String, var name: String, var 
  * @constructor Creates Spring Data repository
  */
 internal interface RestaurantRepository : PagingAndSortingRepository<RestaurantEntity, String>
-
-/**
- * Restaurant state stored aggregate repository implementation
- *
- * @property restaurantRepository Spring repository that is used to implement this repository
- * @constructor Creates Repository
- */
-internal class RestaurantStateStoredAggregateRepositoryImpl(private val restaurantRepository: RestaurantRepository) :
-    StateRepository<RestaurantCommand?, Restaurant?> {
-
-    override suspend fun RestaurantCommand?.fetchState(): Either<Error.FetchingStateFailed, Restaurant?> =
-        Either.catch {
-            restaurantRepository.findByIdOrNull(this?.identifier.toString()).toRestaurant()
-        }.mapLeft { throwable -> Error.FetchingStateFailed(throwable) }
-
-    override suspend fun Restaurant?.save(): Either<Error.StoringStateFailed<Restaurant?>, Success.StateStoredSuccessfully<Restaurant?>> =
-        Either.catch {
-            if (this != null) restaurantRepository.save(this.toRestaurantEntity()).toRestaurant()
-            Success.StateStoredSuccessfully(this)
-        }.mapLeft { throwable -> Error.StoringStateFailed(this, throwable) }
-
-    private fun Restaurant.toRestaurantEntity() = RestaurantEntity(
-        this.id.identifier.toString(),
-        Long.MIN_VALUE,
-        this.name,
-        this.status,
-        this.menu.cuisine,
-        this.menu.status,
-        this.menu.menuId.toString(),
-        this.menu.items.map { MenuItemEmbedable(it.id, it.name, it.price.amount) })
-
-    private fun RestaurantEntity?.toRestaurant() = when {
-        this != null -> Restaurant(
-            RestaurantId(UUID.fromString(this.id)),
-            this.name,
-            Restaurant.RestaurantMenu(
-                UUID.fromString(this.menuId),
-                this.menuItems.map { menuItemEmbedable ->
-                    Restaurant.MenuItem(
-                        menuItemEmbedable.menuId,
-                        menuItemEmbedable.name,
-                        Money(menuItemEmbedable.price)
-                    )
-                },
-                this.cuisine,
-                this.menuStatus
-            ),
-            this.status
-        )
-        else -> null
-    }
-}
-
-
-

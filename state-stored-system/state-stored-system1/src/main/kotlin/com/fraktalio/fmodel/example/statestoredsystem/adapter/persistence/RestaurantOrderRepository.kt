@@ -16,14 +16,8 @@
 
 package com.fraktalio.fmodel.example.statestoredsystem.adapter.persistence
 
-import arrow.core.Either
-import com.fraktalio.fmodel.application.Error
-import com.fraktalio.fmodel.application.StateRepository
-import com.fraktalio.fmodel.application.Success
-import com.fraktalio.fmodel.example.statestoredsystem.domain.*
+import com.fraktalio.fmodel.example.statestoredsystem.domain.RestaurantOrder
 import org.springframework.data.repository.PagingAndSortingRepository
-import org.springframework.data.repository.findByIdOrNull
-import java.util.*
 import javax.persistence.*
 
 @Entity
@@ -79,46 +73,3 @@ internal data class RestaurantOrderItemEmbeddable(var menuId: String, var name: 
  * @constructor Creates Spring Data repository
  */
 internal interface RestaurantOrderRepository : PagingAndSortingRepository<RestaurantOrderEntity, String>
-
-/**
- * Restaurant Order state stored aggregate repository implementation
- *
- * @property restaurantOrderRepository Spring repository that is used to implement this repository
- * @constructor Creates Repository
- */
-internal class RestaurantOrderStateStoredAggregateRepositoryImpl(private val restaurantOrderRepository: RestaurantOrderRepository) :
-    StateRepository<RestaurantOrderCommand?, RestaurantOrder?> {
-
-    override suspend fun RestaurantOrderCommand?.fetchState(): Either<Error.FetchingStateFailed, RestaurantOrder?> =
-        Either.catch {
-            restaurantOrderRepository.findByIdOrNull(this?.identifier.toString()).toRestaurantOrder()
-        }.mapLeft { throwable -> Error.FetchingStateFailed(throwable) }
-
-
-    override suspend fun RestaurantOrder?.save(): Either<Error.StoringStateFailed<RestaurantOrder?>, Success.StateStoredSuccessfully<RestaurantOrder?>> =
-        Either.catch {
-            if (this != null) restaurantOrderRepository.save(this.toRestaurantOrderEntity()).toRestaurantOrder()
-            Success.StateStoredSuccessfully(this)
-        }.mapLeft { throwable -> Error.StoringStateFailed(this, throwable) }
-
-
-    private fun RestaurantOrder.toRestaurantOrderEntity(): RestaurantOrderEntity = RestaurantOrderEntity(
-        this.id.identifier.toString(),
-        Long.MIN_VALUE,
-        this.lineItems.map { RestaurantOrderItemEmbeddable(it.menuItemId, it.name, it.quantity) },
-        this.restaurantId.identifier.toString(),
-        this.status
-    )
-
-    private fun RestaurantOrderEntity?.toRestaurantOrder(): RestaurantOrder? = when {
-        this != null -> RestaurantOrder(
-            RestaurantOrderId(UUID.fromString(this.id)),
-            RestaurantId(UUID.fromString(this.restaurantId)),
-            this.state,
-            this.lineItems.map { RestaurantOrderLineItem(it.quantity, it.menuId, it.name) }
-        )
-        else -> null
-    }
-}
-
-

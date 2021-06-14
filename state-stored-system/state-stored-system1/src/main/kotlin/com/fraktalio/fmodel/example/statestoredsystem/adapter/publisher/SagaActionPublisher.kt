@@ -37,7 +37,7 @@ import com.fraktalio.fmodel.example.statestoredsystem.domain.RestaurantOrder
  *
  * @author Иван Дугалић / Ivan Dugalic / @idugalic
  */
-internal class ActionPublisher(
+internal class SagaActionPublisher(
     private val aggregate: StateStoredAggregate<Command?, Pair<RestaurantOrder?, Restaurant?>, Event?>
 ) : ActionPublisher<Command?> {
 
