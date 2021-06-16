@@ -22,10 +22,10 @@ import com.fraktalio.fmodel.application.Error
 import com.fraktalio.fmodel.application.SagaManager
 import com.fraktalio.fmodel.application.StateStoredAggregate
 import com.fraktalio.fmodel.application.Success
-import com.fraktalio.fmodel.example.statestoredsystem.domain.Command
-import com.fraktalio.fmodel.example.statestoredsystem.domain.Event
-import com.fraktalio.fmodel.example.statestoredsystem.domain.Restaurant
-import com.fraktalio.fmodel.example.statestoredsystem.domain.RestaurantOrder
+import com.fraktalio.fmodel.example.domain.Command
+import com.fraktalio.fmodel.example.domain.Event
+import com.fraktalio.fmodel.example.domain.Restaurant
+import com.fraktalio.fmodel.example.domain.RestaurantOrder
 
 /**
  * Command bus - entry point of the application layer

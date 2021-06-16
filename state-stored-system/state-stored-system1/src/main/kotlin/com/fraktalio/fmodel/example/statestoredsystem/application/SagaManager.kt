@@ -20,7 +20,7 @@ import com.fraktalio.fmodel.application.ActionPublisher
 import com.fraktalio.fmodel.application.SagaManager
 import com.fraktalio.fmodel.domain.Saga
 import com.fraktalio.fmodel.domain.combine
-import com.fraktalio.fmodel.example.statestoredsystem.domain.*
+import com.fraktalio.fmodel.example.domain.*
 
 /**
  * Saga manager - Orchestrator

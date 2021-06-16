@@ -14,9 +14,9 @@ pure `domain` logic). These two functions belongs to the `Aggregate` component w
 
 ### State-stored system
 
-Obviously, this is specialized case, in which we use shared/common domain (`decider`) by focusing only on storing and reading
-the current state. We are not storing events/facts. Nevertheless, events are used for evolving/constructing the current
-state, and to make sure we are **focusing on behaviour rather than on the structure**.
+Obviously, this is specialized case, in which we use shared/common domain (`decider`) by focusing only on storing and
+reading the current state. We are not storing events/facts. Nevertheless, events are used for evolving/constructing the
+current state, and to make sure we are **focusing on behaviour rather than on the structure**.
 
 > In the next example, we will demonstrate how to construct an event-sourcing system by using the same `decider` : `(C, Iterable<E>) -> Iterable<E>`
 

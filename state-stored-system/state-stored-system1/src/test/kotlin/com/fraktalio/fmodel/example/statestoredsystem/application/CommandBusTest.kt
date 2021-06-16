@@ -16,7 +16,7 @@
 
 package com.fraktalio.fmodel.example.statestoredsystem.application
 
-import com.fraktalio.fmodel.example.statestoredsystem.domain.*
+import com.fraktalio.fmodel.example.domain.*
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test

@@ -26,7 +26,27 @@
     <description>`fmodel` examples</description>
     <packaging>pom</packaging>
 
+    <properties>
+        <java.version>11</java.version>
+        <kotlin.version>1.5.10</kotlin.version>
+    </properties>
+
     <modules>
+        <module>domain</module>
         <module>state-stored-system</module>
     </modules>
+
+    <repositories>
+        <repository>
+            <id>central</id>
+            <url>https://repo1.maven.org/maven2</url>
+        </repository>
+        <repository>
+            <id>github</id>
+            <url>https://maven.pkg.github.com/fraktalio/*</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 </project>

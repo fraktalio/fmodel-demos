@@ -70,6 +70,5 @@ going to run our unique core domain logic in different ways by changing only `ap
 - Example of Event-sourced information system (Axon Server as an event store) - Restaurant management - Spring Boot
 - Example of Event-sourced information system (Event Store DB as an event store) - Restaurant management - Spring Boot
 
-
 ---
 Created with :heart: by [Fraktalio](https://fraktalio.com/)

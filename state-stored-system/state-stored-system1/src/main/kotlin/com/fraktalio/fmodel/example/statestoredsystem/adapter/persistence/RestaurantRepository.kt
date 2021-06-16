@@ -16,8 +16,8 @@
 
 package com.fraktalio.fmodel.example.statestoredsystem.adapter.persistence
 
-import com.fraktalio.fmodel.example.statestoredsystem.domain.Restaurant
-import com.fraktalio.fmodel.example.statestoredsystem.domain.RestaurantMenuCuisine
+import com.fraktalio.fmodel.example.domain.Restaurant
+import com.fraktalio.fmodel.example.domain.RestaurantMenuCuisine
 import org.springframework.data.repository.PagingAndSortingRepository
 import java.math.BigDecimal
 import javax.persistence.*

@@ -20,7 +20,7 @@ import arrow.core.Either
 import com.fraktalio.fmodel.application.Error
 import com.fraktalio.fmodel.application.StateRepository
 import com.fraktalio.fmodel.application.Success
-import com.fraktalio.fmodel.example.statestoredsystem.domain.*
+import com.fraktalio.fmodel.example.domain.*
 import org.springframework.data.repository.findByIdOrNull
 import java.util.*
 

@@ -21,6 +21,7 @@ import com.fraktalio.fmodel.application.StateRepository
 import com.fraktalio.fmodel.application.StateStoredAggregate
 import com.fraktalio.fmodel.domain.Decider
 import com.fraktalio.fmodel.domain.Saga
+import com.fraktalio.fmodel.example.domain.*
 import com.fraktalio.fmodel.example.statestoredsystem.adapter.persistence.AggregateStateStoredRepositoryImpl
 import com.fraktalio.fmodel.example.statestoredsystem.adapter.persistence.RestaurantOrderRepository
 import com.fraktalio.fmodel.example.statestoredsystem.adapter.persistence.RestaurantRepository
@@ -28,7 +29,6 @@ import com.fraktalio.fmodel.example.statestoredsystem.adapter.publisher.SagaActi
 import com.fraktalio.fmodel.example.statestoredsystem.application.CommandBus
 import com.fraktalio.fmodel.example.statestoredsystem.application.aggregate
 import com.fraktalio.fmodel.example.statestoredsystem.application.sagaManager
-import com.fraktalio.fmodel.example.statestoredsystem.domain.*
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean

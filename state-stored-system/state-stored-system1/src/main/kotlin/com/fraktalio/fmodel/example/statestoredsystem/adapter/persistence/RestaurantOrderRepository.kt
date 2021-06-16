@@ -16,7 +16,7 @@
 
 package com.fraktalio.fmodel.example.statestoredsystem.adapter.persistence
 
-import com.fraktalio.fmodel.example.statestoredsystem.domain.RestaurantOrder
+import com.fraktalio.fmodel.example.domain.RestaurantOrder
 import org.springframework.data.repository.PagingAndSortingRepository
 import javax.persistence.*
 

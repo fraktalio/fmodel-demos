@@ -16,9 +16,9 @@
 
 package com.fraktalio.fmodel.example.statestoredsystem.adapter.web
 
+import com.fraktalio.fmodel.example.domain.*
 import com.fraktalio.fmodel.example.statestoredsystem.adapter.persistence.RestaurantRepository
 import com.fraktalio.fmodel.example.statestoredsystem.application.CommandBus
-import com.fraktalio.fmodel.example.statestoredsystem.domain.*
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RestController

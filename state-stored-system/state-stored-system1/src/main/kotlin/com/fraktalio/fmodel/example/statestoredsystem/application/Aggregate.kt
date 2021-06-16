@@ -20,7 +20,7 @@ import com.fraktalio.fmodel.application.StateRepository
 import com.fraktalio.fmodel.application.StateStoredAggregate
 import com.fraktalio.fmodel.domain.Decider
 import com.fraktalio.fmodel.domain.combine
-import com.fraktalio.fmodel.example.statestoredsystem.domain.*
+import com.fraktalio.fmodel.example.domain.*
 
 /**
  * One, big aggregate that is combining all deciders: [restaurantOrderDecider], [restaurantDecider].
