@@ -16,9 +16,9 @@
 
 package com.fraktalio.fmodel.example.statestoredsystem.adapter.web
 
+import com.fraktalio.fmodel.application.StateStoredAggregate
 import com.fraktalio.fmodel.example.domain.*
 import com.fraktalio.fmodel.example.statestoredsystem.adapter.persistence.RestaurantRepository
-import com.fraktalio.fmodel.example.statestoredsystem.application.CommandBus
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RestController
@@ -27,13 +27,13 @@ import java.math.BigDecimal
 /**
  * Rest controller - Very simple controller
  *
- * @property commandBus A command bus
+ * @property aggregate A State Stored Aggregate - All things at Restaurant: Restaurant management, Order management
  * @property restaurantRepository Restaurant repository
  * @constructor Creates Rest controller
  */
 @RestController
 internal class RestController(
-    private val commandBus: CommandBus,
+    private val aggregate: StateStoredAggregate<Command?, Pair<RestaurantOrder?, Restaurant?>, Event?>,
     private val restaurantRepository: RestaurantRepository
 ) {
     /**
@@ -50,14 +50,14 @@ internal class RestController(
      */
     @PostMapping("/")
     suspend fun save(request: CreateRestaurantRequest) =
-        commandBus.publish(request.convert())
+        aggregate.handle(request.convertToCommand())
 }
 
 /**
  * `Convert` extension of `CreateRestaurantRequest`
  *
  */
-private fun CreateRestaurantRequest.convert() =
+private fun CreateRestaurantRequest.convertToCommand() =
     CreateRestaurantCommand(
         RestaurantId(),
         this.name,

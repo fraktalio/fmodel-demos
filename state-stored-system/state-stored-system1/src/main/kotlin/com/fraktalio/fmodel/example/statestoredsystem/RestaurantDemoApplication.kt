@@ -16,19 +16,14 @@
 
 package com.fraktalio.fmodel.example.statestoredsystem
 
-import com.fraktalio.fmodel.application.SagaManager
 import com.fraktalio.fmodel.application.StateRepository
-import com.fraktalio.fmodel.application.StateStoredAggregate
 import com.fraktalio.fmodel.domain.Decider
 import com.fraktalio.fmodel.domain.Saga
 import com.fraktalio.fmodel.example.domain.*
 import com.fraktalio.fmodel.example.statestoredsystem.adapter.persistence.AggregateStateStoredRepositoryImpl
 import com.fraktalio.fmodel.example.statestoredsystem.adapter.persistence.RestaurantOrderRepository
 import com.fraktalio.fmodel.example.statestoredsystem.adapter.persistence.RestaurantRepository
-import com.fraktalio.fmodel.example.statestoredsystem.adapter.publisher.SagaActionPublisher
-import com.fraktalio.fmodel.example.statestoredsystem.application.CommandBus
 import com.fraktalio.fmodel.example.statestoredsystem.application.aggregate
-import com.fraktalio.fmodel.example.statestoredsystem.application.sagaManager
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
@@ -64,17 +59,6 @@ class Configuration {
     internal fun restaurantOrderSagaBean() = restaurantOrderSaga()
 
     @Bean
-    internal fun sagaManager(
-        restaurantSaga: Saga<RestaurantEvent?, RestaurantOrderCommand?>,
-        restaurantOrderSaga: Saga<RestaurantOrderEvent?, RestaurantCommand?>,
-        aggregate: StateStoredAggregate<Command?, Pair<RestaurantOrder?, Restaurant?>, Event?>
-    ) = sagaManager(
-        restaurantSaga,
-        restaurantOrderSaga,
-        SagaActionPublisher(aggregate)
-    )
-
-    @Bean
     internal fun aggregateRepository(
         restaurantRepository: RestaurantRepository,
         restaurantOrderRepository: RestaurantOrderRepository
@@ -85,12 +69,9 @@ class Configuration {
     internal fun aggregate(
         restaurantDecider: Decider<RestaurantCommand?, Restaurant?, RestaurantEvent?>,
         restaurantOrderDecider: Decider<RestaurantOrderCommand?, RestaurantOrder?, RestaurantOrderEvent?>,
+        restaurantSaga: Saga<RestaurantEvent?, RestaurantOrderCommand?>,
+        restaurantOrderSaga: Saga<RestaurantOrderEvent?, RestaurantCommand?>,
         aggregateRepository: StateRepository<Command?, Pair<RestaurantOrder?, Restaurant?>>
-    ) = aggregate(restaurantOrderDecider, restaurantDecider, aggregateRepository)
+    ) = aggregate(restaurantOrderDecider, restaurantDecider, restaurantOrderSaga, restaurantSaga, aggregateRepository)
 
-    @Bean
-    internal fun commandBus(
-        aggregate: StateStoredAggregate<Command?, Pair<RestaurantOrder?, Restaurant?>, Event?>,
-        sagaManager: SagaManager<Event?, Command?>
-    ) = CommandBus(aggregate, sagaManager)
 }
