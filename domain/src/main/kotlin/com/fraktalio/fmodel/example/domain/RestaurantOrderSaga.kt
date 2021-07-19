@@ -18,11 +18,16 @@ package com.fraktalio.fmodel.example.domain
 
 import com.fraktalio.fmodel.domain.Saga
 
-fun restaurantOrderSaga() = Saga<RestaurantOrderEvent?, RestaurantCommand?>(
+fun restaurantOrderSaga() = Saga<RestaurantEvent?, RestaurantOrderCommand?>(
     react = { e ->
         when (e) {
-            //TODO evolve the example ;)
-            is RestaurantOrderCreatedEvent -> emptyList()
+            is RestaurantOrderPlacedAtRestaurantEvent -> listOf(
+                CreateRestaurantOrderCommand(
+                    e.restaurantOrderId,
+                    e.identifier,
+                    e.lineItems
+                )
+            )
             else -> emptyList()
         }
     }
