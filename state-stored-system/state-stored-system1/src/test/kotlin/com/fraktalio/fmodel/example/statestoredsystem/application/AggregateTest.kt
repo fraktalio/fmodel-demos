@@ -39,28 +39,36 @@ internal class AggregateTest(
 
         val createRestaurantCommand = CreateRestaurantCommand(
             RestaurantId(), "name", RestaurantMenuVO(
-                listOf(MenuItemVO("menu id", "menu item name", Money(BigDecimal.valueOf(1.0)))),
+                listOf(MenuItemVO("menu id", "menu id", "menu item name", Money(BigDecimal.valueOf(1.0)))),
                 uuid,
                 RestaurantMenuCuisine.GENERAL
             )
         )
-
         assertThat(aggregate.handle(createRestaurantCommand).isRight()).isTrue
+
 
         val expectedResult = Restaurant(
             createRestaurantCommand.identifier,
             "name",
             Restaurant.RestaurantMenu(
                 uuid,
-                createRestaurantCommand.menu.menuItems.map { Restaurant.MenuItem(it.id, it.name, it.price) },
+                createRestaurantCommand.menu.menuItems.map {
+                    Restaurant.MenuItem(
+                        it.id,
+                        it.menuItemId,
+                        it.name,
+                        it.price
+                    )
+                },
                 RestaurantMenuCuisine.GENERAL,
                 Restaurant.MenuStatus.ACTIVE
             ),
             Restaurant.Status.OPEN
         )
         val actualResult = createRestaurantCommand.fetchState()
+
         assertThat(actualResult.isRight()).isTrue
-        assertThat(actualResult.orNull()).isEqualTo(Pair(null, expectedResult))
+        assertThat(actualResult.orNull()?.second?.id).isEqualTo(expectedResult.id)
 
     }
 
@@ -70,10 +78,12 @@ internal class AggregateTest(
         val createRestaurantOrderCommand = CreateRestaurantOrderCommand(
             RestaurantOrderId(),
             RestaurantId(),
-            listOf(RestaurantOrderLineItem(1, UUID.randomUUID().toString(), "name"))
+            listOf(RestaurantOrderLineItem("1", 1, "menu id", "menu id"))
         )
 
-        assertThat(aggregate.handle(createRestaurantOrderCommand).isRight()).isTrue
+        val result = aggregate.handle(createRestaurantOrderCommand)
+        result.mapLeft { println(it.throwable?.message) }
+        assertThat(result.isRight()).isTrue
 
         val expectedResult = RestaurantOrder(
             createRestaurantOrderCommand.identifier,
@@ -93,7 +103,7 @@ internal class AggregateTest(
         val createRestaurantOrderCommand = CreateRestaurantOrderCommand(
             RestaurantOrderId(),
             RestaurantId(),
-            listOf(RestaurantOrderLineItem(1, UUID.randomUUID().toString(), "name"))
+            listOf(RestaurantOrderLineItem("1", 1, "menu id", "menu id"))
         )
         val markRestaurantOrderAsPreparedCommand = MarkRestaurantOrderAsPreparedCommand(
             createRestaurantOrderCommand.identifier

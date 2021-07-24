@@ -30,8 +30,8 @@ import com.fraktalio.fmodel.example.domain.*
  *
  * @param restaurantOrderDecider restaurantOrderDecider is used internally to handle commands and produce new state.
  * @param restaurantDecider restaurantDecider is used internally to handle commands and produce new state.
- * @param restaurantOrderSaga restaurantOrderSaga is used internally to react on [RestaurantOrderEvent]s and produce commands of type [RestaurantCommand]
- * @param restaurantSaga restaurantSaga is used internally to react on [RestaurantEvent]s and produce commands of type [RestaurantOrderCommand]
+ * @param restaurantOrderSaga restaurantOrderSaga is used internally to react on [RestaurantEvent]s and produce commands of type [RestaurantOrderCommand]
+ * @param restaurantSaga restaurantSaga is used internally to react on [RestaurantOrderEvent]s and produce commands of type [RestaurantCommand]
  * @param aggregateRepository is used to store the newly produced state of the Restaurant and/or Restaurant order together
  *
  * @author Иван Дугалић / Ivan Dugalic / @idugalic
@@ -39,15 +39,16 @@ import com.fraktalio.fmodel.example.domain.*
 internal fun aggregate(
     restaurantOrderDecider: Decider<RestaurantOrderCommand?, RestaurantOrder?, RestaurantOrderEvent?>,
     restaurantDecider: Decider<RestaurantCommand?, Restaurant?, RestaurantEvent?>,
-    restaurantOrderSaga: Saga<RestaurantOrderEvent?, RestaurantCommand?>,
-    restaurantSaga: Saga<RestaurantEvent?, RestaurantOrderCommand?>,
+    restaurantOrderSaga: Saga<RestaurantEvent?, RestaurantOrderCommand?>,
+    restaurantSaga: Saga<RestaurantOrderEvent?, RestaurantCommand?>,
     aggregateRepository: StateRepository<Command?, Pair<RestaurantOrder?, Restaurant?>>
 ) = StateStoredAggregate(
 
     // Combining two deciders into one.
     decider = restaurantOrderDecider.combine(restaurantDecider),
-    // How and where do you want to store the new state, additionally you can do something smart with events that are emitted
+    // How and where do you want to store the new state, additionally you can do something smart with events that are emitted.
     stateRepository = aggregateRepository,
+    // Combining individual choreography Sagas into one orchestrating Saga.
     saga = restaurantOrderSaga.combine(restaurantSaga)
 )
 

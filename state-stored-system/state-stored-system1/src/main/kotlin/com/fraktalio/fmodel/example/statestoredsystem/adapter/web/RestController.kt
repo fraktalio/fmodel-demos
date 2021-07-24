@@ -18,7 +18,7 @@ package com.fraktalio.fmodel.example.statestoredsystem.adapter.web
 
 import com.fraktalio.fmodel.application.StateStoredAggregate
 import com.fraktalio.fmodel.example.domain.*
-import com.fraktalio.fmodel.example.statestoredsystem.adapter.persistence.RestaurantRepository
+import com.fraktalio.fmodel.example.statestoredsystem.adapter.persistence.RestaurantCoroutineRepository
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RestController
@@ -34,7 +34,7 @@ import java.math.BigDecimal
 @RestController
 internal class RestController(
     private val aggregate: StateStoredAggregate<Command?, Pair<RestaurantOrder?, Restaurant?>, Event?>,
-    private val restaurantRepository: RestaurantRepository
+    private val restaurantRepository: RestaurantCoroutineRepository
 ) {
     /**
      * Find all
@@ -61,7 +61,7 @@ private fun CreateRestaurantRequest.convertToCommand() =
     CreateRestaurantCommand(
         RestaurantId(),
         this.name,
-        RestaurantMenuVO(this.menuItems.map { MenuItemVO(it.id, it.name, Money(it.price)) })
+        RestaurantMenuVO(this.menuItems.map { MenuItemVO(it.id, it.id, it.name, Money(it.price)) })
     )
 
 

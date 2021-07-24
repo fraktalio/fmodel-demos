@@ -20,14 +20,18 @@ import com.fraktalio.fmodel.application.StateRepository
 import com.fraktalio.fmodel.domain.Decider
 import com.fraktalio.fmodel.domain.Saga
 import com.fraktalio.fmodel.example.domain.*
-import com.fraktalio.fmodel.example.statestoredsystem.adapter.persistence.AggregateStateStoredRepositoryImpl
-import com.fraktalio.fmodel.example.statestoredsystem.adapter.persistence.RestaurantOrderRepository
-import com.fraktalio.fmodel.example.statestoredsystem.adapter.persistence.RestaurantRepository
+import com.fraktalio.fmodel.example.statestoredsystem.adapter.persistence.*
 import com.fraktalio.fmodel.example.statestoredsystem.application.aggregate
+import io.r2dbc.spi.ConnectionFactory
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.core.io.ClassPathResource
+import org.springframework.r2dbc.connection.init.CompositeDatabasePopulator
+import org.springframework.r2dbc.connection.init.ConnectionFactoryInitializer
+import org.springframework.r2dbc.connection.init.ResourceDatabasePopulator
+import org.springframework.transaction.reactive.TransactionalOperator
 
 @SpringBootApplication
 class RestaurantDemoApplication
@@ -60,18 +64,36 @@ class Configuration {
 
     @Bean
     internal fun aggregateRepository(
-        restaurantRepository: RestaurantRepository,
-        restaurantOrderRepository: RestaurantOrderRepository
+        restaurantRepository: RestaurantCoroutineRepository,
+        restaurantOrderRepository: RestaurantOrderCoroutineRepository,
+        restaurantOrderItemRepository: RestaurantOrderItemCoroutineRepository,
+        menuItemCoroutineRepository: MenuItemCoroutineRepository,
+        operator: TransactionalOperator
     ): StateRepository<Command?, Pair<RestaurantOrder?, Restaurant?>> =
-        AggregateStateStoredRepositoryImpl(restaurantRepository, restaurantOrderRepository)
+        AggregateStateStoredRepositoryImpl(
+            restaurantRepository,
+            restaurantOrderRepository,
+            restaurantOrderItemRepository,
+            menuItemCoroutineRepository,
+            operator
+        )
 
     @Bean
     internal fun aggregate(
         restaurantDecider: Decider<RestaurantCommand?, Restaurant?, RestaurantEvent?>,
         restaurantOrderDecider: Decider<RestaurantOrderCommand?, RestaurantOrder?, RestaurantOrderEvent?>,
-        restaurantSaga: Saga<RestaurantEvent?, RestaurantOrderCommand?>,
-        restaurantOrderSaga: Saga<RestaurantOrderEvent?, RestaurantCommand?>,
+        restaurantSaga: Saga<RestaurantOrderEvent?, RestaurantCommand?>,
+        restaurantOrderSaga: Saga<RestaurantEvent?, RestaurantOrderCommand?>,
         aggregateRepository: StateRepository<Command?, Pair<RestaurantOrder?, Restaurant?>>
     ) = aggregate(restaurantOrderDecider, restaurantDecider, restaurantOrderSaga, restaurantSaga, aggregateRepository)
 
+    @Bean
+    fun initializer(connectionFactory: ConnectionFactory): ConnectionFactoryInitializer {
+        val initializer = ConnectionFactoryInitializer()
+        initializer.setConnectionFactory(connectionFactory)
+        val populator = CompositeDatabasePopulator()
+        populator.addPopulators(ResourceDatabasePopulator(ClassPathResource("./sql/schema.sql")))
+        initializer.setDatabasePopulator(populator)
+        return initializer
+    }
 }

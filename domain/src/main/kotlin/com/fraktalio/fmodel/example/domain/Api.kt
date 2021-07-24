@@ -43,7 +43,7 @@ value class Money(val amount: BigDecimal) {
     }
 }
 
-data class MenuItemVO(val id: String, val name: String, val price: Money)
+data class MenuItemVO(val id: String, val menuItemId: String, val name: String, val price: Money)
 
 enum class RestaurantMenuCuisine {
     SERBIAN,
@@ -60,7 +60,7 @@ data class RestaurantMenuVO(
 )
 
 
-data class RestaurantOrderLineItem(val quantity: Int, val menuItemId: String, val name: String)
+data class RestaurantOrderLineItem(val id: String, val quantity: Int, val menuItemId: String, val name: String)
 
 
 // ******************************************** Commands ********************************************

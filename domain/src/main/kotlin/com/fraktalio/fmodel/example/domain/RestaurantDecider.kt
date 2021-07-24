@@ -91,7 +91,7 @@ fun restaurantDecider() = Decider<RestaurantCommand?, Restaurant?, RestaurantEve
                 e.name,
                 Restaurant.RestaurantMenu(
                     e.menu.menuId,
-                    e.menu.menuItems.map { Restaurant.MenuItem(it.id, it.name, it.price) },
+                    e.menu.menuItems.map { Restaurant.MenuItem(it.id, it.menuItemId, it.name, it.price) },
                     e.menu.cuisine
                 ),
                 Restaurant.Status.OPEN
@@ -101,7 +101,7 @@ fun restaurantDecider() = Decider<RestaurantCommand?, Restaurant?, RestaurantEve
                 s.name,
                 Restaurant.RestaurantMenu(
                     e.menu.menuId,
-                    e.menu.menuItems.map { Restaurant.MenuItem(it.id, it.name, it.price) },
+                    e.menu.menuItems.map { Restaurant.MenuItem(it.id, it.menuItemId, it.name, it.price) },
                     e.menu.cuisine
                 ), s.status
             )
@@ -145,6 +145,8 @@ data class Restaurant(
     val menu: RestaurantMenu,
     val status: Status
 ) {
+
+
     fun isValid(command: PlaceRestaurantOrderCommand): Boolean =
         (MenuStatus.ACTIVE == menu.status) && (menu.items.stream().map { mi -> mi.id }.collect(Collectors.toList())
             .containsAll(command.lineItems.stream().map { li -> li.menuItemId }.collect(Collectors.toList())))
@@ -156,7 +158,7 @@ data class Restaurant(
         SHUTDOWN
     }
 
-    data class MenuItem(val id: String, val name: String, val price: Money)
+    data class MenuItem(val id: String, val menuItemId: String, val name: String, val price: Money)
 
     enum class MenuStatus {
         ACTIVE,
