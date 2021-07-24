@@ -29,7 +29,7 @@ in all examples, so get used to it ;).
 The arrows in the image are showing the direction of the dependency. Notice that all dependencies point inwards, and
 that Domain is not depending on anybody or anything.
 
-### Event model
+### Restaurant management system
 We are going to model a restaurant management system that is responsible for:
 
 - managing restaurant menus and other information including location and opening hours
@@ -38,9 +38,9 @@ We are going to model a restaurant management system that is responsible for:
 ![restaurant management - event model](.assets/event-model.jpg)
 
 To demonstrate that we are decoupling the pure declaration of our program logic (domain layer) from the runtime, we are
-going to run our unique core domain logic in different ways by changing only `application` and/or `persistence` layers:
+going to run our unique core domain logic in different ways by implementing different `application` and/or `persistence` layers:
 
-- [Example of State stored information system - Restaurant management - Spring Boot](application)
+- [Example of State stored information system - Restaurant management - Spring Boot](application/state-stored-system1)
 - Example of Event-sourced information system (Axon Server as an event store) - Restaurant management - Spring Boot
 - Example of Event-sourced information system (Event Store DB as an event store) - Restaurant management - Spring Boot
 
