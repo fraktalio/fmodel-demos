@@ -18,35 +18,19 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-    <groupId>com.fraktalio.fmodel.example</groupId>
-    <artifactId>fmodel-demos</artifactId>
+    <parent>
+        <artifactId>fmodel-demos</artifactId>
+        <groupId>com.fraktalio.fmodel.example</groupId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+    <artifactId>application</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>fmodel-demos</name>
-    <description>`fmodel` examples</description>
+    <name>application</name>
+    <description>`fmodel` examples - information systems - applications</description>
     <packaging>pom</packaging>
 
-    <properties>
-        <java.version>11</java.version>
-        <kotlin.version>1.5.10</kotlin.version>
-    </properties>
-
     <modules>
-        <module>domain</module>
-        <module>application</module>
+        <module>state-stored-system1</module>
     </modules>
 
-    <repositories>
-        <repository>
-            <id>maven-snapshots</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-            <layout>default</layout>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
 </project>
