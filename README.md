@@ -40,7 +40,7 @@ We are going to model a restaurant management system that is responsible for:
 To demonstrate that we are decoupling the pure declaration of our program logic (domain layer) from the runtime, we are
 going to run our unique core domain logic in different ways by changing only `application` and/or `persistence` layers:
 
-- [Example of State stored information system - Restaurant management - Spring Boot](state-stored-system)
+- [Example of State stored information system - Restaurant management - Spring Boot](application)
 - Example of Event-sourced information system (Axon Server as an event store) - Restaurant management - Spring Boot
 - Example of Event-sourced information system (Event Store DB as an event store) - Restaurant management - Spring Boot
 

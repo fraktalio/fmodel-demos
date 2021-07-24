@@ -33,7 +33,7 @@
 
     <modules>
         <module>domain</module>
-        <module>state-stored-system</module>
+        <module>application</module>
     </modules>
 
     <repositories>
