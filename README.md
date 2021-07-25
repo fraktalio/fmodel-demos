@@ -22,7 +22,7 @@ chance to see the big picture of our program and decide how to run and optimize 
 To demonstrate that `pure declaration of our program logic` is separated from the runtime target and infrastructure, we
 are going to
 practice [onion architecture / ports and adapters](https://blog.ploeh.dk/2013/12/03/layers-onions-ports-adapters-its-all-the-same/)
-in all examples, so get used to it ;).
+in all examples.
 
 ![onion architecture image](.assets/onion.png)
 
@@ -30,19 +30,22 @@ The arrows in the image are showing the direction of the dependency. Notice that
 that Domain is not depending on anybody or anything.
 
 ### Restaurant management system
-We are going to model a restaurant management system that is responsible for:
+Restaurant management system is:
 
 - managing restaurant menus and other information including location and opening hours
 - managing the preparation of orders at a restaurant kitchen
 
 ![restaurant management - event model](.assets/event-model.jpg)
 
-To demonstrate that we are decoupling the pure declaration of our program logic (domain layer) from the runtime, we are
-going to run our unique core domain logic in different ways by implementing different `application` and/or `persistence` layers:
+We are going to run our **unique** core domain logic in different ways, by implementing different [`application`](application) and/or `persistence` layers:
 
-- [Example of State stored information system - Restaurant management - Spring Boot](application/state-stored-system1)
-- Example of Event-sourced information system (Axon Server as an event store) - Restaurant management - Spring Boot
-- Example of Event-sourced information system (Event Store DB as an event store) - Restaurant management - Spring Boot
+| Type | Description | Technology |
+| --- | --- | --- |
+| [State stored information system](application/state-stored-system1) | Restaurant management | Kotlin, Arrow, Reactive Spring Boot, R2DBC |
+| Event-sourced information system | Restaurant management| Kotlin, Arrow, Reactive Spring Boot, [Axon Server](https://axoniq.io/product-overview/axon-server) |
+
+## References and further reading
+- [https://fraktalio.com/fmodel/](https://fraktalio.com/fmodel/)
 
 ---
 Created with :heart: by [Fraktalio](https://fraktalio.com/)

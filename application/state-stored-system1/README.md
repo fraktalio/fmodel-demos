@@ -10,4 +10,4 @@ method.
 These two functions are producing side effects (persistence), and they are deliberately separated from the decider (
 pure `domain` logic). 
 
-![aggregate image](../../.assets/aggregate.jpg)
+![aggregate_ss image](../../.assets/state-stored_aggregate.jpg)
