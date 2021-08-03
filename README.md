@@ -24,12 +24,13 @@ are going to
 practice [onion architecture / ports and adapters](https://blog.ploeh.dk/2013/12/03/layers-onions-ports-adapters-its-all-the-same/)
 in all examples.
 
-![onion architecture image](.assets/onion.png)
+![onion architecture image](.assets/onion.svg)
 
 The arrows in the image are showing the direction of the dependency. Notice that all dependencies point inwards, and
 that Domain is not depending on anybody or anything.
 
 ### Restaurant management system
+
 Restaurant management system is:
 
 - managing restaurant menus and other information including location and opening hours
@@ -37,7 +38,8 @@ Restaurant management system is:
 
 ![restaurant management - event model](.assets/event-model.jpg)
 
-We are going to run our **unique** core domain logic in different ways, by implementing different [`application`](application) and/or `persistence` layers:
+We are going to run our **unique** core domain logic in different ways, by implementing
+different [`application`](application) and/or `persistence` layers:
 
 | Type | Description | Technology |
 | --- | --- | --- |
@@ -45,6 +47,7 @@ We are going to run our **unique** core domain logic in different ways, by imple
 | Event-sourced information system | Restaurant management| Kotlin, Arrow, Reactive Spring Boot, [Axon Server](https://axoniq.io/product-overview/axon-server) |
 
 ## References and further reading
+
 - [https://fraktalio.com/fmodel/](https://fraktalio.com/fmodel/)
 
 ---

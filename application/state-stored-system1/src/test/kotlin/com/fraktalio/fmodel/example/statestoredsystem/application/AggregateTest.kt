@@ -67,8 +67,7 @@ internal class AggregateTest(
         )
         val actualResult = createRestaurantCommand.fetchState()
 
-        assertThat(actualResult.isRight()).isTrue
-        assertThat(actualResult.orNull()?.second?.id).isEqualTo(expectedResult.id)
+        assertThat(actualResult?.second?.id).isEqualTo(expectedResult.id)
 
     }
 
@@ -92,8 +91,7 @@ internal class AggregateTest(
             createRestaurantOrderCommand.lineItems
         )
         val actualResult = createRestaurantOrderCommand.fetchState()
-        assertThat(actualResult.isRight()).isTrue
-        assertThat(actualResult.orNull()).isEqualTo(Pair(expectedResult, null))
+        assertThat(actualResult).isEqualTo(Pair(expectedResult, null))
 
     }
 
@@ -117,8 +115,7 @@ internal class AggregateTest(
             createRestaurantOrderCommand.lineItems
         )
         val actualResult = createRestaurantOrderCommand.fetchState()
-        assertThat(actualResult.isRight()).isTrue
-        assertThat(actualResult.orNull()).isEqualTo(Pair(expectedResult1, null))
+        assertThat(actualResult).isEqualTo(Pair(expectedResult1, null))
 
 
         assertThat(aggregate.handle(markRestaurantOrderAsPreparedCommand).isRight()).isTrue
@@ -129,10 +126,6 @@ internal class AggregateTest(
             createRestaurantOrderCommand.lineItems
         )
         val actualResult2 = markRestaurantOrderAsPreparedCommand.fetchState()
-        assertThat(actualResult2.isRight()).isTrue
-        assertThat(actualResult2.orNull()).isEqualTo(Pair(expectedResult2, null))
-
-
+        assertThat(actualResult2).isEqualTo(Pair(expectedResult2, null))
     }
-
 }

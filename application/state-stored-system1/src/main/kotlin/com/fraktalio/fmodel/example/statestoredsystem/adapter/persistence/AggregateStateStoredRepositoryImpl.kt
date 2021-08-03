@@ -16,10 +16,7 @@
 
 package com.fraktalio.fmodel.example.statestoredsystem.adapter.persistence
 
-import arrow.core.Either
-import com.fraktalio.fmodel.application.Error
 import com.fraktalio.fmodel.application.StateRepository
-import com.fraktalio.fmodel.application.Success
 import com.fraktalio.fmodel.example.domain.*
 import org.springframework.transaction.reactive.TransactionalOperator
 import org.springframework.transaction.reactive.executeAndAwait
@@ -52,39 +49,38 @@ internal open class AggregateStateStoredRepositoryImpl(
      *
      * @return either Error or State
      */
-    override suspend fun Command?.fetchState(): Either<Error.FetchingStateFailed, Pair<RestaurantOrder?, Restaurant?>?> =
-        Either.catch {
-            when (this) {
+    override suspend fun Command?.fetchState(): Pair<RestaurantOrder?, Restaurant?> =
 
-                is RestaurantOrderCommand -> Pair(
-                    restaurantOrderRepository.findById(this.identifier.identifier.toString()).toRestaurantOrder(
-                        restaurantOrderItemRepository.findByOrderId(this.identifier.identifier.toString())
-                            .map { it.toRestaurantOrderLineItem() }
-                    ),
-                    null
-                )
+        when (this) {
 
-                is RestaurantCommand -> {
-                    val restaurantEntity: RestaurantR2DBCEntity? =
-                        restaurantRepository.findById(this.identifier.identifier.toString())
-                    val menuItemEntities =
-                        menuItemRepository.findByRestaurantId(this.identifier.identifier.toString())
-                    Pair(
-                        null,
-                        restaurantEntity?.toRestaurant(
-                            Restaurant.RestaurantMenu(
-                                UUID.fromString(restaurantEntity.menuId),
-                                menuItemEntities.map { it.toMenuItem() },
-                                restaurantEntity.cuisine
-                            )
+            is RestaurantOrderCommand -> Pair(
+                restaurantOrderRepository.findById(this.identifier.identifier.toString()).toRestaurantOrder(
+                    restaurantOrderItemRepository.findByOrderId(this.identifier.identifier.toString())
+                        .map { it.toRestaurantOrderLineItem() }
+                ),
+                null
+            )
+
+            is RestaurantCommand -> {
+                val restaurantEntity: RestaurantR2DBCEntity? =
+                    restaurantRepository.findById(this.identifier.identifier.toString())
+                val menuItemEntities =
+                    menuItemRepository.findByRestaurantId(this.identifier.identifier.toString())
+                Pair(
+                    null,
+                    restaurantEntity?.toRestaurant(
+                        Restaurant.RestaurantMenu(
+                            UUID.fromString(restaurantEntity.menuId),
+                            menuItemEntities.map { it.toMenuItem() },
+                            restaurantEntity.cuisine
                         )
                     )
+                )
 
-                }
-
-                else -> throw UnsupportedOperationException()
             }
-        }.mapLeft { throwable -> Error.FetchingStateFailed(throwable) }
+
+            null -> throw UnsupportedOperationException()
+        }
 
 
     /**
@@ -92,50 +88,51 @@ internal open class AggregateStateStoredRepositoryImpl(
      *
      * @return either Error or State
      */
-    override suspend fun Pair<RestaurantOrder?, Restaurant?>.save(): Either<Error.StoringStateFailed<Pair<RestaurantOrder?, Restaurant?>>, Success.StateStoredSuccessfully<Pair<RestaurantOrder?, Restaurant?>>> =
-        Either.catch {
-            operator.executeAndAwait { transaction ->
-                try {
+    override suspend fun Pair<RestaurantOrder?, Restaurant?>.save(): Pair<RestaurantOrder?, Restaurant?> {
 
-                    this.first?.let { order ->
-                        val restaurantOrderEntity = order.toRestaurantOrderEntity()
+        operator.executeAndAwait { transaction ->
+            try {
+
+                this.first?.let { order ->
+                    val restaurantOrderEntity = order.toRestaurantOrderEntity()
+                    // check if it is Create or Update
+                    restaurantOrderEntity.newRestaurantOrder =
+                        !restaurantOrderRepository.existsById(order.id.identifier.toString())
+                    restaurantOrderRepository.save(restaurantOrderEntity)
+                    order.lineItems.forEach {
+                        val orderItemEntity = it.toRestaurantOrderItemEntity(order.id.identifier.toString())
                         // check if it is Create or Update
-                        restaurantOrderEntity.newRestaurantOrder =
-                            !restaurantOrderRepository.existsById(order.id.identifier.toString())
-                        restaurantOrderRepository.save(restaurantOrderEntity)
-                        order.lineItems.forEach {
-                            val orderItemEntity = it.toRestaurantOrderItemEntity(order.id.identifier.toString())
-                            // check if it is Create or Update
-                            orderItemEntity.newRestaurantOrderItem = !restaurantOrderItemRepository.existsById(it.id)
-                            restaurantOrderItemRepository.save(orderItemEntity)
-                        }
-
+                        orderItemEntity.newRestaurantOrderItem = !restaurantOrderItemRepository.existsById(it.id)
+                        restaurantOrderItemRepository.save(orderItemEntity)
                     }
 
-                    this.second?.let { restaurant ->
-                        val restaurantEntity = restaurant.toRestaurantEntity()
-                        // check if it is Create or Update
-                        restaurantEntity.newRestaurant =
-                            !restaurantRepository.existsById(restaurant.id.identifier.toString())
-                        restaurantRepository.save(restaurantEntity)
-                        restaurant.menu.items.forEach {
-                            val menuItemEntity = it.toMenuItemEntity(
-                                restaurant.menu.menuId.toString(),
-                                restaurant.id.identifier.toString()
-                            )
-                            // check if it is Create or Update
-                            menuItemEntity.newMenuItem = !menuItemRepository.existsById(it.id)
-                            menuItemRepository.save(menuItemEntity)
-                        }
-                    }
-
-                } catch (e: Exception) {
-                    transaction.setRollbackOnly()
-                    throw e
                 }
+
+                this.second?.let { restaurant ->
+                    val restaurantEntity = restaurant.toRestaurantEntity()
+                    // check if it is Create or Update
+                    restaurantEntity.newRestaurant =
+                        !restaurantRepository.existsById(restaurant.id.identifier.toString())
+                    restaurantRepository.save(restaurantEntity)
+                    restaurant.menu.items.forEach {
+                        val menuItemEntity = it.toMenuItemEntity(
+                            restaurant.menu.menuId.toString(),
+                            restaurant.id.identifier.toString()
+                        )
+                        // check if it is Create or Update
+                        menuItemEntity.newMenuItem = !menuItemRepository.existsById(it.id)
+                        menuItemRepository.save(menuItemEntity)
+                    }
+                }
+
+            } catch (e: Exception) {
+                transaction.setRollbackOnly()
+                throw e
             }
-            Success.StateStoredSuccessfully(this)
-        }.mapLeft { throwable -> Error.StoringStateFailed(this, throwable) }
+
+        }
+        return this
+    }
 
 
     // EXTENSIONS
