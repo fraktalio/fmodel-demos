@@ -17,18 +17,20 @@
 package com.fraktalio.fmodel.example.domain
 
 import com.fraktalio.fmodel.domain.Saga
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flowOf
 
 fun restaurantOrderSaga() = Saga<RestaurantEvent?, RestaurantOrderCommand?>(
     react = { e ->
         when (e) {
-            is RestaurantOrderPlacedAtRestaurantEvent -> listOf(
+            is RestaurantOrderPlacedAtRestaurantEvent -> flowOf(
                 CreateRestaurantOrderCommand(
                     e.restaurantOrderId,
                     e.identifier,
                     e.lineItems
                 )
             )
-            else -> emptyList()
+            else -> emptyFlow()
         }
     }
 )

@@ -17,6 +17,8 @@
 package com.fraktalio.fmodel.example.domain
 
 import com.fraktalio.fmodel.domain.Decider
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flowOf
 
 /**
  * Decider is a pure domain component.
@@ -33,23 +35,22 @@ import com.fraktalio.fmodel.domain.Decider
  */
 fun restaurantOrderDecider() = Decider<RestaurantOrderCommand?, RestaurantOrder?, RestaurantOrderEvent?>(
     initialState = null,
-    isTerminal = { s -> s != null && (RestaurantOrder.Status.PREPARED == s.status || RestaurantOrder.Status.CANCELLED == s.status) },
     // Command handling part: for each type of [RestaurantCommand] you are going to publish specific events/facts, as required.
     decide = { c, s ->
         when {
-            (c is CreateRestaurantOrderCommand) && (s == null) -> listOf(
+            (c is CreateRestaurantOrderCommand) && (s == null) -> flowOf(
                 RestaurantOrderCreatedEvent(
                     c.identifier,
                     c.lineItems,
                     c.restaurantIdentifier
                 )
             )
-            (c is MarkRestaurantOrderAsPreparedCommand) && (s != null) && (RestaurantOrder.Status.CREATED == s.status) -> listOf(
+            (c is MarkRestaurantOrderAsPreparedCommand) && (s != null) && (RestaurantOrder.Status.CREATED == s.status) -> flowOf(
                 RestaurantOrderPreparedEvent(
                     c.identifier
                 )
             )
-            else -> emptyList()
+            else -> emptyFlow()
 
         }
     },
