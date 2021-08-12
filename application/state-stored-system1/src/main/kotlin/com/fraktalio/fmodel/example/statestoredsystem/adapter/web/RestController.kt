@@ -21,6 +21,7 @@ import com.fraktalio.fmodel.example.domain.*
 import com.fraktalio.fmodel.example.statestoredsystem.adapter.persistence.RestaurantCoroutineRepository
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import java.math.BigDecimal
 
@@ -49,8 +50,8 @@ internal class RestController(
      * @param request
      */
     @PostMapping("/")
-    suspend fun save(request: CreateRestaurantRequest) =
-        aggregate.handle(request.convertToCommand())
+    suspend fun save(@RequestBody request: CreateRestaurantRequest) =
+        aggregate.handleEither(request.convertToCommand())
 }
 
 /**

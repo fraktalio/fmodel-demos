@@ -19,6 +19,8 @@ package com.fraktalio.fmodel.example.domain
 import com.fraktalio.fmodel.domain.Decider
 import com.fraktalio.fmodel.example.domain.Restaurant.RestaurantMenu
 import com.fraktalio.fmodel.example.domain.Restaurant.Status
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flowOf
 import java.util.*
 import java.util.stream.Collectors
 
@@ -37,50 +39,49 @@ import java.util.stream.Collectors
  */
 fun restaurantDecider() = Decider<RestaurantCommand?, Restaurant?, RestaurantEvent?>(
     initialState = null,
-    isTerminal = { s -> s != null && Restaurant.Status.SHUTDOWN == s.status },
     // Command handling part: for each type of [RestaurantCommand] you are going to publish specific events/facts, as required.
     decide = { c, s ->
         when {
-            (c is CreateRestaurantCommand) && (s == null) -> listOf(
+            (c is CreateRestaurantCommand) && (s == null) -> flowOf(
                 RestaurantCreatedEvent(
                     c.identifier,
                     c.name,
                     c.menu
                 )
             )
-            (c is ChangeRestaurantMenuCommand) && (s != null) -> listOf(
+            (c is ChangeRestaurantMenuCommand) && (s != null) -> flowOf(
                 RestaurantMenuChangedEvent(
                     c.identifier,
                     c.menu
                 )
             )
-            (c is ActivateRestaurantMenuCommand) && (s != null) -> listOf(
+            (c is ActivateRestaurantMenuCommand) && (s != null) -> flowOf(
                 RestaurantMenuActivatedEvent(
                     c.identifier,
                     c.menuId
                 )
             )
-            (c is PassivateRestaurantMenuCommand) && (s != null) -> listOf(
+            (c is PassivateRestaurantMenuCommand) && (s != null) -> flowOf(
                 RestaurantMenuPassivatedEvent(
                     c.identifier,
                     c.menuId
                 )
             )
-            (c is PlaceRestaurantOrderCommand) && (s != null) && s.isValid(c) -> listOf(
+            (c is PlaceRestaurantOrderCommand) && (s != null) && s.isValid(c) -> flowOf(
                 RestaurantOrderPlacedAtRestaurantEvent(
                     c.identifier,
                     c.lineItems,
                     c.restaurantOrderIdentifier
                 )
             )
-            (c is PlaceRestaurantOrderCommand) && (s != null) && !s.isValid(c) -> listOf(
+            (c is PlaceRestaurantOrderCommand) && (s != null) && !s.isValid(c) -> flowOf(
                 RestaurantOrderRejectedByRestaurantEvent(
                     c.identifier,
                     c.restaurantOrderIdentifier,
                     "Not on the menu"
                 )
             )
-            else -> emptyList()
+            else -> emptyFlow()
         }
     },
     // Event-sourcing handling part: for each event of type [RestaurantEvent] you are going to evolve to a new state of the [Restaurant]
@@ -89,17 +90,17 @@ fun restaurantDecider() = Decider<RestaurantCommand?, Restaurant?, RestaurantEve
             (e is RestaurantCreatedEvent) -> Restaurant(
                 e.identifier,
                 e.name,
-                Restaurant.RestaurantMenu(
+                RestaurantMenu(
                     e.menu.menuId,
                     e.menu.menuItems.map { Restaurant.MenuItem(it.id, it.menuItemId, it.name, it.price) },
                     e.menu.cuisine
                 ),
-                Restaurant.Status.OPEN
+                Status.OPEN
             )
             (e is RestaurantMenuChangedEvent) && (s != null) -> Restaurant(
                 s.id,
                 s.name,
-                Restaurant.RestaurantMenu(
+                RestaurantMenu(
                     e.menu.menuId,
                     e.menu.menuItems.map { Restaurant.MenuItem(it.id, it.menuItemId, it.name, it.price) },
                     e.menu.cuisine
@@ -108,7 +109,7 @@ fun restaurantDecider() = Decider<RestaurantCommand?, Restaurant?, RestaurantEve
             (e is RestaurantMenuActivatedEvent) && (s != null) -> Restaurant(
                 s.id,
                 s.name,
-                Restaurant.RestaurantMenu(
+                RestaurantMenu(
                     s.menu.menuId,
                     s.menu.items,
                     s.menu.cuisine,
@@ -118,7 +119,7 @@ fun restaurantDecider() = Decider<RestaurantCommand?, Restaurant?, RestaurantEve
             (e is RestaurantMenuPassivatedEvent) && (s != null) -> Restaurant(
                 s.id,
                 s.name,
-                Restaurant.RestaurantMenu(
+                RestaurantMenu(
                     s.menu.menuId,
                     s.menu.items,
                     s.menu.cuisine,

@@ -44,7 +44,7 @@ internal class AggregateTest(
                 RestaurantMenuCuisine.GENERAL
             )
         )
-        assertThat(aggregate.handle(createRestaurantCommand).isRight()).isTrue
+        assertThat(aggregate.handleEither(createRestaurantCommand).isRight()).isTrue
 
 
         val expectedResult = Restaurant(
@@ -80,7 +80,7 @@ internal class AggregateTest(
             listOf(RestaurantOrderLineItem("1", 1, "menu id", "menu id"))
         )
 
-        val result = aggregate.handle(createRestaurantOrderCommand)
+        val result = aggregate.handleEither(createRestaurantOrderCommand)
         result.mapLeft { println(it.throwable?.message) }
         assertThat(result.isRight()).isTrue
 
@@ -107,7 +107,7 @@ internal class AggregateTest(
             createRestaurantOrderCommand.identifier
         )
 
-        assertThat(aggregate.handle(createRestaurantOrderCommand).isRight()).isTrue
+        assertThat(aggregate.handleEither(createRestaurantOrderCommand).isRight()).isTrue
         val expectedResult1 = RestaurantOrder(
             createRestaurantOrderCommand.identifier,
             createRestaurantOrderCommand.restaurantIdentifier,
@@ -118,7 +118,7 @@ internal class AggregateTest(
         assertThat(actualResult).isEqualTo(Pair(expectedResult1, null))
 
 
-        assertThat(aggregate.handle(markRestaurantOrderAsPreparedCommand).isRight()).isTrue
+        assertThat(aggregate.handleEither(markRestaurantOrderAsPreparedCommand).isRight()).isTrue
         val expectedResult2 = RestaurantOrder(
             createRestaurantOrderCommand.identifier,
             createRestaurantOrderCommand.restaurantIdentifier,
