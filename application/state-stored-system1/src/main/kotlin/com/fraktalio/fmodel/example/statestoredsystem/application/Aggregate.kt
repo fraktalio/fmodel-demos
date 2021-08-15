@@ -41,12 +41,15 @@ internal fun aggregate(
     restaurantDecider: Decider<RestaurantCommand?, Restaurant?, RestaurantEvent?>,
     restaurantOrderSaga: Saga<RestaurantEvent?, RestaurantOrderCommand?>,
     restaurantSaga: Saga<RestaurantOrderEvent?, RestaurantCommand?>,
-    aggregateRepository: StateRepository<Command?, Pair<RestaurantOrder?, Restaurant?>>
+    aggregateRepository: StateRepository<Command?, AggregateState>
 ) = StateStoredAggregate(
 
-    // Combining two deciders into one.
-    decider = restaurantOrderDecider.combine(restaurantDecider),
-    // How and where do you want to store the new state, additionally you can do something smart with events that are emitted.
+    // Combining two deciders into one, and map the inconvenient Pair into a domain specific Data class that will represent aggregated state better.
+    decider = restaurantOrderDecider.combine(restaurantDecider).dimapOnState(
+        fl = { aggregateState: AggregateState -> Pair(aggregateState.order, aggregateState.restaurant) },
+        fr = { pair: Pair<RestaurantOrder?, Restaurant?> -> AggregateState(pair.first, pair.second) }
+    ),
+    // How and where do you want to store the new state.
     stateRepository = aggregateRepository,
     // Combining individual choreography Sagas into one orchestrating Saga.
     saga = restaurantOrderSaga.combine(restaurantSaga)

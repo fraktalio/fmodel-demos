@@ -29,8 +29,8 @@ import java.util.*
 
 @SpringBootTest
 internal class AggregateTest(
-    @Autowired val aggregate: StateStoredAggregate<Command?, Pair<RestaurantOrder?, Restaurant?>, Event?>
-) : StateRepository<Command?, Pair<RestaurantOrder?, Restaurant?>> by aggregate {
+    @Autowired val aggregate: StateStoredAggregate<Command?, AggregateState, Event?>
+) : StateRepository<Command?, AggregateState> by aggregate {
 
     val uuid: UUID = UUID.randomUUID()
 
@@ -67,7 +67,7 @@ internal class AggregateTest(
         )
         val actualResult = createRestaurantCommand.fetchState()
 
-        assertThat(actualResult?.second?.id).isEqualTo(expectedResult.id)
+        assertThat(actualResult?.restaurant?.id).isEqualTo(expectedResult.id)
 
     }
 
@@ -91,7 +91,7 @@ internal class AggregateTest(
             createRestaurantOrderCommand.lineItems
         )
         val actualResult = createRestaurantOrderCommand.fetchState()
-        assertThat(actualResult).isEqualTo(Pair(expectedResult, null))
+        assertThat(actualResult).isEqualTo(AggregateState(expectedResult, null))
 
     }
 
@@ -115,7 +115,7 @@ internal class AggregateTest(
             createRestaurantOrderCommand.lineItems
         )
         val actualResult = createRestaurantOrderCommand.fetchState()
-        assertThat(actualResult).isEqualTo(Pair(expectedResult1, null))
+        assertThat(actualResult).isEqualTo(AggregateState(expectedResult1, null))
 
 
         assertThat(aggregate.handleEither(markRestaurantOrderAsPreparedCommand).isRight()).isTrue
@@ -126,6 +126,6 @@ internal class AggregateTest(
             createRestaurantOrderCommand.lineItems
         )
         val actualResult2 = markRestaurantOrderAsPreparedCommand.fetchState()
-        assertThat(actualResult2).isEqualTo(Pair(expectedResult2, null))
+        assertThat(actualResult2).isEqualTo(AggregateState(expectedResult2, null))
     }
 }

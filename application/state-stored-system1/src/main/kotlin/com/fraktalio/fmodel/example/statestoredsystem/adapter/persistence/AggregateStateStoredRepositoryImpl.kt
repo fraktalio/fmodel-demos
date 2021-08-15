@@ -18,6 +18,7 @@ package com.fraktalio.fmodel.example.statestoredsystem.adapter.persistence
 
 import com.fraktalio.fmodel.application.StateRepository
 import com.fraktalio.fmodel.example.domain.*
+import com.fraktalio.fmodel.example.statestoredsystem.application.AggregateState
 import org.springframework.transaction.reactive.TransactionalOperator
 import org.springframework.transaction.reactive.executeAndAwait
 import java.util.*
@@ -42,18 +43,18 @@ internal open class AggregateStateStoredRepositoryImpl(
     private val restaurantOrderItemRepository: RestaurantOrderItemCoroutineRepository,
     private val menuItemRepository: MenuItemCoroutineRepository,
     private val operator: TransactionalOperator
-) : StateRepository<Command?, Pair<RestaurantOrder?, Restaurant?>> {
+) : StateRepository<Command?, AggregateState> {
 
     /**
      * Fetch current state from the repository
      *
-     * @return either Error or State
+     * @return State
      */
-    override suspend fun Command?.fetchState(): Pair<RestaurantOrder?, Restaurant?> =
+    override suspend fun Command?.fetchState(): AggregateState =
 
         when (this) {
 
-            is RestaurantOrderCommand -> Pair(
+            is RestaurantOrderCommand -> AggregateState(
                 restaurantOrderRepository.findById(this.identifier.identifier.toString()).toRestaurantOrder(
                     restaurantOrderItemRepository.findByOrderId(this.identifier.identifier.toString())
                         .map { it.toRestaurantOrderLineItem() }
@@ -66,7 +67,7 @@ internal open class AggregateStateStoredRepositoryImpl(
                     restaurantRepository.findById(this.identifier.identifier.toString())
                 val menuItemEntities =
                     menuItemRepository.findByRestaurantId(this.identifier.identifier.toString())
-                Pair(
+                AggregateState(
                     null,
                     restaurantEntity?.toRestaurant(
                         Restaurant.RestaurantMenu(
@@ -86,16 +87,16 @@ internal open class AggregateStateStoredRepositoryImpl(
     /**
      * Save new state
      *
-     * @return either Error or State
+     * @return new State
      */
-    override suspend fun Pair<RestaurantOrder?, Restaurant?>.save(): Pair<RestaurantOrder?, Restaurant?> {
+    override suspend fun AggregateState.save(): AggregateState {
 
         operator.executeAndAwait { transaction ->
             try {
 
-                this.first?.let { order ->
+                this.order?.let { order ->
                     val restaurantOrderEntity = order.toRestaurantOrderEntity()
-                    // check if it is Create or Update
+                    // check if it is Creat or Update
                     restaurantOrderEntity.newRestaurantOrder =
                         !restaurantOrderRepository.existsById(order.id.identifier.toString())
                     restaurantOrderRepository.save(restaurantOrderEntity)
@@ -108,9 +109,9 @@ internal open class AggregateStateStoredRepositoryImpl(
 
                 }
 
-                this.second?.let { restaurant ->
+                this.restaurant?.let { restaurant ->
                     val restaurantEntity = restaurant.toRestaurantEntity()
-                    // check if it is Create or Update
+                    // check if it is Creat or Update
                     restaurantEntity.newRestaurant =
                         !restaurantRepository.existsById(restaurant.id.identifier.toString())
                     restaurantRepository.save(restaurantEntity)
