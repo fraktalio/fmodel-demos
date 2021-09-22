@@ -41,7 +41,6 @@ internal class RestController(
 ) {
     /**
      * Find all restaurants
-
      *
      */
     @GetMapping("/restaurants")

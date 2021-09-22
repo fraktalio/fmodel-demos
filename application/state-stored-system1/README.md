@@ -9,4 +9,4 @@ New state will be stored via `save()` **suspending function**. All you have to d
 These two functions are producing side effects (persistence), and they are deliberately separated from the decider (
 pure `domain` logic).
 
-![aggregate_ss image](../../.assets/state-stored_aggregate.jpg)
+![aggregate_ss image](../../.assets/ss-aggregate.png)

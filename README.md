@@ -11,7 +11,7 @@ These examples are demonstrating the usage of the [fmodel](https://fraktalio.com
 library.
 
 Library is written in [Kotlin](https://kotlinlang.org/) programing language by practicing functional
-style ([Arrow](https://arrow-kt.io/)). It is a small library constructed out of generic data types that can be used to
+style. It is a small library constructed out of generic data types that can be used to
 effectively model any stateful information system.
 
 It is truly decoupling the pure declaration of our program logic from the runtime. And therefore, the runtime has the
@@ -20,11 +20,10 @@ chance to see the big picture of our program and decide how to run and optimize 
 ## Examples
 
 To demonstrate that `pure declaration of our program logic` is separated from the runtime target and infrastructure, we
-are going to
-practice [onion architecture / ports and adapters](https://blog.ploeh.dk/2013/12/03/layers-onions-ports-adapters-its-all-the-same/)
+are going to practice [onion architecture / ports and adapters](https://blog.ploeh.dk/2013/12/03/layers-onions-ports-adapters-its-all-the-same/)
 in all examples.
 
-![onion architecture image](.assets/onion.svg)
+![onion architecture image](.assets/onion.png)
 
 The arrows in the image are showing the direction of the dependency. Notice that all dependencies point inwards, and
 that Domain is not depending on anybody or anything.
@@ -44,7 +43,7 @@ different [`application`](application) and/or `persistence` layers:
 | Type | Description | Technology |
 | --- | --- | --- |
 | [State stored information system](application/state-stored-system1) | Restaurant management | Kotlin, Arrow, Reactive Spring Boot, R2DBC |
-| Event-sourced information system | Restaurant management| Kotlin, Arrow, Reactive Spring Boot, [Axon Server](https://axoniq.io/product-overview/axon-server) |
+| [Event-sourced information system](application/event-sourced-system1) | Restaurant management| Kotlin, Arrow, Reactive Spring Boot, [Axon Framework](https://axoniq.io/product-overview/axon-framework) and [Axon Server](https://axoniq.io/product-overview/axon-server) |
 
 ## References and further reading
 

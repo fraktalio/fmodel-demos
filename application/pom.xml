@@ -31,6 +31,7 @@
 
     <modules>
         <module>state-stored-system1</module>
+        <module>event-sourced-system1</module>
     </modules>
 
 </project>

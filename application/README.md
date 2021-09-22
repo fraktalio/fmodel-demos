@@ -3,15 +3,20 @@
 Orchestrates the execution of the logic declared in [domain](../domain)
 
 Different application/adapter implementations are using the common/unique [domain model](../domain).
-![aggregate image](../.assets/aggregate.jpg)
+![aggregate image](../.assets/decider.png)
 
 ### State stored systems
 
-![aggregate_ss image](../.assets/state-stored_aggregate.jpg)
+![aggregate_ss image](../.assets/ss-aggregate.png)
 
 - [State stored System 1](state-stored-system1) - combines all Deciders from [domain module](../domain) under one
-  Aggregate root by using inheritance structure of messages (messages extend common class)
+  Aggregate root. `#SpringBoot`
 
 ### Event sourced/stored systems
 
-![aggregate_es image](../.assets/es_aggregate.jpg)
+![aggregate_es image](../.assets/es-aggregate.png)
+
+- [Event-sourced system 1](event-sourced-system1) - combines all Deciders from [domain module](../domain) under one
+  Aggregate root. `#SpringBoot`, `#AxonFramework`, `#AxonServer`
+
+
