@@ -12,6 +12,8 @@ pure `domain` logic).
 
 ![aggregate_es image](../../.assets/es-aggregate.png)
 
-In this example we are using [Axon Framework](https://axoniq.io/product-overview/axon-framework) as a programming model and [Axon Server](https://axoniq.io/product-overview/axon-server) as a message broker and event store database.
+In this example we are using [Axon Framework](https://axoniq.io/product-overview/axon-framework) as a programming model
+and [Axon Server](https://axoniq.io/product-overview/axon-server) as a message broker and event store database.
 
-Axon Framework is constrained on the application layer only, enabling location transparency and message routing capabilities out of the box.
+Axon Framework is constrained on the application layer only, enabling location transparency and message routing
+capabilities out of the box.

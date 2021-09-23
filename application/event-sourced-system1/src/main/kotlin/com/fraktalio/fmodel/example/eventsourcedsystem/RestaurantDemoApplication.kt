@@ -18,17 +18,28 @@ package com.fraktalio.fmodel.example.eventsourcedsystem
 
 import com.fraktalio.fmodel.application.EventRepository
 import com.fraktalio.fmodel.application.EventSourcingAggregate
+import com.fraktalio.fmodel.application.ViewStateRepository
 import com.fraktalio.fmodel.domain.Decider
 import com.fraktalio.fmodel.domain.Saga
+import com.fraktalio.fmodel.domain.View
 import com.fraktalio.fmodel.example.domain.*
-import com.fraktalio.fmodel.example.eventsourcedsystem.adapter.commandhandler.AxonCommandHandler
-import com.fraktalio.fmodel.example.eventsourcedsystem.adapter.persistence.AggregateEventStoreRepositoryImpl
-import com.fraktalio.fmodel.example.eventsourcedsystem.application.aggregate
+import com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.commandhandler.AxonCommandHandler
+import com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.persistence.AggregateEventStoreRepositoryImpl
+import com.fraktalio.fmodel.example.eventsourcedsystem.command.application.aggregate
+import com.fraktalio.fmodel.example.eventsourcedsystem.query.adapter.persistance.*
+import com.fraktalio.fmodel.example.eventsourcedsystem.query.application.MaterializedViewState
+import com.fraktalio.fmodel.example.eventsourcedsystem.query.application.materializedView
+import io.r2dbc.spi.ConnectionFactory
 import org.axonframework.eventsourcing.eventstore.EventStore
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.core.io.ClassPathResource
+import org.springframework.r2dbc.connection.init.CompositeDatabasePopulator
+import org.springframework.r2dbc.connection.init.ConnectionFactoryInitializer
+import org.springframework.r2dbc.connection.init.ResourceDatabasePopulator
+import org.springframework.transaction.reactive.TransactionalOperator
 
 @SpringBootApplication
 class RestaurantDemoApplication
@@ -47,6 +58,8 @@ fun main(args: Array<String>) {
 @Configuration
 class Configuration {
 
+    // COMMAND
+
     @Bean
     internal fun restaurantDeciderBean() = restaurantDecider()
 
@@ -60,11 +73,11 @@ class Configuration {
     internal fun restaurantOrderSagaBean() = restaurantOrderSaga()
 
     @Bean
-    internal fun aggregateRepository(axonServerEventStore: EventStore): EventRepository<Command?, Event?> =
+    internal fun aggregateRepositoryBean(axonServerEventStore: EventStore): EventRepository<Command?, Event?> =
         AggregateEventStoreRepositoryImpl(axonServerEventStore)
 
     @Bean
-    internal fun aggregate(
+    internal fun aggregateBean(
         restaurantDecider: Decider<RestaurantCommand?, Restaurant?, RestaurantEvent?>,
         restaurantOrderDecider: Decider<RestaurantOrderCommand?, RestaurantOrder?, RestaurantOrderEvent?>,
         restaurantSaga: Saga<RestaurantOrderEvent?, RestaurantCommand?>,
@@ -72,9 +85,49 @@ class Configuration {
         eventRepository: EventRepository<Command?, Event?>
     ) = aggregate(restaurantOrderDecider, restaurantDecider, restaurantOrderSaga, restaurantSaga, eventRepository)
 
+    @Bean
+    internal fun commandHandlerBean(aggregate: EventSourcingAggregate<Command?, Pair<RestaurantOrder?, Restaurant?>, Event?>) =
+        AxonCommandHandler(aggregate)
+
+    // VIEW - QUERY
 
     @Bean
-    internal fun commandHandler(aggregate: EventSourcingAggregate<Command?, Pair<RestaurantOrder?, Restaurant?>, Event?>) =
-        AxonCommandHandler(aggregate)
+    internal fun restaurantViewBean() = restaurantView()
+
+    @Bean
+    internal fun restaurantOrderViewBean() = restaurantOrderView()
+
+    @Bean
+    internal fun viewStateRepositoryBean(
+        restaurantRepository: RestaurantCoroutineRepository,
+        restaurantOrderRepository: RestaurantOrderCoroutineRepository,
+        restaurantOrderItemRepository: RestaurantOrderItemCoroutineRepository,
+        menuItemCoroutineRepository: MenuItemCoroutineRepository,
+        operator: TransactionalOperator
+    ): ViewStateRepository<Event?, MaterializedViewState> =
+        MaterializedViewStateRepositoryImpl(
+            restaurantRepository,
+            restaurantOrderRepository,
+            restaurantOrderItemRepository,
+            menuItemCoroutineRepository,
+            operator
+        )
+
+    @Bean
+    internal fun materializedViewBean(
+        restaurantView: View<RestaurantView?, RestaurantEvent?>,
+        restaurantOrderView: View<RestaurantOrderView?, RestaurantOrderEvent?>,
+        viewStateRepository: ViewStateRepository<Event?, MaterializedViewState>
+    ) = materializedView(restaurantView, restaurantOrderView, viewStateRepository)
+
+    @Bean
+    fun initializer(connectionFactory: ConnectionFactory): ConnectionFactoryInitializer {
+        val initializer = ConnectionFactoryInitializer()
+        initializer.setConnectionFactory(connectionFactory)
+        val populator = CompositeDatabasePopulator()
+        populator.addPopulators(ResourceDatabasePopulator(ClassPathResource("./sql/schema.sql")))
+        initializer.setDatabasePopulator(populator)
+        return initializer
+    }
 }
 

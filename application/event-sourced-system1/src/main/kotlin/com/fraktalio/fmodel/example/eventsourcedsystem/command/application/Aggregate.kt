@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.fraktalio.fmodel.example.eventsourcedsystem.application
+package com.fraktalio.fmodel.example.eventsourcedsystem.command.application
 
 import com.fraktalio.fmodel.application.EventRepository
 import com.fraktalio.fmodel.application.EventSourcingAggregate

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.fraktalio.fmodel.example.eventsourcedsystem.adapter.commandhandler
+package com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.commandhandler
 
 import com.fraktalio.fmodel.application.EventSourcingAggregate
 import com.fraktalio.fmodel.application.publishTo

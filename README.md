@@ -10,9 +10,9 @@ of the domain*.
 These examples are demonstrating the usage of the [fmodel](https://fraktalio.com/fmodel)
 library.
 
-Library is written in [Kotlin](https://kotlinlang.org/) programing language by practicing functional
-style. It is a small library constructed out of generic data types that can be used to
-effectively model any stateful information system.
+Library is written in [Kotlin](https://kotlinlang.org/) programing language by practicing functional style. It is a
+small library constructed out of generic data types that can be used to effectively model any stateful information
+system.
 
 It is truly decoupling the pure declaration of our program logic from the runtime. And therefore, the runtime has the
 chance to see the big picture of our program and decide how to run and optimize it.
@@ -20,7 +20,8 @@ chance to see the big picture of our program and decide how to run and optimize 
 ## Examples
 
 To demonstrate that `pure declaration of our program logic` is separated from the runtime target and infrastructure, we
-are going to practice [onion architecture / ports and adapters](https://blog.ploeh.dk/2013/12/03/layers-onions-ports-adapters-its-all-the-same/)
+are going to
+practice [onion architecture / ports and adapters](https://blog.ploeh.dk/2013/12/03/layers-onions-ports-adapters-its-all-the-same/)
 in all examples.
 
 ![onion architecture image](.assets/onion.png)

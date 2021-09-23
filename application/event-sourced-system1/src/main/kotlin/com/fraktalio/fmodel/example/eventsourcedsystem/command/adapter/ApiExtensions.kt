@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.fraktalio.fmodel.example.eventsourcedsystem.adapter
+package com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter
 
 import com.fraktalio.fmodel.example.domain.*
 import org.axonframework.commandhandling.RoutingKey

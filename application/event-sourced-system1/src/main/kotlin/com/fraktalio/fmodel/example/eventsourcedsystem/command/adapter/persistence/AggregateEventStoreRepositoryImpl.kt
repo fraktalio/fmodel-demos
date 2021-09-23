@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.fraktalio.fmodel.example.eventsourcedsystem.adapter.persistence
+package com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.persistence
 
 import com.fraktalio.fmodel.application.EventRepository
 import com.fraktalio.fmodel.example.domain.*
-import com.fraktalio.fmodel.example.eventsourcedsystem.adapter.getAggregateType
-import com.fraktalio.fmodel.example.eventsourcedsystem.adapter.getId
+import com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.getAggregateType
+import com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.getId
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
 import org.axonframework.eventhandling.GenericDomainEventMessage

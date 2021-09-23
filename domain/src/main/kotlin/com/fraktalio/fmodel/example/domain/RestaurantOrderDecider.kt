@@ -17,19 +17,18 @@
 package com.fraktalio.fmodel.example.domain
 
 import com.fraktalio.fmodel.domain.Decider
+import com.fraktalio.fmodel.example.domain.RestaurantOrder.Status.CREATED
+import com.fraktalio.fmodel.example.domain.RestaurantOrder.Status.PREPARED
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 
 /**
  * Decider is a pure domain component.
- * Decider is a datatype that represents the main decision making algorithm.
+ * Decider is a datatype that represents the main decision-making algorithm.
  *
- * This function is responsible of creating one.
- *
- * `decide / command handlers` is a pure function/lambda that takes any command of type [RestaurantOrderCommand] and input state of type [RestaurantOrder] as parameters, and returns the iterable of output events [Iterable]<[RestaurantOrderEvent]> as a result
+ * `decide / command handlers` is a pure function/lambda that takes any command of type [RestaurantOrderCommand] and input state of type [RestaurantOrder] as parameters, and returns the flow of output events Flow<[RestaurantOrderEvent]> as a result
  * `evolve / event-sourcing handlers` is a pure function/lambda that takes input state of type [RestaurantOrder] and input event of type [RestaurantOrderEvent] as parameters, and returns the output/new state [RestaurantOrder]
  * `initialState` is a starting point / An initial state of [RestaurantOrder]. In our case, it is `null`
- * `isTerminal` is a pure function/lambda that takes current state of [RestaurantOrder], and returns [Boolean] showing if the current state is terminal/final. No commands can be handled once in this state.
  *
  * @author Иван Дугалић / Ivan Dugalic / @idugalic
  */
@@ -45,7 +44,7 @@ fun restaurantOrderDecider() = Decider<RestaurantOrderCommand?, RestaurantOrder?
                     c.restaurantIdentifier
                 )
             )
-            (c is MarkRestaurantOrderAsPreparedCommand) && (s != null) && (RestaurantOrder.Status.CREATED == s.status) -> flowOf(
+            (c is MarkRestaurantOrderAsPreparedCommand) && (s != null) && (CREATED == s.status) -> flowOf(
                 RestaurantOrderPreparedEvent(
                     c.identifier
                 )
@@ -60,13 +59,13 @@ fun restaurantOrderDecider() = Decider<RestaurantOrderCommand?, RestaurantOrder?
             (e is RestaurantOrderCreatedEvent) -> RestaurantOrder(
                 e.identifier,
                 e.restaurantId,
-                RestaurantOrder.Status.CREATED,
+                CREATED,
                 e.lineItems
             )
             (e is RestaurantOrderPreparedEvent) && (s != null) -> RestaurantOrder(
                 s.id,
                 s.restaurantId,
-                RestaurantOrder.Status.PREPARED,
+                PREPARED,
                 s.lineItems
             )
             else -> s

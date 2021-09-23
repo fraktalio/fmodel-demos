@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.fraktalio.fmodel.example.eventsourcedsystem.adapter.web
+package com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.web
 
 import com.fraktalio.fmodel.application.EventSourcingAggregate
 import com.fraktalio.fmodel.application.publishTo
@@ -34,12 +34,14 @@ import java.util.*
  * @constructor Creates Rest controller
  */
 @RestController
-internal class RestController(
+internal class CommandRestController(
     private val aggregate: EventSourcingAggregate<Command?, Pair<RestaurantOrder?, Restaurant?>, Event?>,
     private val commandGateway: CommandGateway
 ) {
     /**
      * Create restaurant
+     *
+     * This endpoint is sending a message/command directly to the Aggregate, so it depends on it. This is not location transparent.
      *
      * We made it a GET, but it should be POST ;)
      */
@@ -53,6 +55,8 @@ internal class RestController(
     /**
      * Create restaurant via axon command bus
      *
+     * This endpoint is sending a message/command via Axon Command Bus/Gateway to the Aggregate. This is location transparent!
+     *
      *  We made it a GET, but it should be POST ;)
      */
     // @PostMapping("/bus/restaurant")
@@ -62,6 +66,8 @@ internal class RestController(
 
     /**
      * Activate restaurant menu via axon command bus
+     *
+     * This endpoint is sending a message/command via Axon Command Bus/Gateway to the Aggregate. This is location transparent!
      *
      * We made it a GET, but it should be POST/PUT ;)
      *
@@ -76,6 +82,8 @@ internal class RestController(
     /**
      * Passivate restaurant menu via axon command bus
      *
+     * This endpoint is sending a message/command via Axon Command Bus/Gateway to the Aggregate. This is location transparent!
+     *
      * We made it a GET, but it should be POST/PUT ;)
      *
      * @param restaurantId
@@ -86,6 +94,16 @@ internal class RestController(
     fun passivateRestaurantMenuViaBus(@PathVariable restaurantId: UUID, @PathVariable menuId: UUID) =
         commandGateway.send<Command>(PassivateRestaurantMenuCommand(RestaurantId(restaurantId), menuId))
 
+    /**
+     * Place restaurant order via axon command bus
+     *
+     * This endpoint is sending a message/command via Axon Command Bus/Gateway to the Aggregate. This is location transparent!
+     *
+     * We made it a GET, but it should be POST/PUT ;)
+     *
+     * @param restaurantId
+     * @param menuId
+     */
     @GetMapping("/example/bus/restaurant/{restaurantId}/order")
     fun placeRestaurantOrderViaBus(@PathVariable restaurantId: UUID) =
         commandGateway.send<Command>(

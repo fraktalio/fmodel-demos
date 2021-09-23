@@ -17,8 +17,9 @@
 package com.fraktalio.fmodel.example.domain
 
 import com.fraktalio.fmodel.domain.Decider
-import com.fraktalio.fmodel.example.domain.Restaurant.RestaurantMenu
-import com.fraktalio.fmodel.example.domain.Restaurant.Status
+import com.fraktalio.fmodel.example.domain.Restaurant.*
+import com.fraktalio.fmodel.example.domain.Restaurant.MenuStatus.ACTIVE
+import com.fraktalio.fmodel.example.domain.Restaurant.MenuStatus.PASSIVE
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import java.util.*
@@ -26,14 +27,11 @@ import java.util.stream.Collectors
 
 /**
  * Decider is a pure domain component.
- * Decider is a datatype that represents the main decision making algorithm.
+ * Decider is a datatype that represents the main decision-making algorithm.
  *
- * This function is responsible of creating one.
- *
- * `decide / command handlers` is a pure function/lambda that takes any command of type [RestaurantCommand] and input state of type [Restaurant] as parameters, and returns the iterable of output events [Iterable]<[RestaurantEvent]> as a result
+ * `decide / command handlers` is a pure function/lambda that takes any command of type [RestaurantCommand] and input state of type [Restaurant] as parameters, and returns the flow of output events Flow<[RestaurantEvent]> as a result
  * `evolve / event-sourcing handlers` is a pure function/lambda that takes input state of type [Restaurant] and input event of type [RestaurantEvent] as parameters, and returns the output/new state [Restaurant]
  * `initialState` is a starting point / An initial state of [Restaurant]. In our case, it is `null`
- * `isTerminal` is a pure function/lambda that takes current state of [Restaurant], and returns [Boolean] showing if the current state is terminal/final. No commands can be handled once in this state.
  *
  * @author Иван Дугалић / Ivan Dugalic / @idugalic
  */
@@ -92,7 +90,7 @@ fun restaurantDecider() = Decider<RestaurantCommand?, Restaurant?, RestaurantEve
                 e.name,
                 RestaurantMenu(
                     e.menu.menuId,
-                    e.menu.menuItems.map { Restaurant.MenuItem(it.id, it.menuItemId, it.name, it.price) },
+                    e.menu.menuItems.map { MenuItem(it.id, it.menuItemId, it.name, it.price) },
                     e.menu.cuisine
                 ),
                 Status.OPEN
@@ -102,7 +100,7 @@ fun restaurantDecider() = Decider<RestaurantCommand?, Restaurant?, RestaurantEve
                 s.name,
                 RestaurantMenu(
                     e.menu.menuId,
-                    e.menu.menuItems.map { Restaurant.MenuItem(it.id, it.menuItemId, it.name, it.price) },
+                    e.menu.menuItems.map { MenuItem(it.id, it.menuItemId, it.name, it.price) },
                     e.menu.cuisine
                 ), s.status
             )
@@ -113,7 +111,7 @@ fun restaurantDecider() = Decider<RestaurantCommand?, Restaurant?, RestaurantEve
                     s.menu.menuId,
                     s.menu.items,
                     s.menu.cuisine,
-                    Restaurant.MenuStatus.ACTIVE
+                    ACTIVE
                 ), s.status
             )
             (e is RestaurantMenuPassivatedEvent) && (s != null) -> Restaurant(
@@ -123,7 +121,7 @@ fun restaurantDecider() = Decider<RestaurantCommand?, Restaurant?, RestaurantEve
                     s.menu.menuId,
                     s.menu.items,
                     s.menu.cuisine,
-                    Restaurant.MenuStatus.PASSIVE
+                    PASSIVE
                 ), s.status
             )
             else -> s
@@ -149,7 +147,7 @@ data class Restaurant(
 
 
     fun isValid(command: PlaceRestaurantOrderCommand): Boolean =
-        (MenuStatus.ACTIVE == menu.status) && (menu.items.stream().map { mi -> mi.id }.collect(Collectors.toList())
+        (ACTIVE == menu.status) && (menu.items.stream().map { mi -> mi.id }.collect(Collectors.toList())
             .containsAll(command.lineItems.stream().map { li -> li.menuItemId }.collect(Collectors.toList())))
 
 
@@ -170,7 +168,7 @@ data class Restaurant(
         val menuId: UUID,
         val items: List<MenuItem>,
         val cuisine: RestaurantMenuCuisine,
-        val status: MenuStatus = MenuStatus.ACTIVE
+        val status: MenuStatus = ACTIVE
     ) {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
