@@ -33,43 +33,32 @@ import kotlinx.coroutines.flow.flowOf
  * @author Иван Дугалић / Ivan Dugalic / @idugalic
  */
 fun restaurantOrderDecider() = Decider<RestaurantOrderCommand?, RestaurantOrder?, RestaurantOrderEvent?>(
+    // Initial state of the Restaurant Order is `null`. It does not exist.
     initialState = null,
-    // Command handling part: for each type of [RestaurantCommand] you are going to publish specific events/facts, as required.
+    // Exhaustive command handling part: for each type of [RestaurantCommand] you are going to publish specific events/facts, as required by the current state/s of the [RestaurantOrder].
     decide = { c, s ->
-        when {
-            (c is CreateRestaurantOrderCommand) && (s == null) -> flowOf(
-                RestaurantOrderCreatedEvent(
-                    c.identifier,
-                    c.lineItems,
-                    c.restaurantIdentifier
-                )
-            )
-            (c is MarkRestaurantOrderAsPreparedCommand) && (s != null) && (CREATED == s.status) -> flowOf(
-                RestaurantOrderPreparedEvent(
-                    c.identifier
-                )
-            )
-            else -> emptyFlow()
-
+        when (c) {
+            is CreateRestaurantOrderCommand -> when (s) {
+                null -> flowOf(RestaurantOrderCreatedEvent(c.identifier, c.lineItems, c.restaurantIdentifier))
+                else -> emptyFlow() // You can choose to publish error event, if you like
+            }
+            is MarkRestaurantOrderAsPreparedCommand -> when {
+                (s is RestaurantOrder && CREATED == s.status) -> flowOf(RestaurantOrderPreparedEvent(c.identifier))
+                else -> emptyFlow() // You can choose to publish error event, if you like
+            }
+            null -> emptyFlow() // We ignore the `null` command by emitting the empty flow. Only the Decider that can handle `null` command can be combined (Monoid) with other Deciders.
         }
     },
-    // Event-sourcing handling part: for each event of type [RestaurantEvent] you are going to evolve to a new state of the [Restaurant]
+    // Exhaustive event-sourcing handling part: for each event of type [RestaurantEvent] you are going to evolve from the current state/s of the [RestaurantOrder] to a new state of the [RestaurantOrder]
     evolve = { s, e ->
-        when {
-            (e is RestaurantOrderCreatedEvent) -> RestaurantOrder(
-                e.identifier,
-                e.restaurantId,
-                CREATED,
-                e.lineItems
-            )
-            (e is RestaurantOrderPreparedEvent) && (s != null) -> RestaurantOrder(
-                s.id,
-                s.restaurantId,
-                PREPARED,
-                s.lineItems
-            )
-            else -> s
-
+        when (e) {
+            is RestaurantOrderCreatedEvent -> RestaurantOrder(e.identifier, e.restaurantId, CREATED, e.lineItems)
+            is RestaurantOrderPreparedEvent -> when (s) {
+                is RestaurantOrder -> RestaurantOrder(s.id, s.restaurantId, PREPARED, s.lineItems)
+                else -> s
+            }
+            is RestaurantOrderRejectedEvent -> s
+            null -> s // We ignore the `null` event by returning current State. Only the Decider that can handle `null` event can be combined (Monoid) with other Deciders.
         }
     }
 )

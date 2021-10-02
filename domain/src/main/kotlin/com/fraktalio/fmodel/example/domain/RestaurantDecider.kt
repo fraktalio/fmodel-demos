@@ -36,56 +36,47 @@ import java.util.stream.Collectors
  * @author Иван Дугалић / Ivan Dugalic / @idugalic
  */
 fun restaurantDecider() = Decider<RestaurantCommand?, Restaurant?, RestaurantEvent?>(
+    // Initial state of the Restaurant is `null`. It does not exist.
     initialState = null,
-    // Command handling part: for each type of [RestaurantCommand] you are going to publish specific events/facts, as required.
+    // Exhaustive command handling part: for each type of [RestaurantCommand] you are going to publish specific events/facts, as required by the current state/s of the [Restaurant].
     decide = { c, s ->
-        when {
-            (c is CreateRestaurantCommand) && (s == null) -> flowOf(
-                RestaurantCreatedEvent(
-                    c.identifier,
-                    c.name,
-                    c.menu
+        when (c) {
+            is CreateRestaurantCommand -> when (s) {
+                null -> flowOf(RestaurantCreatedEvent(c.identifier, c.name, c.menu))
+                else -> emptyFlow() // You can choose to publish error event, if you like
+            }
+            is ChangeRestaurantMenuCommand -> when (s) {
+                is Restaurant -> flowOf(RestaurantMenuChangedEvent(c.identifier, c.menu))
+                else -> emptyFlow() // You can choose to publish error event, if you like
+            }
+            is ActivateRestaurantMenuCommand -> when (s) {
+                is Restaurant -> flowOf(RestaurantMenuActivatedEvent(c.identifier, c.menuId))
+                else -> emptyFlow() // You can choose to publish error event, if you like
+            }
+            is PassivateRestaurantMenuCommand -> when (s) {
+                is Restaurant -> flowOf(RestaurantMenuPassivatedEvent(c.identifier, c.menuId))
+                else -> emptyFlow() // You can choose to publish error event, if you like
+            }
+            is PlaceRestaurantOrderCommand -> when {
+                (s is Restaurant && s.isValid(c)) -> flowOf(
+                    RestaurantOrderPlacedAtRestaurantEvent(c.identifier, c.lineItems, c.restaurantOrderIdentifier)
                 )
-            )
-            (c is ChangeRestaurantMenuCommand) && (s != null) -> flowOf(
-                RestaurantMenuChangedEvent(
-                    c.identifier,
-                    c.menu
+                (s is Restaurant && !s.isValid(c)) -> flowOf(
+                    RestaurantOrderRejectedByRestaurantEvent(
+                        c.identifier,
+                        c.restaurantOrderIdentifier,
+                        "Not on the menu"
+                    )
                 )
-            )
-            (c is ActivateRestaurantMenuCommand) && (s != null) -> flowOf(
-                RestaurantMenuActivatedEvent(
-                    c.identifier,
-                    c.menuId
-                )
-            )
-            (c is PassivateRestaurantMenuCommand) && (s != null) -> flowOf(
-                RestaurantMenuPassivatedEvent(
-                    c.identifier,
-                    c.menuId
-                )
-            )
-            (c is PlaceRestaurantOrderCommand) && (s != null) && s.isValid(c) -> flowOf(
-                RestaurantOrderPlacedAtRestaurantEvent(
-                    c.identifier,
-                    c.lineItems,
-                    c.restaurantOrderIdentifier
-                )
-            )
-            (c is PlaceRestaurantOrderCommand) && (s != null) && !s.isValid(c) -> flowOf(
-                RestaurantOrderRejectedByRestaurantEvent(
-                    c.identifier,
-                    c.restaurantOrderIdentifier,
-                    "Not on the menu"
-                )
-            )
-            else -> emptyFlow()
+                else -> emptyFlow() // You can choose to publish error event, if you like
+            }
+            null -> emptyFlow() // We ignore the `null` command by emitting the empty flow. Only the Decider that can handle `null` command can be combined (Monoid) with other Deciders.
         }
     },
-    // Event-sourcing handling part: for each event of type [RestaurantEvent] you are going to evolve to a new state of the [Restaurant]
+    // Exhaustive event-sourcing handling part: for each event of type [RestaurantEvent] you are going to evolve from the current state/s of the [Restaurant] to a new state of the [Restaurant].
     evolve = { s, e ->
-        when {
-            (e is RestaurantCreatedEvent) -> Restaurant(
+        when (e) {
+            is RestaurantCreatedEvent -> Restaurant(
                 e.identifier,
                 e.name,
                 RestaurantMenu(
@@ -95,36 +86,48 @@ fun restaurantDecider() = Decider<RestaurantCommand?, Restaurant?, RestaurantEve
                 ),
                 Status.OPEN
             )
-            (e is RestaurantMenuChangedEvent) && (s != null) -> Restaurant(
-                s.id,
-                s.name,
-                RestaurantMenu(
-                    e.menu.menuId,
-                    e.menu.menuItems.map { MenuItem(it.id, it.menuItemId, it.name, it.price) },
-                    e.menu.cuisine
-                ), s.status
-            )
-            (e is RestaurantMenuActivatedEvent) && (s != null) -> Restaurant(
-                s.id,
-                s.name,
-                RestaurantMenu(
-                    s.menu.menuId,
-                    s.menu.items,
-                    s.menu.cuisine,
-                    ACTIVE
-                ), s.status
-            )
-            (e is RestaurantMenuPassivatedEvent) && (s != null) -> Restaurant(
-                s.id,
-                s.name,
-                RestaurantMenu(
-                    s.menu.menuId,
-                    s.menu.items,
-                    s.menu.cuisine,
-                    PASSIVE
-                ), s.status
-            )
-            else -> s
+            is RestaurantMenuChangedEvent -> when (s) {
+                is Restaurant ->
+                    Restaurant(
+                        s.id,
+                        s.name,
+                        RestaurantMenu(
+                            e.menu.menuId,
+                            e.menu.menuItems.map { MenuItem(it.id, it.menuItemId, it.name, it.price) },
+                            e.menu.cuisine
+                        ), s.status
+                    )
+                else -> s
+            }
+            is RestaurantMenuActivatedEvent -> when (s) {
+                is Restaurant -> Restaurant(
+                    s.id,
+                    s.name,
+                    RestaurantMenu(
+                        s.menu.menuId,
+                        s.menu.items,
+                        s.menu.cuisine,
+                        ACTIVE
+                    ), s.status
+                )
+                else -> s
+            }
+            is RestaurantMenuPassivatedEvent -> when (s) {
+                is Restaurant -> Restaurant(
+                    s.id,
+                    s.name,
+                    RestaurantMenu(
+                        s.menu.menuId,
+                        s.menu.items,
+                        s.menu.cuisine,
+                        PASSIVE
+                    ), s.status
+                )
+                else -> s
+            }
+            is RestaurantOrderPlacedAtRestaurantEvent -> s
+            is RestaurantOrderRejectedByRestaurantEvent -> s
+            null -> s // We ignore the `null` event by returning current State. Only the Decider that can handle `null` event can be combined (Monoid) with other Deciders.
         }
     }
 )

@@ -30,10 +30,11 @@ import java.util.stream.Collectors
  *
  * `evolve / event handlers` is a pure function/lambda that takes input state of type [RestaurantView] and input event of type [RestaurantEvent] as parameters, and returns the output/new state [RestaurantView]
  * `initialState` is a starting point / An initial state of [RestaurantView]. In our case, it is `null`
- *
  */
 fun restaurantView() = View<RestaurantView?, RestaurantEvent?>(
-    // Event handling part: for each event of type [RestaurantEvent] you are going to evolve to a new state of the [RestaurantView]
+    // Initial state of the [RestaurantView] is `null`. It does not exist.
+    initialState = null,
+    // Exhaustive event-sourcing handling part: for each event of type [RestaurantEvent] you are going to evolve from the current state/s of the [RestaurantView] to a new state of the [RestaurantView].
     evolve = { s, e ->
         when (e) {
             is RestaurantCreatedEvent -> RestaurantView(
@@ -86,10 +87,9 @@ fun restaurantView() = View<RestaurantView?, RestaurantEvent?>(
             }
             is RestaurantOrderPlacedAtRestaurantEvent -> s
             is RestaurantOrderRejectedByRestaurantEvent -> s
-            null -> s
+            null -> s // We ignore the `null` event by returning current State/s. Only the View that can handle `null` event can be combined (Monoid) with other Views.
         }
-    },
-    initialState = null
+    }
 )
 
 /**

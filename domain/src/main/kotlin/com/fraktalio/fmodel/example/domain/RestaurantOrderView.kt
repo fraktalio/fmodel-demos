@@ -28,10 +28,11 @@ import com.fraktalio.fmodel.example.domain.RestaurantView.Status
  *
  * `evolve / event handlers` is a pure function/lambda that takes input state of type [RestaurantOrderView] and input event of type [RestaurantOrderEvent] as parameters, and returns the output/new state [RestaurantOrderView]
  * `initialState` is a starting point / An initial state of [RestaurantOrderView]. In our case, it is `null`
- *
  */
 fun restaurantOrderView() = View<RestaurantOrderView?, RestaurantOrderEvent?>(
-    // Event handling part: for each event of type [RestaurantOrderEvent] you are going to evolve to a new state of the [RestaurantOrderView]
+    // Initial state of the [RestaurantOrderView] is `null`. It does not exist.
+    initialState = null,
+    // Exhaustive event-sourcing handling part: for each event of type [RestaurantOrderEvent] you are going to evolve from the current state/s of the [RestaurantOrderView] to a new state of the [RestaurantOrderView].
     evolve = { s, e ->
         when (e) {
             is RestaurantOrderCreatedEvent -> RestaurantOrderView(
@@ -50,11 +51,10 @@ fun restaurantOrderView() = View<RestaurantOrderView?, RestaurantOrderEvent?>(
                 else -> s
             }
             is RestaurantOrderRejectedEvent -> s
-            null -> s
+            null -> s // We ignore the `null` event by returning current State/s. Only the View that can handle `null` event can be combined (Monoid) with other Views.
 
         }
-    },
-    initialState = null
+    }
 )
 
 /**
