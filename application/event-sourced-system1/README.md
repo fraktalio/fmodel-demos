@@ -17,3 +17,22 @@ and [Axon Server](https://axoniq.io/product-overview/axon-server) as a message b
 
 Axon Framework is constrained on the application layer only, enabling location transparency and message routing
 capabilities out of the box.
+
+### Running the application locally
+
+**Requirements**
+
+> You can [download](https://download.axoniq.io/axonserver/AxonServer.zip) a ZIP file with AxonServer as a standalone JAR. This will also give you the AxonServer CLI and information on how to run and configure the server.
+>
+> Alternatively, you can run the following command to start AxonServer in a Docker container:
+>
+> ```
+> docker run -d --name axonserver -p 8024:8024 -p 8124:8124 axoniq/axonserver
+> ```
+
+```shell script
+mvn clean install
+cd cd application/event-sourced-system1/
+mvn spring-boot:run
+```
+
