@@ -18,7 +18,7 @@ and [Axon Server](https://axoniq.io/product-overview/axon-server) as a message b
 Axon Framework is constrained on the application layer only, enabling location transparency and message routing
 capabilities out of the box.
 
-### Running the application locally
+## Running the application locally
 
 **Requirements**
 
@@ -32,7 +32,14 @@ capabilities out of the box.
 
 ```shell script
 mvn clean install
-cd cd application/event-sourced-system1/
+cd application/event-sourced-system1/
 mvn spring-boot:run
+
 ```
+## References and further reading
+
+- [https://fraktalio.com/fmodel/](https://fraktalio.com/fmodel/)
+
+---
+Created with :heart: by [Fraktalio](https://fraktalio.com/)
 

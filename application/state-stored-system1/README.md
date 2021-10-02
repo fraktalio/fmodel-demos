@@ -10,3 +10,18 @@ These two functions are producing side effects (persistence), and they are delib
 pure `domain` logic).
 
 ![aggregate_ss image](../../.assets/ss-aggregate.png)
+
+## Running the application locally
+
+```shell script
+mvn clean install
+cd application/state-stored-system1/
+mvn spring-boot:run
+```
+
+## References and further reading
+
+- [https://fraktalio.com/fmodel/](https://fraktalio.com/fmodel/)
+
+---
+Created with :heart: by [Fraktalio](https://fraktalio.com/)
