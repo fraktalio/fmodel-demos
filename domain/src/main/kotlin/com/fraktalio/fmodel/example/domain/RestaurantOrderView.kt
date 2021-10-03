@@ -35,12 +35,7 @@ fun restaurantOrderView() = View<RestaurantOrderView?, RestaurantOrderEvent?>(
     // Exhaustive event-sourcing handling part: for each event of type [RestaurantOrderEvent] you are going to evolve from the current state/s of the [RestaurantOrderView] to a new state of the [RestaurantOrderView].
     evolve = { s, e ->
         when (e) {
-            is RestaurantOrderCreatedEvent -> RestaurantOrderView(
-                e.identifier,
-                e.restaurantId,
-                CREATED,
-                e.lineItems
-            )
+            is RestaurantOrderCreatedEvent -> RestaurantOrderView(e.identifier, e.restaurantId, CREATED, e.lineItems)
             is RestaurantOrderPreparedEvent -> when (s) {
                 is RestaurantOrderView -> RestaurantOrderView(
                     s.id,
