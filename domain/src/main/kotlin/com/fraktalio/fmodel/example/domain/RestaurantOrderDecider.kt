@@ -35,30 +35,45 @@ import kotlinx.coroutines.flow.flowOf
 fun restaurantOrderDecider() = Decider<RestaurantOrderCommand?, RestaurantOrder?, RestaurantOrderEvent?>(
     // Initial state of the Restaurant Order is `null`. It does not exist.
     initialState = null,
-    // Exhaustive command handling part: for each type of [RestaurantCommand] you are going to publish specific events/facts, as required by the current state/s of the [RestaurantOrder].
+    // Exhaustive command handler(s): for each type of [RestaurantCommand] you are going to publish specific events/facts, as required by the current state/s of the [RestaurantOrder].
     decide = { c, s ->
         when (c) {
-            is CreateRestaurantOrderCommand -> when (s) {
-                null -> flowOf(RestaurantOrderCreatedEvent(c.identifier, c.lineItems, c.restaurantIdentifier))
-                else -> emptyFlow() // You can choose to publish error event, if you like
-            }
-            is MarkRestaurantOrderAsPreparedCommand -> when {
-                (s is RestaurantOrder && CREATED == s.status) -> flowOf(RestaurantOrderPreparedEvent(c.identifier))
-                else -> emptyFlow() // You can choose to publish error event, if you like
-            }
+            is CreateRestaurantOrderCommand ->
+                // ** positive flow **
+                if (s == null) flowOf(RestaurantOrderCreatedEvent(c.identifier, c.lineItems, c.restaurantIdentifier))
+                // ** negative flow 1 (publishing business error events) **
+                else flowOf(
+                    RestaurantOrderNotCreatedEvent(
+                        c.identifier,
+                        c.lineItems,
+                        c.restaurantIdentifier,
+                        "Restaurant order already exists"
+                    )
+                )
+            //    ** negative flow 2 (publishing empty flow of events - ignoring negative flows - we are losing information :( ) **
+            //  else emptyFlow()
+            //    ** negative flow 3 (throwing exception - we are losing information - filtering exceptions is fragile) **
+            //  else flow { throw RuntimeException("Restaurant order already exists") }
+            is MarkRestaurantOrderAsPreparedCommand ->
+                if ((s != null && CREATED == s.status)) flowOf(RestaurantOrderPreparedEvent(c.identifier))
+                else flowOf(
+                    RestaurantOrderNotPreparedEvent(
+                        c.identifier,
+                        "Restaurant order does not exist / not in CREATED status"
+                    )
+                )
             null -> emptyFlow() // We ignore the `null` command by emitting the empty flow. Only the Decider that can handle `null` command can be combined (Monoid) with other Deciders.
         }
     },
-    // Exhaustive event-sourcing handling part: for each event of type [RestaurantEvent] you are going to evolve from the current state/s of the [RestaurantOrder] to a new state of the [RestaurantOrder]
+    // Exhaustive event-sourcing handler(s): for each event of type [RestaurantEvent] you are going to evolve from the current state/s of the [RestaurantOrder] to a new state of the [RestaurantOrder]
     evolve = { s, e ->
         when (e) {
             is RestaurantOrderCreatedEvent -> RestaurantOrder(e.identifier, e.restaurantId, CREATED, e.lineItems)
-            is RestaurantOrderPreparedEvent -> when (s) {
-                is RestaurantOrder -> RestaurantOrder(s.id, s.restaurantId, PREPARED, s.lineItems)
-                else -> s
-            }
-            is RestaurantOrderRejectedEvent -> s
-            null -> s // We ignore the `null` event by returning current State. Only the Decider that can handle `null` event can be combined (Monoid) with other Deciders.
+            is RestaurantOrderPreparedEvent ->
+                if (s != null) RestaurantOrder(s.id, s.restaurantId, PREPARED, s.lineItems)
+                else s
+            is RestaurantOrderErrorEvent -> s
+            null -> s // Null events are not changing the state / We return current state instead. Only the Decider that can handle `null` event can be combined (Monoid) with other Deciders.
         }
     }
 )
@@ -79,6 +94,6 @@ data class RestaurantOrder(
     val lineItems: List<RestaurantOrderLineItem>
 ) {
     enum class Status {
-        CREATED, PREPARED, CANCELLED
+        CREATED, PREPARED, REJECTED, CANCELLED
     }
 }

@@ -38,42 +38,75 @@ import java.util.stream.Collectors
 fun restaurantDecider() = Decider<RestaurantCommand?, Restaurant?, RestaurantEvent?>(
     // Initial state of the Restaurant is `null`. It does not exist.
     initialState = null,
-    // Exhaustive command handling part: for each type of [RestaurantCommand] you are going to publish specific events/facts, as required by the current state/s of the [Restaurant].
+    // Exhaustive command handler(s): for each type of [RestaurantCommand] you are going to publish specific events/facts, as required by the current state/s of the [Restaurant].
     decide = { c, s ->
         when (c) {
-            is CreateRestaurantCommand -> when (s) {
-                null -> flowOf(RestaurantCreatedEvent(c.identifier, c.name, c.menu))
-                else -> emptyFlow() // You can choose to publish error event, if you like
-            }
-            is ChangeRestaurantMenuCommand -> when (s) {
-                is Restaurant -> flowOf(RestaurantMenuChangedEvent(c.identifier, c.menu))
-                else -> emptyFlow() // You can choose to publish error event, if you like
-            }
-            is ActivateRestaurantMenuCommand -> when (s) {
-                is Restaurant -> flowOf(RestaurantMenuActivatedEvent(c.identifier, c.menuId))
-                else -> emptyFlow() // You can choose to publish error event, if you like
-            }
-            is PassivateRestaurantMenuCommand -> when (s) {
-                is Restaurant -> flowOf(RestaurantMenuPassivatedEvent(c.identifier, c.menuId))
-                else -> emptyFlow() // You can choose to publish error event, if you like
-            }
-            is PlaceRestaurantOrderCommand -> when {
-                (s is Restaurant && s.isValid(c)) -> flowOf(
+            is CreateRestaurantCommand ->
+                // ** positive flow **
+                if (s == null) flowOf(RestaurantCreatedEvent(c.identifier, c.name, c.menu))
+                // ** negative flow 1 (publishing business error events) **
+                else flowOf(
+                    RestaurantNotCreatedEvent(
+                        c.identifier,
+                        c.name,
+                        c.menu,
+                        "Restaurant already exists"
+                    )
+                )
+            //    ** negative flow 2 (publishing empty flow of events - ignoring negative flows - we are losing information :( ) **
+            //  else emptyFlow()
+            //    ** negative flow 3 (throwing exception - we are losing information - filtering exceptions is fragile) **
+            //  else flow { throw RuntimeException("Restaurant already exists") }
+            is ChangeRestaurantMenuCommand ->
+                if (s != null) flowOf(RestaurantMenuChangedEvent(c.identifier, c.menu))
+                else flowOf(
+                    RestaurantMenuNotChangedEvent(
+                        c.identifier,
+                        c.menu,
+                        "Restaurant does not exist"
+                    )
+                )
+            is ActivateRestaurantMenuCommand ->
+                if (s != null) flowOf(RestaurantMenuActivatedEvent(c.identifier, c.menuId))
+                else flowOf(
+                    RestaurantMenuNotActivatedEvent(
+                        c.identifier,
+                        c.menuId,
+                        "Restaurant does not exist"
+                    )
+                )
+            is PassivateRestaurantMenuCommand ->
+                if (s != null) flowOf(RestaurantMenuPassivatedEvent(c.identifier, c.menuId))
+                else flowOf(
+                    RestaurantMenuNotPassivatedEvent(
+                        c.identifier,
+                        c.menuId,
+                        "Restaurant does not exist"
+                    )
+                )
+            is PlaceRestaurantOrderCommand ->
+                if ((s != null && s.isValid(c))) flowOf(
                     RestaurantOrderPlacedAtRestaurantEvent(c.identifier, c.lineItems, c.restaurantOrderIdentifier)
                 )
-                (s is Restaurant && !s.isValid(c)) -> flowOf(
+                else if ((s != null && !s.isValid(c))) flowOf(
                     RestaurantOrderRejectedByRestaurantEvent(
                         c.identifier,
                         c.restaurantOrderIdentifier,
                         "Not on the menu"
                     )
                 )
-                else -> emptyFlow() // You can choose to publish error event, if you like
-            }
+                else flowOf(
+                    RestaurantOrderNotPlacedAtRestaurantEvent(
+                        c.identifier,
+                        c.lineItems,
+                        c.restaurantOrderIdentifier,
+                        "Restaurant does not exist"
+                    )
+                )
             null -> emptyFlow() // We ignore the `null` command by emitting the empty flow. Only the Decider that can handle `null` command can be combined (Monoid) with other Deciders.
         }
     },
-    // Exhaustive event-sourcing handling part: for each event of type [RestaurantEvent] you are going to evolve from the current state/s of the [Restaurant] to a new state of the [Restaurant].
+    // Exhaustive event-sourcing handler(s): for each event of type [RestaurantEvent] you are going to evolve from the current state/s of the [Restaurant] to a new state of the [Restaurant].
     evolve = { s, e ->
         when (e) {
             is RestaurantCreatedEvent -> Restaurant(
@@ -86,21 +119,19 @@ fun restaurantDecider() = Decider<RestaurantCommand?, Restaurant?, RestaurantEve
                 ),
                 Status.OPEN
             )
-            is RestaurantMenuChangedEvent -> when (s) {
-                is Restaurant ->
-                    Restaurant(
-                        s.id,
-                        s.name,
-                        RestaurantMenu(
-                            e.menu.menuId,
-                            e.menu.menuItems.map { MenuItem(it.id, it.menuItemId, it.name, it.price) },
-                            e.menu.cuisine
-                        ), s.status
-                    )
-                else -> s
-            }
-            is RestaurantMenuActivatedEvent -> when (s) {
-                is Restaurant -> Restaurant(
+            is RestaurantMenuChangedEvent ->
+                if (s != null) Restaurant(
+                    s.id,
+                    s.name,
+                    RestaurantMenu(
+                        e.menu.menuId,
+                        e.menu.menuItems.map { MenuItem(it.id, it.menuItemId, it.name, it.price) },
+                        e.menu.cuisine
+                    ), s.status
+                )
+                else s
+            is RestaurantMenuActivatedEvent ->
+                if (s != null) Restaurant(
                     s.id,
                     s.name,
                     RestaurantMenu(
@@ -110,10 +141,9 @@ fun restaurantDecider() = Decider<RestaurantCommand?, Restaurant?, RestaurantEve
                         ACTIVE
                     ), s.status
                 )
-                else -> s
-            }
-            is RestaurantMenuPassivatedEvent -> when (s) {
-                is Restaurant -> Restaurant(
+                else s
+            is RestaurantMenuPassivatedEvent ->
+                if (s != null) Restaurant(
                     s.id,
                     s.name,
                     RestaurantMenu(
@@ -123,11 +153,10 @@ fun restaurantDecider() = Decider<RestaurantCommand?, Restaurant?, RestaurantEve
                         PASSIVE
                     ), s.status
                 )
-                else -> s
-            }
+                else s
             is RestaurantOrderPlacedAtRestaurantEvent -> s
-            is RestaurantOrderRejectedByRestaurantEvent -> s
-            null -> s // We ignore the `null` event by returning current State. Only the Decider that can handle `null` event can be combined (Monoid) with other Deciders.
+            is RestaurantErrorEvent -> s
+            null -> s // Null events are not changing the state / We return current state instead. Only the Decider that can handle `null` event can be combined (Monoid) with other Deciders.
         }
     }
 )

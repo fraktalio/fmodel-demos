@@ -42,7 +42,7 @@ fun restaurantOrderSaga() = Saga<RestaurantEvent?, RestaurantOrderCommand?>(
             is RestaurantMenuActivatedEvent -> emptyFlow()
             is RestaurantMenuChangedEvent -> emptyFlow()
             is RestaurantMenuPassivatedEvent -> emptyFlow()
-            is RestaurantOrderRejectedByRestaurantEvent -> emptyFlow()
+            is RestaurantErrorEvent -> emptyFlow()
             null -> emptyFlow() // We ignore the `null` event by returning the empty flow of commands. Only the Saga that can handle `null` event/action-result can be combined (Monoid) with other Sagas.
         }
     }

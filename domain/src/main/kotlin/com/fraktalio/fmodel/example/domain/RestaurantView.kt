@@ -47,8 +47,8 @@ fun restaurantView() = View<RestaurantView?, RestaurantEvent?>(
                 ),
                 Status.OPEN
             )
-            is RestaurantMenuChangedEvent -> when (s) {
-                is RestaurantView -> RestaurantView(
+            is RestaurantMenuChangedEvent ->
+                if (s != null) RestaurantView(
                     s.id,
                     s.name,
                     RestaurantMenu(
@@ -57,10 +57,9 @@ fun restaurantView() = View<RestaurantView?, RestaurantEvent?>(
                         e.menu.cuisine
                     ), s.status
                 )
-                else -> s
-            }
-            is RestaurantMenuActivatedEvent -> when (s) {
-                is RestaurantView -> RestaurantView(
+                else s
+            is RestaurantMenuActivatedEvent ->
+                if (s != null) RestaurantView(
                     s.id,
                     s.name,
                     RestaurantMenu(
@@ -70,10 +69,9 @@ fun restaurantView() = View<RestaurantView?, RestaurantEvent?>(
                         ACTIVE
                     ), s.status
                 )
-                else -> s
-            }
-            is RestaurantMenuPassivatedEvent -> when (s) {
-                is RestaurantView -> RestaurantView(
+                else s
+            is RestaurantMenuPassivatedEvent ->
+                if (s != null) RestaurantView(
                     s.id,
                     s.name,
                     RestaurantMenu(
@@ -83,10 +81,9 @@ fun restaurantView() = View<RestaurantView?, RestaurantEvent?>(
                         PASSIVE
                     ), s.status
                 )
-                else -> s
-            }
+                else s
             is RestaurantOrderPlacedAtRestaurantEvent -> s
-            is RestaurantOrderRejectedByRestaurantEvent -> s
+            is RestaurantErrorEvent -> s
             null -> s // We ignore the `null` event by returning current State/s. Only the View that can handle `null` event can be combined (Monoid) with other Views.
         }
     }

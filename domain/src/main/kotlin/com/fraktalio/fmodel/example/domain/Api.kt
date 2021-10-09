@@ -123,10 +123,19 @@ sealed class RestaurantEvent : Event() {
     abstract val identifier: RestaurantId
 }
 
+sealed class RestaurantErrorEvent : RestaurantEvent() {
+    abstract val reason: String
+}
+
 sealed class RestaurantOrderEvent : Event() {
     abstract val identifier: RestaurantOrderId
 }
 
+sealed class RestaurantOrderErrorEvent : RestaurantOrderEvent() {
+    abstract val reason: String
+}
+
+// Restaurant
 
 data class RestaurantCreatedEvent(
     override val identifier: RestaurantId,
@@ -134,20 +143,45 @@ data class RestaurantCreatedEvent(
     val menu: RestaurantMenuVO
 ) : RestaurantEvent()
 
+data class RestaurantNotCreatedEvent(
+    override val identifier: RestaurantId,
+    val name: String,
+    val menu: RestaurantMenuVO,
+    override val reason: String
+) : RestaurantErrorEvent()
+
 data class RestaurantMenuChangedEvent(
     override val identifier: RestaurantId,
     val menu: RestaurantMenuVO
 ) : RestaurantEvent()
+
+data class RestaurantMenuNotChangedEvent(
+    override val identifier: RestaurantId,
+    val menu: RestaurantMenuVO,
+    override val reason: String
+) : RestaurantErrorEvent()
 
 data class RestaurantMenuActivatedEvent(
     override val identifier: RestaurantId,
     val menuId: UUID,
 ) : RestaurantEvent()
 
+data class RestaurantMenuNotActivatedEvent(
+    override val identifier: RestaurantId,
+    val menuId: UUID,
+    override val reason: String
+) : RestaurantErrorEvent()
+
 data class RestaurantMenuPassivatedEvent(
     override val identifier: RestaurantId,
     val menuId: UUID,
 ) : RestaurantEvent()
+
+data class RestaurantMenuNotPassivatedEvent(
+    override val identifier: RestaurantId,
+    val menuId: UUID,
+    override val reason: String
+) : RestaurantErrorEvent()
 
 data class RestaurantOrderPlacedAtRestaurantEvent(
     override val identifier: RestaurantId,
@@ -155,11 +189,20 @@ data class RestaurantOrderPlacedAtRestaurantEvent(
     val restaurantOrderId: RestaurantOrderId
 ) : RestaurantEvent()
 
+data class RestaurantOrderNotPlacedAtRestaurantEvent(
+    override val identifier: RestaurantId,
+    val lineItems: List<RestaurantOrderLineItem>,
+    val restaurantOrderId: RestaurantOrderId,
+    override val reason: String
+) : RestaurantErrorEvent()
+
 data class RestaurantOrderRejectedByRestaurantEvent(
     override val identifier: RestaurantId,
     val restaurantOrderId: RestaurantOrderId,
-    val reason: String
-) : RestaurantEvent()
+    override val reason: String
+) : RestaurantErrorEvent()
+
+// Restaurant Order
 
 data class RestaurantOrderCreatedEvent(
     override val identifier: RestaurantOrderId,
@@ -167,11 +210,23 @@ data class RestaurantOrderCreatedEvent(
     val restaurantId: RestaurantId
 ) : RestaurantOrderEvent()
 
+data class RestaurantOrderNotCreatedEvent(
+    override val identifier: RestaurantOrderId,
+    val lineItems: List<RestaurantOrderLineItem>,
+    val restaurantId: RestaurantId,
+    override val reason: String
+) : RestaurantOrderErrorEvent()
+
 data class RestaurantOrderPreparedEvent(
     override val identifier: RestaurantOrderId,
 ) : RestaurantOrderEvent()
 
+data class RestaurantOrderNotPreparedEvent(
+    override val identifier: RestaurantOrderId,
+    override val reason: String
+) : RestaurantOrderErrorEvent()
+
 data class RestaurantOrderRejectedEvent(
     override val identifier: RestaurantOrderId,
-    val reason: String
-) : RestaurantOrderEvent()
+    override val reason: String
+) : RestaurantOrderErrorEvent()

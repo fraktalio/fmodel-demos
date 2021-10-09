@@ -36,16 +36,10 @@ fun restaurantOrderView() = View<RestaurantOrderView?, RestaurantOrderEvent?>(
     evolve = { s, e ->
         when (e) {
             is RestaurantOrderCreatedEvent -> RestaurantOrderView(e.identifier, e.restaurantId, CREATED, e.lineItems)
-            is RestaurantOrderPreparedEvent -> when (s) {
-                is RestaurantOrderView -> RestaurantOrderView(
-                    s.id,
-                    s.restaurantId,
-                    PREPARED,
-                    s.lineItems
-                )
-                else -> s
-            }
-            is RestaurantOrderRejectedEvent -> s
+            is RestaurantOrderPreparedEvent ->
+                if (s != null) RestaurantOrderView(s.id, s.restaurantId, PREPARED, s.lineItems)
+                else s
+            is RestaurantOrderErrorEvent -> s
             null -> s // We ignore the `null` event by returning current State/s. Only the View that can handle `null` event can be combined (Monoid) with other Views.
 
         }
