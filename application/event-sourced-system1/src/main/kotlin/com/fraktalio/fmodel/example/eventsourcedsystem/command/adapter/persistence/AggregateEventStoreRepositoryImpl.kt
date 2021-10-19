@@ -20,7 +20,9 @@ import com.fraktalio.fmodel.application.EventRepository
 import com.fraktalio.fmodel.example.domain.*
 import com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.getAggregateType
 import com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.getId
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.axonframework.eventhandling.GenericDomainEventMessage
 import org.axonframework.eventsourcing.eventstore.EventStore
@@ -54,14 +56,20 @@ internal open class AggregateEventStoreRepositoryImpl(
             is PassivateRestaurantMenuCommand,
             is CreateRestaurantOrderCommand,
             is MarkRestaurantOrderAsPreparedCommand ->
-                axonServerEventStore.readEvents(getId()).asFlow()
-                    .map { it.payload as Event }
+                axonServerEventStore.readEvents(getId()).asFlow().map { it.payload as Event }
             is PlaceRestaurantOrderCommand ->
-                flowOf(
-                    axonServerEventStore.readEvents(getId()).asFlow(),
-                    axonServerEventStore.readEvents(this.restaurantOrderIdentifier.identifier.toString()).asFlow()
-                ).flattenConcat()
-                    .map { it.payload as Event }
+                // This Flow builder creates an instance of a coldFlow with elements that are sent to a SendChannel provided to the builder's block of code via ProducerScope.
+                // It allows elements to be produced by code that is running in a different context or concurrently.
+                channelFlow {
+                    launch(Dispatchers.IO) {
+                        axonServerEventStore.readEvents(getId())
+                            .forEach { send(it.payload as Event) }
+                    }
+                    launch(Dispatchers.IO) {
+                        axonServerEventStore.readEvents(restaurantOrderIdentifier.identifier.toString())
+                            .forEach { send(it.payload as Event) }
+                    }
+                }
             null -> emptyFlow<Event>()
         }
 
