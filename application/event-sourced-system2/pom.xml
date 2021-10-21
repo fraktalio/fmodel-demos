@@ -25,8 +25,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <version>0.0.1-SNAPSHOT</version>
-    <artifactId>event-sourced-system1</artifactId>
-    <name>event-sourced-system-1</name>
+    <artifactId>event-sourced-system2</artifactId>
+    <name>event-sourced-system-2</name>
 
     <dependencyManagement>
         <dependencies>
@@ -102,7 +102,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.5.5</version>
+                <version>2.5.4</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

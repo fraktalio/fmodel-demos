@@ -18,5 +18,6 @@ Different application/adapter implementations are using the common/unique [domai
 
 - [Event-sourced system 1](event-sourced-system1) - combines all Deciders from [domain module](../domain) under one
   Aggregate root. `#SpringBoot`, `#AxonFramework`, `#AxonServer`
-
+- [Event-sourced system 2](event-sourced-system1) - Deciders from [domain module](../domain) are distributed via unique
+  Aggregates. Saga is used to communicate Aggregates. `#SpringBoot`, `#AxonFramework`, `#AxonServer`
 

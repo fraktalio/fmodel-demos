@@ -27,7 +27,7 @@ import java.util.*
 
 
 /**
- * Aggregate repository implementation
+ * View repository implementation
  *
  * @property restaurantRepository Restaurant repository
  * @property restaurantOrderRepository Restaurant Order repository

@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package com.fraktalio.fmodel.example.eventsourcedsystem.query.adapter.eventhandler
+package com.fraktalio.fmodel.example.eventsourcedsystem2.query.adapter.axon
 
 import com.fraktalio.fmodel.application.MaterializedView
 import com.fraktalio.fmodel.application.publishTo
-import com.fraktalio.fmodel.example.domain.Event
-import com.fraktalio.fmodel.example.eventsourcedsystem.query.adapter.FindAllRestaurantsQuery
-import com.fraktalio.fmodel.example.eventsourcedsystem.query.adapter.persistance.RestaurantCoroutineRepository
-import com.fraktalio.fmodel.example.eventsourcedsystem.query.application.MaterializedViewState
+import com.fraktalio.fmodel.example.domain.RestaurantEvent
+import com.fraktalio.fmodel.example.domain.RestaurantOrderEvent
+import com.fraktalio.fmodel.example.domain.RestaurantOrderView
+import com.fraktalio.fmodel.example.domain.RestaurantView
+import com.fraktalio.fmodel.example.eventsourcedsystem2.query.adapter.FindAllRestaurantsQuery
+import com.fraktalio.fmodel.example.eventsourcedsystem2.query.adapter.persistance.RestaurantCoroutineRepository
 import kotlinx.coroutines.runBlocking
 import org.axonframework.config.ProcessingGroup
 import org.axonframework.eventhandling.EventHandler
@@ -33,7 +35,8 @@ import org.springframework.stereotype.Component
  *
  * It enables `location transparency` by using Axon Server as a message/event broker.
  *
- * @property materializedView
+ * @property rMaterializedView
+ * @property roMaterializedView
  * @property restaurantRepository
  * @constructor Create empty Axon command handler
  *
@@ -42,14 +45,22 @@ import org.springframework.stereotype.Component
 @Component
 @ProcessingGroup("restaurant")
 internal class AxonEventHandler(
-    private val materializedView: MaterializedView<MaterializedViewState, Event?>,
+    private val rMaterializedView: MaterializedView<RestaurantView?, RestaurantEvent?>,
+    private val roMaterializedView: MaterializedView<RestaurantOrderView?, RestaurantOrderEvent?>,
     private val restaurantRepository: RestaurantCoroutineRepository
 ) {
 
     @EventHandler
-    fun handle(event: Event) {
+    fun handle(event: RestaurantEvent) {
         runBlocking {
-            event.publishTo(materializedView)
+            event.publishTo(rMaterializedView)
+        }
+    }
+
+    @EventHandler
+    fun handle(event: RestaurantOrderEvent) {
+        runBlocking {
+            event.publishTo(roMaterializedView)
         }
     }
 
