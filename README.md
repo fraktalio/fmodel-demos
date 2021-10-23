@@ -45,6 +45,7 @@ different [`application`](application) and/or `persistence` layers:
 | --- | --- | --- |
 | [State stored information system](application/state-stored-system1) | Restaurant management | Kotlin, Arrow, Reactive Spring Boot, R2DBC |
 | [Event-sourced information system](application/event-sourced-system1) | Restaurant management| Kotlin, Arrow, Reactive Spring Boot, [Axon Framework](https://axoniq.io/product-overview/axon-framework) and [Axon Server](https://axoniq.io/product-overview/axon-server) |
+| [Event-sourced information system - distributed](application/event-sourced-system2) | Restaurant management| Kotlin, Arrow, Reactive Spring Boot, [Axon Framework](https://axoniq.io/product-overview/axon-framework) and [Axon Server](https://axoniq.io/product-overview/axon-server) |
 
 ## References and further reading
 

@@ -26,6 +26,7 @@ import com.fraktalio.fmodel.domain.View
 import com.fraktalio.fmodel.example.domain.*
 import com.fraktalio.fmodel.example.eventsourcedsystem2.command.adapter.axon.ActionPublisherImpl
 import com.fraktalio.fmodel.example.eventsourcedsystem2.command.adapter.axon.AxonCommandHandler
+import com.fraktalio.fmodel.example.eventsourcedsystem2.command.adapter.getId
 import com.fraktalio.fmodel.example.eventsourcedsystem2.command.adapter.persistence.RestaurantAggregateEventStoreRepositoryImpl
 import com.fraktalio.fmodel.example.eventsourcedsystem2.command.adapter.persistence.RestaurantOrderAggregateEventStoreRepositoryImpl
 import com.fraktalio.fmodel.example.eventsourcedsystem2.command.application.restaurantAggregate
@@ -35,8 +36,14 @@ import com.fraktalio.fmodel.example.eventsourcedsystem2.query.adapter.persistanc
 import com.fraktalio.fmodel.example.eventsourcedsystem2.query.application.restaurantMaterializedView
 import com.fraktalio.fmodel.example.eventsourcedsystem2.query.application.restaurantOrderMaterializedView
 import io.r2dbc.spi.ConnectionFactory
+import org.axonframework.commandhandling.distributed.MetaDataRoutingStrategy
+import org.axonframework.commandhandling.distributed.RoutingStrategy
+import org.axonframework.commandhandling.distributed.UnresolvedRoutingKeyPolicy
 import org.axonframework.commandhandling.gateway.CommandGateway
 import org.axonframework.eventsourcing.eventstore.EventStore
+import org.axonframework.messaging.Message
+import org.axonframework.messaging.MessageDispatchInterceptor
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
@@ -46,6 +53,7 @@ import org.springframework.r2dbc.connection.init.CompositeDatabasePopulator
 import org.springframework.r2dbc.connection.init.ConnectionFactoryInitializer
 import org.springframework.r2dbc.connection.init.ResourceDatabasePopulator
 import org.springframework.transaction.reactive.TransactionalOperator
+import java.util.function.BiFunction
 
 @SpringBootApplication
 class RestaurantDemoApplication
@@ -168,5 +176,29 @@ class Configuration {
         initializer.setDatabasePopulator(populator)
         return initializer
     }
+
+    // Axon
+
+    @Bean
+    fun routingStrategy(): RoutingStrategy =
+        MetaDataRoutingStrategy.builder()
+            .metaDataKey("aggregateIdentifier")
+            .fallbackRoutingStrategy(UnresolvedRoutingKeyPolicy.RANDOM_KEY)
+            .build()
+
+    @Autowired
+    fun registerCommandBusInterceptors(commandGateway: CommandGateway) {
+        commandGateway.registerDispatchInterceptor(RoutingInterceptor())
+    }
 }
 
+
+class RoutingInterceptor<T : Message<*>> : MessageDispatchInterceptor<T> {
+    override fun handle(messages: List<T>): BiFunction<Int, T, T> {
+        return BiFunction { _: Int?, message: T ->
+            val m = message.andMetaData(mapOf(Pair("aggregateIdentifier", (message.payload as Command).getId())))
+            m as T
+        }
+    }
+
+}

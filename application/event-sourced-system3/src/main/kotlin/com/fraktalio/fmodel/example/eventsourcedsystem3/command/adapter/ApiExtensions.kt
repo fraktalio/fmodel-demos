@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package com.fraktalio.fmodel.example.eventsourcedsystem2.command.adapter
+package com.fraktalio.fmodel.example.eventsourcedsystem3.command.adapter
 
 import com.fraktalio.fmodel.example.domain.*
-import org.axonframework.commandhandling.RoutingKey
 
 fun Command.getId() = when (this) {
     is RestaurantCommand -> this.identifier.identifier.toString()
@@ -29,7 +28,3 @@ fun Event.getId() = when (this) {
     is RestaurantOrderEvent -> this.identifier.identifier.toString()
 }
 
-fun Event.getAggregateType() = when (this) {
-    is RestaurantEvent -> "Restaurant"
-    is RestaurantOrderEvent -> "RestaurantOrder"
-}

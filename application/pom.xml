@@ -33,6 +33,7 @@
         <module>state-stored-system1</module>
         <module>event-sourced-system1</module>
         <module>event-sourced-system2</module>
+        <module>event-sourced-system3</module>
     </modules>
 
 </project>
