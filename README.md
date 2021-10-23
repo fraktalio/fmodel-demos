@@ -38,14 +38,15 @@ Restaurant management system is:
 
 ![restaurant management - event model](.assets/event-model.jpg)
 
-We are going to run our **unique** core domain logic in different ways, by implementing
-different [`application`](application) and/or `persistence` layers:
+We are going to run our [**unique** core domain](domain) logic in different ways, by implementing
+different [application](application) and/or `persistence` layers:
 
-| Type | Description | Technology |
-| --- | --- | --- |
-| [State stored information system](application/state-stored-system1) | Restaurant management | Kotlin, Arrow, Reactive Spring Boot, R2DBC |
-| [Event-sourced information system](application/event-sourced-system1) | Restaurant management| Kotlin, Arrow, Reactive Spring Boot, [Axon Framework](https://axoniq.io/product-overview/axon-framework) and [Axon Server](https://axoniq.io/product-overview/axon-server) |
-| [Event-sourced information system - distributed](application/event-sourced-system2) | Restaurant management| Kotlin, Arrow, Reactive Spring Boot, [Axon Framework](https://axoniq.io/product-overview/axon-framework) and [Axon Server](https://axoniq.io/product-overview/axon-server) |
+| Type | Description | Technology | Scenario | Domain | Application | Adapter |
+| --- | --- | --- | --- | --- | --- | --- |
+| [State stored information system](application/state-stored-system1) | Restaurant management | Kotlin, Arrow, Reactive Spring Boot, R2DBC | combined aggregate scenario - monolith aggregate | `fmodel domain` | `fmodel application` | `spring` |
+| [Event-sourced information system](application/event-sourced-system1) | Restaurant management| Kotlin, Arrow, Reactive Spring Boot, [Axon Framework](https://axoniq.io/product-overview/axon-framework) on infra layer, and [Axon Server](https://axoniq.io/product-overview/axon-server) | combined aggregate scenario - monolith aggregate | `fmodel domain` | `fmodel application` | `axon`, `spring` |
+| [Event-sourced information system - distributed](application/event-sourced-system2) | Restaurant management| Kotlin, Arrow, Reactive Spring Boot, [Axon Framework](https://axoniq.io/product-overview/axon-framework) on infra layer, and [Axon Server](https://axoniq.io/product-overview/axon-server) | distributed aggregate(s) | `fmodel domain` | `fmodel application` | `axon`, `spring` |
+| [Event-sourced information system - distributed](application/event-sourced-system3) | Restaurant management| Kotlin, Arrow, Reactive Spring Boot, [Axon Framework](https://axoniq.io/product-overview/axon-framework) on application layer, and [Axon Server](https://axoniq.io/product-overview/axon-server) | distributed aggregate(s) | `fmodel domain` | `axon` | `axon`, `spring` |
 
 ## References and further reading
 
