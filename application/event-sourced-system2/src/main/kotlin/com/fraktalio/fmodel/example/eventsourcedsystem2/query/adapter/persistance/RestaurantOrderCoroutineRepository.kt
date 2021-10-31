@@ -16,7 +16,7 @@
 
 package com.fraktalio.fmodel.example.eventsourcedsystem2.query.adapter.persistance
 
-import com.fraktalio.fmodel.example.domain.RestaurantOrderView
+import com.fraktalio.fmodel.example.domain.RestaurantOrderViewState
 import org.springframework.data.annotation.Id
 import org.springframework.data.domain.Persistable
 import org.springframework.data.r2dbc.repository.Query
@@ -45,7 +45,7 @@ internal data class RestaurantOrderR2DBCEntity(
     @Id @Column("id") var aggregateId: String? = null,
     val aggregateVersion: Long,
     val restaurantId: String,
-    val state: RestaurantOrderView.Status,
+    val state: RestaurantOrderViewState.Status,
     var newRestaurantOrder: Boolean = false
 ) : Persistable<String> {
 

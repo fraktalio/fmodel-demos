@@ -17,17 +17,13 @@
 package com.fraktalio.fmodel.example.eventsourcedsystem
 
 import com.fraktalio.fmodel.application.EventRepository
-import com.fraktalio.fmodel.application.EventSourcingAggregate
-import com.fraktalio.fmodel.application.ViewStateRepository
-import com.fraktalio.fmodel.domain.Decider
-import com.fraktalio.fmodel.domain.Saga
-import com.fraktalio.fmodel.domain.View
 import com.fraktalio.fmodel.example.domain.*
 import com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.commandhandler.AxonCommandHandler
+import com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.persistence.AggregateEventStoreRepository
 import com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.persistence.AggregateEventStoreRepositoryImpl
+import com.fraktalio.fmodel.example.eventsourcedsystem.command.application.OrderRestaurantAggregate
 import com.fraktalio.fmodel.example.eventsourcedsystem.command.application.aggregate
 import com.fraktalio.fmodel.example.eventsourcedsystem.query.adapter.persistance.*
-import com.fraktalio.fmodel.example.eventsourcedsystem.query.application.MaterializedViewState
 import com.fraktalio.fmodel.example.eventsourcedsystem.query.application.materializedView
 import io.r2dbc.spi.ConnectionFactory
 import org.axonframework.eventsourcing.eventstore.EventStore
@@ -78,15 +74,15 @@ class Configuration {
 
     @Bean
     internal fun aggregateBean(
-        restaurantDecider: Decider<RestaurantCommand?, Restaurant?, RestaurantEvent?>,
-        restaurantOrderDecider: Decider<RestaurantOrderCommand?, RestaurantOrder?, RestaurantOrderEvent?>,
-        restaurantSaga: Saga<RestaurantOrderEvent?, RestaurantCommand?>,
-        restaurantOrderSaga: Saga<RestaurantEvent?, RestaurantOrderCommand?>,
-        eventRepository: EventRepository<Command?, Event?>
+        restaurantDecider: RestaurantDecider,
+        restaurantOrderDecider: RestaurantOrderDecider,
+        restaurantSaga: RestaurantSaga,
+        restaurantOrderSaga: RestaurantOrderSaga,
+        eventRepository: AggregateEventStoreRepository
     ) = aggregate(restaurantOrderDecider, restaurantDecider, restaurantOrderSaga, restaurantSaga, eventRepository)
 
     @Bean
-    internal fun commandHandlerBean(aggregate: EventSourcingAggregate<Command?, Pair<RestaurantOrder?, Restaurant?>, Event?>) =
+    internal fun commandHandlerBean(aggregate: OrderRestaurantAggregate) =
         AxonCommandHandler(aggregate)
 
     // VIEW - QUERY
@@ -104,7 +100,7 @@ class Configuration {
         restaurantOrderItemRepository: RestaurantOrderItemCoroutineRepository,
         menuItemCoroutineRepository: MenuItemCoroutineRepository,
         operator: TransactionalOperator
-    ): ViewStateRepository<Event?, MaterializedViewState> =
+    ): MaterializedViewStateRepository =
         MaterializedViewStateRepositoryImpl(
             restaurantRepository,
             restaurantOrderRepository,
@@ -115,10 +111,10 @@ class Configuration {
 
     @Bean
     internal fun materializedViewBean(
-        restaurantView: View<RestaurantView?, RestaurantEvent?>,
-        restaurantOrderView: View<RestaurantOrderView?, RestaurantOrderEvent?>,
-        viewStateRepository: ViewStateRepository<Event?, MaterializedViewState>
-    ) = materializedView(restaurantView, restaurantOrderView, viewStateRepository)
+        restaurantView: RestaurantView,
+        restaurantOrderViewState: RestaurantOrderView,
+        viewStateRepository: MaterializedViewStateRepository
+    ) = materializedView(restaurantView, restaurantOrderViewState, viewStateRepository)
 
     @Bean
     fun initializer(connectionFactory: ConnectionFactory): ConnectionFactoryInitializer {

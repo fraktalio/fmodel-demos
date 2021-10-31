@@ -229,9 +229,9 @@ denormalized state, which is more adequate for querying.
 
 ```kotlin
 fun restaurantOrderView() = View<RestaurantOrderView?, RestaurantOrderEvent?>(
-    // Initial state of the [RestaurantOrderView] is `null`. It does not exist.
+    // Initial state of the [RestaurantOrderViewState] is `null`. It does not exist.
     initialState = null,
-    // Exhaustive event-sourcing handling part: for each event of type [RestaurantOrderEvent] you are going to evolve from the current state/s of the [RestaurantOrderView] to a new state of the [RestaurantOrderView].
+    // Exhaustive event-sourcing handling part: for each event of type [RestaurantOrderEvent] you are going to evolve from the current state/s of the [RestaurantOrderViewState] to a new state of the [RestaurantOrderViewState].
     evolve = { s, e ->
         when (e) {
             is RestaurantOrderCreatedEvent -> RestaurantOrderView(e.identifier, e.restaurantId, CREATED, e.lineItems)

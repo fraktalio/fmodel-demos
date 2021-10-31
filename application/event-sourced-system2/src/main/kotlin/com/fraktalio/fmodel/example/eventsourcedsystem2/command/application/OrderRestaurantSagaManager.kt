@@ -18,15 +18,22 @@ package com.fraktalio.fmodel.example.eventsourcedsystem2.command.application
 
 import com.fraktalio.fmodel.application.ActionPublisher
 import com.fraktalio.fmodel.application.SagaManager
-import com.fraktalio.fmodel.domain.Saga
 import com.fraktalio.fmodel.domain.combine
-import com.fraktalio.fmodel.example.domain.*
+import com.fraktalio.fmodel.example.domain.Command
+import com.fraktalio.fmodel.example.domain.Event
+import com.fraktalio.fmodel.example.domain.RestaurantOrderSaga
+import com.fraktalio.fmodel.example.domain.RestaurantSaga
+
+/**
+ * A convenient type alias for  EventSourcingAggregate<RestaurantCommand?, Restaurant?, RestaurantEvent?>
+ */
+typealias OrderRestaurantSagaManager = SagaManager<Event?, Command?>
 
 internal fun sagaManager(
-    restaurantOrderSaga: Saga<RestaurantEvent?, RestaurantOrderCommand?>,
-    restaurantSaga: Saga<RestaurantOrderEvent?, RestaurantCommand?>,
+    restaurantOrderSaga: RestaurantOrderSaga,
+    restaurantSaga: RestaurantSaga,
     actionPublisher: ActionPublisher<Command?>
-) = SagaManager(
+) = OrderRestaurantSagaManager(
     // Combining individual choreography Sagas into one orchestrating Saga.
     saga = restaurantOrderSaga.combine(restaurantSaga),
     actionPublisher = actionPublisher

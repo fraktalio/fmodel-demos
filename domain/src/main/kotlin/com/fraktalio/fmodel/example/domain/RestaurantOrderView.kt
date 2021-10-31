@@ -17,27 +17,36 @@
 package com.fraktalio.fmodel.example.domain
 
 import com.fraktalio.fmodel.domain.View
-import com.fraktalio.fmodel.example.domain.RestaurantOrderView.Status.CREATED
-import com.fraktalio.fmodel.example.domain.RestaurantOrderView.Status.PREPARED
-import com.fraktalio.fmodel.example.domain.RestaurantView.Status
+import com.fraktalio.fmodel.example.domain.RestaurantOrderViewState.Status.CREATED
+import com.fraktalio.fmodel.example.domain.RestaurantOrderViewState.Status.PREPARED
+
+/**
+ * A convenient type alias for View<RestaurantOrderViewState?, RestaurantOrderEvent?>
+ */
+typealias RestaurantOrderView = View<RestaurantOrderViewState?, RestaurantOrderEvent?>
 
 /**
  * RestaurantOrder View is a datatype that represents the event handling algorithm,
  * responsible for translating the events into denormalized state,
  * which is more adequate for querying.
  *
- * `evolve / event handlers` is a pure function/lambda that takes input state of type [RestaurantOrderView] and input event of type [RestaurantOrderEvent] as parameters, and returns the output/new state [RestaurantOrderView]
- * `initialState` is a starting point / An initial state of [RestaurantOrderView]. In our case, it is `null`
+ * `evolve / event handlers` is a pure function/lambda that takes input state of type [RestaurantOrderViewState] and input event of type [RestaurantOrderEvent] as parameters, and returns the output/new state [RestaurantOrderViewState]
+ * `initialState` is a starting point / An initial state of [RestaurantOrderViewState]. In our case, it is `null`
  */
-fun restaurantOrderView() = View<RestaurantOrderView?, RestaurantOrderEvent?>(
-    // Initial state of the [RestaurantOrderView] is `null`. It does not exist.
+fun restaurantOrderView() = RestaurantOrderView(
+    // Initial state of the [RestaurantOrderViewState] is `null`. It does not exist.
     initialState = null,
-    // Exhaustive event-sourcing handling part: for each event of type [RestaurantOrderEvent] you are going to evolve from the current state/s of the [RestaurantOrderView] to a new state of the [RestaurantOrderView].
+    // Exhaustive event-sourcing handling part: for each event of type [RestaurantOrderEvent] you are going to evolve from the current state/s of the [RestaurantOrderViewState] to a new state of the [RestaurantOrderViewState].
     evolve = { s, e ->
         when (e) {
-            is RestaurantOrderCreatedEvent -> RestaurantOrderView(e.identifier, e.restaurantId, CREATED, e.lineItems)
+            is RestaurantOrderCreatedEvent -> RestaurantOrderViewState(
+                e.identifier,
+                e.restaurantId,
+                CREATED,
+                e.lineItems
+            )
             is RestaurantOrderPreparedEvent ->
-                if (s != null) RestaurantOrderView(s.id, s.restaurantId, PREPARED, s.lineItems)
+                if (s != null) RestaurantOrderViewState(s.id, s.restaurantId, PREPARED, s.lineItems)
                 else s
             is RestaurantOrderErrorEvent -> s
             null -> s // We ignore the `null` event by returning current State/s. Only the View that can handle `null` event can be combined (Monoid) with other Views.
@@ -47,15 +56,15 @@ fun restaurantOrderView() = View<RestaurantOrderView?, RestaurantOrderEvent?>(
 )
 
 /**
- * A model of the RestaurantOrderView / Projection
+ * A model of the RestaurantOrderViewState / Projection
  *
  * @property id
  * @property restaurantId
  * @property status
  * @property lineItems
- * @constructor Creates [RestaurantOrderView]
+ * @constructor Creates [RestaurantOrderViewState]
  */
-data class RestaurantOrderView(
+data class RestaurantOrderViewState(
     val id: RestaurantOrderId,
     val restaurantId: RestaurantId,
     val status: Status,

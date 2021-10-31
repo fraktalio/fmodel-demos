@@ -16,14 +16,13 @@
 
 package com.fraktalio.fmodel.example.eventsourcedsystem2.query.adapter.axon
 
-import com.fraktalio.fmodel.application.MaterializedView
 import com.fraktalio.fmodel.application.publishTo
 import com.fraktalio.fmodel.example.domain.RestaurantEvent
 import com.fraktalio.fmodel.example.domain.RestaurantOrderEvent
-import com.fraktalio.fmodel.example.domain.RestaurantOrderView
-import com.fraktalio.fmodel.example.domain.RestaurantView
 import com.fraktalio.fmodel.example.eventsourcedsystem2.query.adapter.FindAllRestaurantsQuery
 import com.fraktalio.fmodel.example.eventsourcedsystem2.query.adapter.persistance.RestaurantCoroutineRepository
+import com.fraktalio.fmodel.example.eventsourcedsystem2.query.application.RestaurantMaterializedView
+import com.fraktalio.fmodel.example.eventsourcedsystem2.query.application.RestaurantOrderMaterializedView
 import kotlinx.coroutines.runBlocking
 import org.axonframework.config.ProcessingGroup
 import org.axonframework.eventhandling.EventHandler
@@ -45,8 +44,8 @@ import org.springframework.stereotype.Component
 @Component
 @ProcessingGroup("restaurant")
 internal class AxonEventHandler(
-    private val rMaterializedView: MaterializedView<RestaurantView?, RestaurantEvent?>,
-    private val roMaterializedView: MaterializedView<RestaurantOrderView?, RestaurantOrderEvent?>,
+    private val rMaterializedView: RestaurantMaterializedView,
+    private val roMaterializedView: RestaurantOrderMaterializedView,
     private val restaurantRepository: RestaurantCoroutineRepository
 ) {
 

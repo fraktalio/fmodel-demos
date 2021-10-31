@@ -16,12 +16,17 @@
 
 package com.fraktalio.fmodel.example.eventsourcedsystem2.command.application
 
-import com.fraktalio.fmodel.application.EventRepository
 import com.fraktalio.fmodel.application.EventSourcingAggregate
-import com.fraktalio.fmodel.domain.Decider
 import com.fraktalio.fmodel.example.domain.Restaurant
 import com.fraktalio.fmodel.example.domain.RestaurantCommand
+import com.fraktalio.fmodel.example.domain.RestaurantDecider
 import com.fraktalio.fmodel.example.domain.RestaurantEvent
+import com.fraktalio.fmodel.example.eventsourcedsystem2.command.adapter.persistence.RestaurantAggregateEventStoreRepository
+
+/**
+ * A convenient type alias for  EventSourcingAggregate<RestaurantCommand?, Restaurant?, RestaurantEvent?>
+ */
+typealias RestaurantAggregate = EventSourcingAggregate<RestaurantCommand?, Restaurant?, RestaurantEvent?>
 
 /**
  * Restaurant Aggregate
@@ -32,9 +37,9 @@ import com.fraktalio.fmodel.example.domain.RestaurantEvent
  * @author Иван Дугалић / Ivan Dugalic / @idugalic
  */
 internal fun restaurantAggregate(
-    restaurantDecider: Decider<RestaurantCommand?, Restaurant?, RestaurantEvent?>,
-    eventRepository: EventRepository<RestaurantCommand?, RestaurantEvent?>
-) = EventSourcingAggregate(
+    restaurantDecider: RestaurantDecider,
+    eventRepository: RestaurantAggregateEventStoreRepository
+) = RestaurantAggregate(
 
     decider = restaurantDecider,
     eventRepository = eventRepository,

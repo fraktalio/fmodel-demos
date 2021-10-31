@@ -17,21 +17,25 @@
 package com.fraktalio.fmodel.example.eventsourcedsystem.query.application
 
 import com.fraktalio.fmodel.application.MaterializedView
-import com.fraktalio.fmodel.application.ViewStateRepository
-import com.fraktalio.fmodel.domain.View
 import com.fraktalio.fmodel.domain.combine
 import com.fraktalio.fmodel.example.domain.*
+import com.fraktalio.fmodel.example.eventsourcedsystem.query.adapter.persistance.MaterializedViewStateRepository
+
+/**
+ * A convenient type alias for MaterializedView<MaterializedViewState, Event?>
+ */
+typealias OrderRestaurantMaterializedView = MaterializedView<MaterializedViewState, Event?>
 
 internal fun materializedView(
-    restaurantView: View<RestaurantView?, RestaurantEvent?>,
-    restaurantOrderView: View<RestaurantOrderView?, RestaurantOrderEvent?>,
-    viewStateRepository: ViewStateRepository<Event?, MaterializedViewState>
-) = MaterializedView(
-    view = restaurantView.combine(restaurantOrderView).dimapOnState(
+    restaurantViewState: RestaurantView,
+    restaurantOrderViewState: RestaurantOrderView,
+    viewStateRepository: MaterializedViewStateRepository
+) = OrderRestaurantMaterializedView(
+    view = restaurantViewState.combine(restaurantOrderViewState).dimapOnState(
         fl = { Pair(it.restaurant, it.order) },
         fr = { MaterializedViewState(it.first, it.second) }
     ),
     viewStateRepository = viewStateRepository
 )
 
-data class MaterializedViewState(val restaurant: RestaurantView?, val order: RestaurantOrderView?)
+data class MaterializedViewState(val restaurant: RestaurantViewState?, val order: RestaurantOrderViewState?)

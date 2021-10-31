@@ -16,11 +16,7 @@
 
 package com.fraktalio.fmodel.example.eventsourcedsystem3.query.application
 
-import com.fraktalio.fmodel.domain.View
-import com.fraktalio.fmodel.example.domain.Money
-import com.fraktalio.fmodel.example.domain.RestaurantEvent
-import com.fraktalio.fmodel.example.domain.RestaurantId
-import com.fraktalio.fmodel.example.domain.RestaurantView
+import com.fraktalio.fmodel.example.domain.*
 import com.fraktalio.fmodel.example.eventsourcedsystem3.query.adapter.persistance.MenuItemCoroutineRepository
 import com.fraktalio.fmodel.example.eventsourcedsystem3.query.adapter.persistance.MenuItemR2DBCEntity
 import com.fraktalio.fmodel.example.eventsourcedsystem3.query.adapter.persistance.RestaurantCoroutineRepository
@@ -36,7 +32,7 @@ import java.util.*
 @Component
 @ProcessingGroup("restaurant")
 internal class RestaurantEventHandler(
-    private val restaurantView: View<RestaurantView?, RestaurantEvent?>,
+    private val restaurantView: RestaurantView,
     private val restaurantRepository: RestaurantCoroutineRepository,
     private val menuItemRepository: MenuItemCoroutineRepository,
     private val operator: TransactionalOperator
@@ -44,8 +40,8 @@ internal class RestaurantEventHandler(
     // ########################################
     // ############## EXTENSIONS ##############
     // ########################################
-    private fun RestaurantR2DBCEntity?.toRestaurant(menu: RestaurantView.RestaurantMenu) = when {
-        this != null -> RestaurantView(
+    private fun RestaurantR2DBCEntity?.toRestaurant(menu: RestaurantViewState.RestaurantMenu) = when {
+        this != null -> RestaurantViewState(
             RestaurantId(UUID.fromString(this.id)),
             this.name,
             menu,
@@ -54,11 +50,11 @@ internal class RestaurantEventHandler(
         else -> null
     }
 
-    private fun MenuItemR2DBCEntity.toMenuItem(): RestaurantView.MenuItem =
-        RestaurantView.MenuItem(this.id ?: "", this.menuItemId, this.name, Money(this.price))
+    private fun MenuItemR2DBCEntity.toMenuItem(): RestaurantViewState.MenuItem =
+        RestaurantViewState.MenuItem(this.id ?: "", this.menuItemId, this.name, Money(this.price))
 
 
-    private fun RestaurantView.toRestaurantEntity() = RestaurantR2DBCEntity(
+    private fun RestaurantViewState.toRestaurantEntity() = RestaurantR2DBCEntity(
         this.id.identifier.toString(),
         Long.MIN_VALUE,
         this.name,
@@ -68,18 +64,19 @@ internal class RestaurantEventHandler(
         this.menu.menuId.toString(),
     )
 
-    private fun RestaurantView.MenuItem.toMenuItemEntity(menuId: String, restaurantId: String) = MenuItemR2DBCEntity(
-        this.id, this.menuItemId, menuId, restaurantId, this.name, this.price.amount
-    )
+    private fun RestaurantViewState.MenuItem.toMenuItemEntity(menuId: String, restaurantId: String) =
+        MenuItemR2DBCEntity(
+            this.id, this.menuItemId, menuId, restaurantId, this.name, this.price.amount
+        )
 
-    private suspend fun RestaurantEvent.fetchState(): RestaurantView? {
+    private suspend fun RestaurantEvent.fetchState(): RestaurantViewState? {
         val restaurantEntity: RestaurantR2DBCEntity? =
             restaurantRepository.findById(this.identifier.identifier.toString())
         val menuItemEntities =
             menuItemRepository.findByRestaurantId(this.identifier.identifier.toString())
 
         return restaurantEntity?.toRestaurant(
-            RestaurantView.RestaurantMenu(
+            RestaurantViewState.RestaurantMenu(
                 UUID.fromString(restaurantEntity.menuId),
                 menuItemEntities.map { it.toMenuItem() },
                 restaurantEntity.cuisine
@@ -87,7 +84,7 @@ internal class RestaurantEventHandler(
         )
     }
 
-    private suspend fun RestaurantView?.save(): RestaurantView? {
+    private suspend fun RestaurantViewState?.save(): RestaurantViewState? {
         operator.executeAndAwait { transaction ->
             try {
                 this?.let { restaurant ->

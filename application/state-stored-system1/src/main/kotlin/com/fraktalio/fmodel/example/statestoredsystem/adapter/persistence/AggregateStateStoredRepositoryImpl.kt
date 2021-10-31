@@ -23,6 +23,7 @@ import org.springframework.transaction.reactive.TransactionalOperator
 import org.springframework.transaction.reactive.executeAndAwait
 import java.util.*
 
+typealias AggregateStateStoredRepository = StateRepository<Command?, AggregateState>
 
 /**
  * Aggregate repository implementation
@@ -43,7 +44,7 @@ internal open class AggregateStateStoredRepositoryImpl(
     private val restaurantOrderItemRepository: RestaurantOrderItemCoroutineRepository,
     private val menuItemRepository: MenuItemCoroutineRepository,
     private val operator: TransactionalOperator
-) : StateRepository<Command?, AggregateState> {
+) : AggregateStateStoredRepository {
 
     /**
      * Fetch current state from the repository

@@ -23,6 +23,11 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 
 /**
+ * A convenient type alias for Decider<RestaurantOrderCommand?, RestaurantOrder?, RestaurantOrderEvent?>
+ */
+typealias RestaurantOrderDecider = Decider<RestaurantOrderCommand?, RestaurantOrder?, RestaurantOrderEvent?>
+
+/**
  * Decider is a pure domain component.
  * Decider is a datatype that represents the main decision-making algorithm.
  *
@@ -32,8 +37,8 @@ import kotlinx.coroutines.flow.flowOf
  *
  * @author Иван Дугалић / Ivan Dugalic / @idugalic
  */
-fun restaurantOrderDecider() = Decider<RestaurantOrderCommand?, RestaurantOrder?, RestaurantOrderEvent?>(
-    // Initial state of the Restaurant Order is `null`. It does not exist.
+fun restaurantOrderDecider() = RestaurantOrderDecider(
+    // Initial state of the Restaurant Order.
     initialState = null,
     // Exhaustive command handler(s): for each type of [RestaurantCommand] you are going to publish specific events/facts, as required by the current state/s of the [RestaurantOrder].
     decide = { c, s ->

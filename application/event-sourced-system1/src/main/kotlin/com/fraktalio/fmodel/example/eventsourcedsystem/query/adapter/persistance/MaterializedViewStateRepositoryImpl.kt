@@ -18,13 +18,17 @@ package com.fraktalio.fmodel.example.eventsourcedsystem.query.adapter.persistanc
 
 import com.fraktalio.fmodel.application.ViewStateRepository
 import com.fraktalio.fmodel.example.domain.*
-import com.fraktalio.fmodel.example.domain.RestaurantView.MenuItem
-import com.fraktalio.fmodel.example.domain.RestaurantView.RestaurantMenu
+import com.fraktalio.fmodel.example.domain.RestaurantViewState.MenuItem
+import com.fraktalio.fmodel.example.domain.RestaurantViewState.RestaurantMenu
 import com.fraktalio.fmodel.example.eventsourcedsystem.query.application.MaterializedViewState
 import org.springframework.transaction.reactive.TransactionalOperator
 import org.springframework.transaction.reactive.executeAndAwait
 import java.util.*
 
+/**
+ * A convenient type alias for ViewStateRepository<Event?, MaterializedViewState>
+ */
+typealias MaterializedViewStateRepository = ViewStateRepository<Event?, MaterializedViewState>
 
 /**
  * View repository implementation
@@ -45,7 +49,7 @@ internal open class MaterializedViewStateRepositoryImpl(
     private val restaurantOrderItemRepository: RestaurantOrderItemCoroutineRepository,
     private val menuItemRepository: MenuItemCoroutineRepository,
     private val operator: TransactionalOperator
-) : ViewStateRepository<Event?, MaterializedViewState> {
+) : MaterializedViewStateRepository {
 
     /**
      * Fetch current state from the repository
@@ -138,7 +142,7 @@ internal open class MaterializedViewStateRepositoryImpl(
     // EXTENSIONS
 
     private fun RestaurantR2DBCEntity?.toRestaurant(menu: RestaurantMenu) = when {
-        this != null -> RestaurantView(
+        this != null -> RestaurantViewState(
             RestaurantId(UUID.fromString(this.id)),
             this.name,
             menu,
@@ -148,9 +152,9 @@ internal open class MaterializedViewStateRepositoryImpl(
     }
 
 
-    private fun RestaurantOrderR2DBCEntity?.toRestaurantOrder(lineItems: List<RestaurantOrderLineItem>): RestaurantOrderView? =
+    private fun RestaurantOrderR2DBCEntity?.toRestaurantOrder(lineItems: List<RestaurantOrderLineItem>): RestaurantOrderViewState? =
         when {
-            this != null -> RestaurantOrderView(
+            this != null -> RestaurantOrderViewState(
                 RestaurantOrderId(UUID.fromString(this.id)),
                 RestaurantId(UUID.fromString(this.restaurantId)),
                 this.state,
@@ -166,7 +170,7 @@ internal open class MaterializedViewStateRepositoryImpl(
         MenuItem(this.id ?: "", this.menuItemId, this.name, Money(this.price))
 
 
-    private fun RestaurantView.toRestaurantEntity() = RestaurantR2DBCEntity(
+    private fun RestaurantViewState.toRestaurantEntity() = RestaurantR2DBCEntity(
         this.id.identifier.toString(),
         Long.MIN_VALUE,
         this.name,
@@ -181,7 +185,7 @@ internal open class MaterializedViewStateRepositoryImpl(
     )
 
 
-    private fun RestaurantOrderView.toRestaurantOrderEntity() = RestaurantOrderR2DBCEntity(
+    private fun RestaurantOrderViewState.toRestaurantOrderEntity() = RestaurantOrderR2DBCEntity(
         this.id.identifier.toString(),
         Long.MIN_VALUE,
         this.restaurantId.identifier.toString(),

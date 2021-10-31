@@ -16,7 +16,6 @@
 
 package com.fraktalio.fmodel.example.eventsourcedsystem3.command.application
 
-import com.fraktalio.fmodel.domain.Decider
 import com.fraktalio.fmodel.example.domain.*
 import com.fraktalio.fmodel.example.eventsourcedsystem3.command.adapter.getId
 import org.axonframework.commandhandling.CommandHandler
@@ -29,7 +28,7 @@ class RestaurantAxonAggregate : AbstractAggregate<RestaurantCommand?, Restaurant
     private constructor()
 
     // Main decision-making component
-    final override val decider: Decider<RestaurantCommand?, Restaurant?, RestaurantEvent?> = restaurantDecider()
+    final override val decider = restaurantDecider()
 
     // Marking one of the attributes from the Event as an aggregate identifier
     override fun RestaurantEvent?.getAggregateIdentifier(): String? = this?.getId()

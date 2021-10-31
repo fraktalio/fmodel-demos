@@ -20,13 +20,17 @@ import com.fraktalio.fmodel.application.ViewStateRepository
 import com.fraktalio.fmodel.example.domain.Money
 import com.fraktalio.fmodel.example.domain.RestaurantEvent
 import com.fraktalio.fmodel.example.domain.RestaurantId
-import com.fraktalio.fmodel.example.domain.RestaurantView
-import com.fraktalio.fmodel.example.domain.RestaurantView.MenuItem
-import com.fraktalio.fmodel.example.domain.RestaurantView.RestaurantMenu
+import com.fraktalio.fmodel.example.domain.RestaurantViewState
+import com.fraktalio.fmodel.example.domain.RestaurantViewState.MenuItem
+import com.fraktalio.fmodel.example.domain.RestaurantViewState.RestaurantMenu
 import org.springframework.transaction.reactive.TransactionalOperator
 import org.springframework.transaction.reactive.executeAndAwait
 import java.util.*
 
+/**
+ * A convenient type alias for ViewStateRepository<RestaurantEvent?, RestaurantViewState?>
+ */
+typealias RestaurantMaterializedViewStateRepository = ViewStateRepository<RestaurantEvent?, RestaurantViewState?>
 
 /**
  * Restaurant View repository implementation
@@ -43,14 +47,14 @@ internal open class RestaurantMaterializedViewStateRepositoryImpl(
     private val restaurantRepository: RestaurantCoroutineRepository,
     private val menuItemRepository: MenuItemCoroutineRepository,
     private val operator: TransactionalOperator
-) : ViewStateRepository<RestaurantEvent?, RestaurantView?> {
+) : ViewStateRepository<RestaurantEvent?, RestaurantViewState?> {
 
     /**
      * Fetch current state from the repository
      *
      * @return State
      */
-    override suspend fun RestaurantEvent?.fetchState(): RestaurantView? {
+    override suspend fun RestaurantEvent?.fetchState(): RestaurantViewState? {
 
         val restaurantEntity: RestaurantR2DBCEntity? =
             restaurantRepository.findById(this?.identifier?.identifier.toString())
@@ -72,7 +76,7 @@ internal open class RestaurantMaterializedViewStateRepositoryImpl(
      *
      * @return new State
      */
-    override suspend fun RestaurantView?.save(): RestaurantView? {
+    override suspend fun RestaurantViewState?.save(): RestaurantViewState? {
 
         operator.executeAndAwait { transaction ->
             try {
@@ -105,7 +109,7 @@ internal open class RestaurantMaterializedViewStateRepositoryImpl(
     // EXTENSIONS
 
     private fun RestaurantR2DBCEntity?.toRestaurant(menu: RestaurantMenu) = when {
-        this != null -> RestaurantView(
+        this != null -> RestaurantViewState(
             RestaurantId(UUID.fromString(this.id)),
             this.name,
             menu,
@@ -118,7 +122,7 @@ internal open class RestaurantMaterializedViewStateRepositoryImpl(
         MenuItem(this.id ?: "", this.menuItemId, this.name, Money(this.price))
 
 
-    private fun RestaurantView.toRestaurantEntity() = RestaurantR2DBCEntity(
+    private fun RestaurantViewState.toRestaurantEntity() = RestaurantR2DBCEntity(
         this.id.identifier.toString(),
         Long.MIN_VALUE,
         this.name,

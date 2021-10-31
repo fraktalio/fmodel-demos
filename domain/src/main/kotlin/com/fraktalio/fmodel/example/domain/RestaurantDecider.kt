@@ -26,6 +26,11 @@ import java.util.*
 import java.util.stream.Collectors
 
 /**
+ * A convenient type alias for Decider<RestaurantCommand?, Restaurant?, RestaurantEvent?>
+ */
+typealias RestaurantDecider = Decider<RestaurantCommand?, Restaurant?, RestaurantEvent?>
+
+/**
  * Decider is a pure domain component.
  * Decider is a datatype that represents the main decision-making algorithm.
  *
@@ -35,7 +40,8 @@ import java.util.stream.Collectors
  *
  * @author Иван Дугалић / Ivan Dugalic / @idugalic
  */
-fun restaurantDecider() = Decider<RestaurantCommand?, Restaurant?, RestaurantEvent?>(
+
+fun restaurantDecider() = RestaurantDecider(
     // Initial state of the Restaurant is `null`. It does not exist.
     initialState = null,
     // Exhaustive command handler(s): for each type of [RestaurantCommand] you are going to publish specific events/facts, as required by the current state/s of the [Restaurant].

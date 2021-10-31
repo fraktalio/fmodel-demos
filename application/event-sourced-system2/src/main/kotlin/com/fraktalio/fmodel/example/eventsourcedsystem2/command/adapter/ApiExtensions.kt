@@ -17,7 +17,6 @@
 package com.fraktalio.fmodel.example.eventsourcedsystem2.command.adapter
 
 import com.fraktalio.fmodel.example.domain.*
-import org.axonframework.commandhandling.RoutingKey
 
 fun Command.getId() = when (this) {
     is RestaurantCommand -> this.identifier.identifier.toString()

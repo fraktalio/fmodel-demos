@@ -28,10 +28,15 @@ import org.axonframework.eventhandling.GenericDomainEventMessage
 import org.axonframework.eventsourcing.eventstore.EventStore
 import java.util.*
 
+/**
+ * A convenient type alias for EventRepository<RestaurantOrderCommand?, RestaurantOrderEvent?>
+ */
+typealias RestaurantOrderAggregateEventStoreRepository = EventRepository<RestaurantOrderCommand?, RestaurantOrderEvent?>
+
 
 internal open class RestaurantOrderAggregateEventStoreRepositoryImpl(
     private val axonServerEventStore: EventStore
-) : EventRepository<RestaurantOrderCommand?, RestaurantOrderEvent?> {
+) : RestaurantOrderAggregateEventStoreRepository {
 
     /**
      * Fetch events for the given command/this

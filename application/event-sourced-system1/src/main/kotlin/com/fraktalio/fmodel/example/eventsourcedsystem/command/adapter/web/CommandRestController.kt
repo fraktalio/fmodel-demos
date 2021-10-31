@@ -16,9 +16,9 @@
 
 package com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.web
 
-import com.fraktalio.fmodel.application.EventSourcingAggregate
 import com.fraktalio.fmodel.application.publishTo
 import com.fraktalio.fmodel.example.domain.*
+import com.fraktalio.fmodel.example.eventsourcedsystem.command.application.OrderRestaurantAggregate
 import org.axonframework.commandhandling.gateway.CommandGateway
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -35,7 +35,7 @@ import java.util.*
  */
 @RestController
 internal class CommandRestController(
-    private val aggregate: EventSourcingAggregate<Command?, Pair<RestaurantOrder?, Restaurant?>, Event?>,
+    private val aggregate: OrderRestaurantAggregate,
     private val commandGateway: CommandGateway
 ) {
     /**

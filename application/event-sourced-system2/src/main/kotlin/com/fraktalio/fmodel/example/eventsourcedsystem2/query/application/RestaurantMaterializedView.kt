@@ -17,15 +17,21 @@
 package com.fraktalio.fmodel.example.eventsourcedsystem2.query.application
 
 import com.fraktalio.fmodel.application.MaterializedView
-import com.fraktalio.fmodel.application.ViewStateRepository
-import com.fraktalio.fmodel.domain.View
 import com.fraktalio.fmodel.example.domain.RestaurantEvent
 import com.fraktalio.fmodel.example.domain.RestaurantView
+import com.fraktalio.fmodel.example.domain.RestaurantViewState
+import com.fraktalio.fmodel.example.eventsourcedsystem2.query.adapter.persistance.RestaurantMaterializedViewStateRepository
+
+/**
+ * A convenient type alias for MaterializedView<RestaurantViewState?, RestaurantEvent?>
+ */
+typealias RestaurantMaterializedView = MaterializedView<RestaurantViewState?, RestaurantEvent?>
+
 
 internal fun restaurantMaterializedView(
-    restaurantView: View<RestaurantView?, RestaurantEvent?>,
-    viewStateRepository: ViewStateRepository<RestaurantEvent?, RestaurantView?>
-) = MaterializedView(
+    restaurantView: RestaurantView,
+    viewStateRepository: RestaurantMaterializedViewStateRepository
+) = RestaurantMaterializedView(
     view = restaurantView,
     viewStateRepository = viewStateRepository
 )

@@ -16,12 +16,15 @@
 
 package com.fraktalio.fmodel.example.statestoredsystem.application
 
-import com.fraktalio.fmodel.application.StateRepository
 import com.fraktalio.fmodel.application.StateStoredAggregate
-import com.fraktalio.fmodel.domain.Decider
-import com.fraktalio.fmodel.domain.Saga
 import com.fraktalio.fmodel.domain.combine
 import com.fraktalio.fmodel.example.domain.*
+import com.fraktalio.fmodel.example.statestoredsystem.adapter.persistence.AggregateStateStoredRepository
+
+/**
+ * A convenient type alias for StateStoredAggregate<Command?, AggregateState, Event?>
+ */
+typealias Aggregate = StateStoredAggregate<Command?, AggregateState, Event?>
 
 /**
  * One, big aggregate that is combining all deciders: [restaurantOrderDecider], [restaurantDecider].
@@ -37,11 +40,11 @@ import com.fraktalio.fmodel.example.domain.*
  * @author Иван Дугалић / Ivan Dugalic / @idugalic
  */
 internal fun aggregate(
-    restaurantOrderDecider: Decider<RestaurantOrderCommand?, RestaurantOrder?, RestaurantOrderEvent?>,
-    restaurantDecider: Decider<RestaurantCommand?, Restaurant?, RestaurantEvent?>,
-    restaurantOrderSaga: Saga<RestaurantEvent?, RestaurantOrderCommand?>,
-    restaurantSaga: Saga<RestaurantOrderEvent?, RestaurantCommand?>,
-    aggregateRepository: StateRepository<Command?, AggregateState>
+    restaurantOrderDecider: RestaurantOrderDecider,
+    restaurantDecider: RestaurantDecider,
+    restaurantOrderSaga: RestaurantOrderSaga,
+    restaurantSaga: RestaurantSaga,
+    aggregateRepository: AggregateStateStoredRepository
 ) = StateStoredAggregate(
 
     // Combining two deciders into one, and map the inconvenient Pair into a domain specific Data class that will represent aggregated state better.

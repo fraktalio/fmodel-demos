@@ -28,6 +28,10 @@ import org.axonframework.eventhandling.GenericDomainEventMessage
 import org.axonframework.eventsourcing.eventstore.EventStore
 import java.util.*
 
+/**
+ * A convenient type alias for EventRepository<Command?, Event?>
+ */
+typealias AggregateEventStoreRepository = EventRepository<Command?, Event?>
 
 /**
  * Event repository/store implementation
@@ -41,7 +45,7 @@ import java.util.*
  */
 internal open class AggregateEventStoreRepositoryImpl(
     private val axonServerEventStore: EventStore
-) : EventRepository<Command?, Event?> {
+) : AggregateEventStoreRepository {
 
     /**
      * Fetch events for the given command/this

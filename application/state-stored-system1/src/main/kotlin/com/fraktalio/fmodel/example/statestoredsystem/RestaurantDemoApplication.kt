@@ -16,12 +16,8 @@
 
 package com.fraktalio.fmodel.example.statestoredsystem
 
-import com.fraktalio.fmodel.application.StateRepository
-import com.fraktalio.fmodel.domain.Decider
-import com.fraktalio.fmodel.domain.Saga
 import com.fraktalio.fmodel.example.domain.*
 import com.fraktalio.fmodel.example.statestoredsystem.adapter.persistence.*
-import com.fraktalio.fmodel.example.statestoredsystem.application.AggregateState
 import com.fraktalio.fmodel.example.statestoredsystem.application.aggregate
 import io.r2dbc.spi.ConnectionFactory
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -70,7 +66,7 @@ class Configuration {
         restaurantOrderItemRepository: RestaurantOrderItemCoroutineRepository,
         menuItemCoroutineRepository: MenuItemCoroutineRepository,
         operator: TransactionalOperator
-    ): StateRepository<Command?, AggregateState> =
+    ): AggregateStateStoredRepository =
         AggregateStateStoredRepositoryImpl(
             restaurantRepository,
             restaurantOrderRepository,
@@ -81,11 +77,11 @@ class Configuration {
 
     @Bean
     internal fun aggregate(
-        restaurantDecider: Decider<RestaurantCommand?, Restaurant?, RestaurantEvent?>,
-        restaurantOrderDecider: Decider<RestaurantOrderCommand?, RestaurantOrder?, RestaurantOrderEvent?>,
-        restaurantSaga: Saga<RestaurantOrderEvent?, RestaurantCommand?>,
-        restaurantOrderSaga: Saga<RestaurantEvent?, RestaurantOrderCommand?>,
-        aggregateRepository: StateRepository<Command?, AggregateState>
+        restaurantDecider: RestaurantDecider,
+        restaurantOrderDecider: RestaurantOrderDecider,
+        restaurantSaga: RestaurantSaga,
+        restaurantOrderSaga: RestaurantOrderSaga,
+        aggregateRepository: AggregateStateStoredRepository
     ) = aggregate(restaurantOrderDecider, restaurantDecider, restaurantOrderSaga, restaurantSaga, aggregateRepository)
 
     @Bean

@@ -22,6 +22,10 @@ import org.springframework.transaction.reactive.TransactionalOperator
 import org.springframework.transaction.reactive.executeAndAwait
 import java.util.*
 
+/**
+ * A convenient type alias for ViewStateRepository<RestaurantOrderEvent?, RestaurantOrderViewState?>
+ */
+typealias RestaurantOrderMaterializedViewStateRepository = ViewStateRepository<RestaurantOrderEvent?, RestaurantOrderViewState?>
 
 /**
  * Restaurant Order View repository implementation
@@ -38,14 +42,14 @@ internal open class RestaurantOrderMaterializedViewStateRepositoryImpl(
     private val restaurantOrderRepository: RestaurantOrderCoroutineRepository,
     private val restaurantOrderItemRepository: RestaurantOrderItemCoroutineRepository,
     private val operator: TransactionalOperator
-) : ViewStateRepository<RestaurantOrderEvent?, RestaurantOrderView?> {
+) : ViewStateRepository<RestaurantOrderEvent?, RestaurantOrderViewState?> {
 
     /**
      * Fetch current state from the repository
      *
      * @return State
      */
-    override suspend fun RestaurantOrderEvent?.fetchState(): RestaurantOrderView? =
+    override suspend fun RestaurantOrderEvent?.fetchState(): RestaurantOrderViewState? =
         restaurantOrderRepository.findById(this?.identifier?.identifier.toString())
             .toRestaurantOrder(
                 restaurantOrderItemRepository.findByOrderId(this?.identifier?.identifier.toString())
@@ -58,7 +62,7 @@ internal open class RestaurantOrderMaterializedViewStateRepositoryImpl(
      *
      * @return new State
      */
-    override suspend fun RestaurantOrderView?.save(): RestaurantOrderView? {
+    override suspend fun RestaurantOrderViewState?.save(): RestaurantOrderViewState? {
 
         operator.executeAndAwait { transaction ->
             try {
@@ -90,9 +94,9 @@ internal open class RestaurantOrderMaterializedViewStateRepositoryImpl(
 
     // EXTENSIONS
 
-    private fun RestaurantOrderR2DBCEntity?.toRestaurantOrder(lineItems: List<RestaurantOrderLineItem>): RestaurantOrderView? =
+    private fun RestaurantOrderR2DBCEntity?.toRestaurantOrder(lineItems: List<RestaurantOrderLineItem>): RestaurantOrderViewState? =
         when {
-            this != null -> RestaurantOrderView(
+            this != null -> RestaurantOrderViewState(
                 RestaurantOrderId(UUID.fromString(this.id)),
                 RestaurantId(UUID.fromString(this.restaurantId)),
                 this.state,
@@ -105,7 +109,7 @@ internal open class RestaurantOrderMaterializedViewStateRepositoryImpl(
         RestaurantOrderLineItem(this.id ?: "", this.quantity, this.menuItemId, this.name)
 
 
-    private fun RestaurantOrderView.toRestaurantOrderEntity() = RestaurantOrderR2DBCEntity(
+    private fun RestaurantOrderViewState.toRestaurantOrderEntity() = RestaurantOrderR2DBCEntity(
         this.id.identifier.toString(),
         Long.MIN_VALUE,
         this.restaurantId.identifier.toString(),

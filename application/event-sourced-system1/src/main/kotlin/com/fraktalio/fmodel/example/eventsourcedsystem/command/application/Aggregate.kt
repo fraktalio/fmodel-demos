@@ -16,12 +16,15 @@
 
 package com.fraktalio.fmodel.example.eventsourcedsystem.command.application
 
-import com.fraktalio.fmodel.application.EventRepository
 import com.fraktalio.fmodel.application.EventSourcingAggregate
-import com.fraktalio.fmodel.domain.Decider
-import com.fraktalio.fmodel.domain.Saga
 import com.fraktalio.fmodel.domain.combine
 import com.fraktalio.fmodel.example.domain.*
+import com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.persistence.AggregateEventStoreRepository
+
+/**
+ * A convenient type alias for EventSourcingAggregate<Command?, Pair<RestaurantOrder?, Restaurant?>, Event?>
+ */
+typealias OrderRestaurantAggregate = EventSourcingAggregate<Command?, Pair<RestaurantOrder?, Restaurant?>, Event?>
 
 /**
  * One, big aggregate that is combining all deciders: [restaurantOrderDecider], [restaurantDecider].
@@ -37,12 +40,12 @@ import com.fraktalio.fmodel.example.domain.*
  * @author Иван Дугалић / Ivan Dugalic / @idugalic
  */
 internal fun aggregate(
-    restaurantOrderDecider: Decider<RestaurantOrderCommand?, RestaurantOrder?, RestaurantOrderEvent?>,
-    restaurantDecider: Decider<RestaurantCommand?, Restaurant?, RestaurantEvent?>,
-    restaurantOrderSaga: Saga<RestaurantEvent?, RestaurantOrderCommand?>,
-    restaurantSaga: Saga<RestaurantOrderEvent?, RestaurantCommand?>,
-    eventRepository: EventRepository<Command?, Event?>
-) = EventSourcingAggregate(
+    restaurantOrderDecider: RestaurantOrderDecider,
+    restaurantDecider: RestaurantDecider,
+    restaurantOrderSaga: RestaurantOrderSaga,
+    restaurantSaga: RestaurantSaga,
+    eventRepository: AggregateEventStoreRepository
+) = OrderRestaurantAggregate(
 
     // Combining two deciders into one.
     decider = restaurantOrderDecider.combine(restaurantDecider),

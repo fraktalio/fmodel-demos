@@ -21,6 +21,11 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 
 /**
+ * A convenient type alias for Saga<RestaurantEvent?, RestaurantOrderCommand?>
+ */
+typealias RestaurantOrderSaga = Saga<RestaurantEvent?, RestaurantOrderCommand?>
+
+/**
  * Saga is a datatype that represents the central point of control deciding what to execute next.
  * It is responsible for mapping different events from aggregates into action results (AR) that the [Saga] then can use to calculate the next actions (A) to be mapped to command of other aggregates.
  *
@@ -28,7 +33,7 @@ import kotlinx.coroutines.flow.flowOf
  *
  * `react` is a pure function/lambda that takes any event/action-result of type [RestaurantEvent] as parameter, and returns the flow of commands/actions Flow<[RestaurantOrderCommand]> to be published further downstream.
  */
-fun restaurantOrderSaga() = Saga<RestaurantEvent?, RestaurantOrderCommand?>(
+fun restaurantOrderSaga() = RestaurantOrderSaga(
     react = { e ->
         when (e) {
             is RestaurantOrderPlacedAtRestaurantEvent -> flowOf(

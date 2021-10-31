@@ -16,7 +16,6 @@
 
 package com.fraktalio.fmodel.example.eventsourcedsystem3.query.application
 
-import com.fraktalio.fmodel.domain.View
 import com.fraktalio.fmodel.example.domain.*
 import com.fraktalio.fmodel.example.eventsourcedsystem3.query.adapter.persistance.RestaurantOrderCoroutineRepository
 import com.fraktalio.fmodel.example.eventsourcedsystem3.query.adapter.persistance.RestaurantOrderItemCoroutineRepository
@@ -33,7 +32,7 @@ import java.util.*
 @Component
 @ProcessingGroup("restaurant-order")
 internal class RestaurantOrderEventHandler(
-    private val restaurantOrderView: View<RestaurantOrderView?, RestaurantOrderEvent?>,
+    private val restaurantOrderView: RestaurantOrderView,
     private val restaurantOrderRepository: RestaurantOrderCoroutineRepository,
     private val restaurantOrderItemRepository: RestaurantOrderItemCoroutineRepository,
     private val operator: TransactionalOperator
@@ -41,14 +40,14 @@ internal class RestaurantOrderEventHandler(
     // ########################################
     // ############## EXTENSIONS ##############
     // ########################################
-    private suspend fun RestaurantOrderEvent.fetchState(): RestaurantOrderView? =
+    private suspend fun RestaurantOrderEvent.fetchState(): RestaurantOrderViewState? =
         restaurantOrderRepository.findById(this.identifier.identifier.toString())
             .toRestaurantOrder(
                 restaurantOrderItemRepository.findByOrderId(this.identifier.identifier.toString())
                     .map { it.toRestaurantOrderLineItem() }
             )
 
-    private suspend fun RestaurantOrderView?.save(): RestaurantOrderView? {
+    private suspend fun RestaurantOrderViewState?.save(): RestaurantOrderViewState? {
         operator.executeAndAwait { transaction ->
             try {
 
@@ -76,9 +75,9 @@ internal class RestaurantOrderEventHandler(
         return this
     }
 
-    private fun RestaurantOrderR2DBCEntity?.toRestaurantOrder(lineItems: List<RestaurantOrderLineItem>): RestaurantOrderView? =
+    private fun RestaurantOrderR2DBCEntity?.toRestaurantOrder(lineItems: List<RestaurantOrderLineItem>): RestaurantOrderViewState? =
         when {
-            this != null -> RestaurantOrderView(
+            this != null -> RestaurantOrderViewState(
                 RestaurantOrderId(UUID.fromString(this.id)),
                 RestaurantId(UUID.fromString(this.restaurantId)),
                 this.state,
@@ -91,7 +90,7 @@ internal class RestaurantOrderEventHandler(
         RestaurantOrderLineItem(this.id ?: "", this.quantity, this.menuItemId, this.name)
 
 
-    private fun RestaurantOrderView.toRestaurantOrderEntity() = RestaurantOrderR2DBCEntity(
+    private fun RestaurantOrderViewState.toRestaurantOrderEntity() = RestaurantOrderR2DBCEntity(
         this.id.identifier.toString(),
         Long.MIN_VALUE,
         this.restaurantId.identifier.toString(),

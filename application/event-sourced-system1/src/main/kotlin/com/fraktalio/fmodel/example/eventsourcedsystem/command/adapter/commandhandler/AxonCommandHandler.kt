@@ -16,9 +16,9 @@
 
 package com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.commandhandler
 
-import com.fraktalio.fmodel.application.EventSourcingAggregate
 import com.fraktalio.fmodel.application.publishTo
 import com.fraktalio.fmodel.example.domain.*
+import com.fraktalio.fmodel.example.eventsourcedsystem.command.application.OrderRestaurantAggregate
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.runBlocking
 import org.axonframework.commandhandling.CommandHandler
@@ -35,7 +35,7 @@ import org.axonframework.commandhandling.CommandHandler
  *
  * @author Иван Дугалић / Ivan Dugalic / @idugalic
  */
-internal open class AxonCommandHandler(private val aggregate: EventSourcingAggregate<Command?, Pair<RestaurantOrder?, Restaurant?>, Event?>) {
+internal open class AxonCommandHandler(private val aggregate: OrderRestaurantAggregate) {
 
     private fun publish(command: Command) {
         runBlocking {

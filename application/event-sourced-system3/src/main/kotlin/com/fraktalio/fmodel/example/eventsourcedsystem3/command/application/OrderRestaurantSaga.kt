@@ -1,8 +1,10 @@
 package com.fraktalio.fmodel.example.eventsourcedsystem3.command.application
 
-import com.fraktalio.fmodel.domain.Saga
 import com.fraktalio.fmodel.domain.combine
-import com.fraktalio.fmodel.example.domain.*
+import com.fraktalio.fmodel.example.domain.Command
+import com.fraktalio.fmodel.example.domain.Event
+import com.fraktalio.fmodel.example.domain.RestaurantOrderSaga
+import com.fraktalio.fmodel.example.domain.RestaurantSaga
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.runBlocking
 import org.axonframework.commandhandling.gateway.CommandGateway
@@ -13,8 +15,8 @@ import org.springframework.stereotype.Component
 @Component
 @ProcessingGroup("order-restaurant-saga")
 internal class OrderRestaurantSaga(
-    private val restaurantSaga: Saga<RestaurantOrderEvent?, RestaurantCommand?>,
-    private val restaurantOrderSaga: Saga<RestaurantEvent?, RestaurantOrderCommand?>,
+    private val restaurantSaga: RestaurantSaga,
+    private val restaurantOrderSaga: RestaurantOrderSaga,
     private val commandGateway: CommandGateway
 ) {
 
