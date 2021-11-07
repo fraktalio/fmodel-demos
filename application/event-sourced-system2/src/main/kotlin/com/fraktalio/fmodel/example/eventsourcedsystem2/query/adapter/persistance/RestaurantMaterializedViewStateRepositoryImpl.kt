@@ -23,6 +23,7 @@ import com.fraktalio.fmodel.example.domain.RestaurantId
 import com.fraktalio.fmodel.example.domain.RestaurantViewState
 import com.fraktalio.fmodel.example.domain.RestaurantViewState.MenuItem
 import com.fraktalio.fmodel.example.domain.RestaurantViewState.RestaurantMenu
+import kotlinx.collections.immutable.toImmutableList
 import org.springframework.transaction.reactive.TransactionalOperator
 import org.springframework.transaction.reactive.executeAndAwait
 import java.util.*
@@ -64,7 +65,7 @@ internal open class RestaurantMaterializedViewStateRepositoryImpl(
         return restaurantEntity?.toRestaurant(
             RestaurantMenu(
                 UUID.fromString(restaurantEntity.menuId),
-                menuItemEntities.map { it.toMenuItem() },
+                menuItemEntities.map { it.toMenuItem() }.toImmutableList(),
                 restaurantEntity.cuisine
             )
         )

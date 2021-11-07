@@ -51,7 +51,7 @@ sealed class RestaurantOrderCommand : Command() {
 data class CreateRestaurantOrderCommand(
     override val identifier: RestaurantOrderId,
     val restaurantIdentifier: RestaurantId = RestaurantId(),
-    val lineItems: List<RestaurantOrderLineItem>
+    val lineItems: ImmutableList<RestaurantOrderLineItem>
 ) : RestaurantOrderCommand()
 
 data class MarkRestaurantOrderAsPreparedCommand(
@@ -99,7 +99,7 @@ sealed class RestaurantOrderErrorEvent : RestaurantOrderEvent() {
 
 data class RestaurantOrderCreatedEvent(
     override val identifier: RestaurantOrderId,
-    val lineItems: List<RestaurantOrderLineItem>,
+    val lineItems: ImmutableList<RestaurantOrderLineItem>,
     val restaurantId: RestaurantId
 ) : RestaurantOrderEvent()
 
@@ -137,7 +137,7 @@ data class RestaurantOrder(
     val id: RestaurantOrderId,
     val restaurantId: RestaurantId,
     val status: Status,
-    val lineItems: List<RestaurantOrderLineItem>
+    val lineItems: ImmutableList<RestaurantOrderLineItem>
 )
 ```
 

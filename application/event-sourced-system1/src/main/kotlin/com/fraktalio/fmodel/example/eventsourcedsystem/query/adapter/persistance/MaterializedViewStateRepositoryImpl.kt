@@ -21,6 +21,8 @@ import com.fraktalio.fmodel.example.domain.*
 import com.fraktalio.fmodel.example.domain.RestaurantViewState.MenuItem
 import com.fraktalio.fmodel.example.domain.RestaurantViewState.RestaurantMenu
 import com.fraktalio.fmodel.example.eventsourcedsystem.query.application.MaterializedViewState
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 import org.springframework.transaction.reactive.TransactionalOperator
 import org.springframework.transaction.reactive.executeAndAwait
 import java.util.*
@@ -64,6 +66,7 @@ internal open class MaterializedViewStateRepositoryImpl(
                 restaurantOrderRepository.findById(this.identifier.identifier.toString()).toRestaurantOrder(
                     restaurantOrderItemRepository.findByOrderId(this.identifier.identifier.toString())
                         .map { it.toRestaurantOrderLineItem() }
+                        .toImmutableList()
                 )
             )
             is RestaurantEvent -> {
@@ -75,7 +78,7 @@ internal open class MaterializedViewStateRepositoryImpl(
                     restaurantEntity?.toRestaurant(
                         RestaurantMenu(
                             UUID.fromString(restaurantEntity.menuId),
-                            menuItemEntities.map { it.toMenuItem() },
+                            menuItemEntities.map { it.toMenuItem() }.toImmutableList(),
                             restaurantEntity.cuisine
                         )
                     ),
@@ -152,7 +155,7 @@ internal open class MaterializedViewStateRepositoryImpl(
     }
 
 
-    private fun RestaurantOrderR2DBCEntity?.toRestaurantOrder(lineItems: List<RestaurantOrderLineItem>): RestaurantOrderViewState? =
+    private fun RestaurantOrderR2DBCEntity?.toRestaurantOrder(lineItems: ImmutableList<RestaurantOrderLineItem>): RestaurantOrderViewState? =
         when {
             this != null -> RestaurantOrderViewState(
                 RestaurantOrderId(UUID.fromString(this.id)),

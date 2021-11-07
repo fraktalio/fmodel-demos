@@ -21,6 +21,8 @@ import com.fraktalio.fmodel.example.eventsourcedsystem3.query.adapter.persistanc
 import com.fraktalio.fmodel.example.eventsourcedsystem3.query.adapter.persistance.RestaurantOrderItemCoroutineRepository
 import com.fraktalio.fmodel.example.eventsourcedsystem3.query.adapter.persistance.RestaurantOrderItemR2DBCEntity
 import com.fraktalio.fmodel.example.eventsourcedsystem3.query.adapter.persistance.RestaurantOrderR2DBCEntity
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.runBlocking
 import org.axonframework.config.ProcessingGroup
 import org.axonframework.eventhandling.EventHandler
@@ -45,6 +47,7 @@ internal class RestaurantOrderEventHandler(
             .toRestaurantOrder(
                 restaurantOrderItemRepository.findByOrderId(this.identifier.identifier.toString())
                     .map { it.toRestaurantOrderLineItem() }
+                    .toImmutableList()
             )
 
     private suspend fun RestaurantOrderViewState?.save(): RestaurantOrderViewState? {
@@ -75,7 +78,7 @@ internal class RestaurantOrderEventHandler(
         return this
     }
 
-    private fun RestaurantOrderR2DBCEntity?.toRestaurantOrder(lineItems: List<RestaurantOrderLineItem>): RestaurantOrderViewState? =
+    private fun RestaurantOrderR2DBCEntity?.toRestaurantOrder(lineItems: ImmutableList<RestaurantOrderLineItem>): RestaurantOrderViewState? =
         when {
             this != null -> RestaurantOrderViewState(
                 RestaurantOrderId(UUID.fromString(this.id)),

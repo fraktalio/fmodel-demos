@@ -20,6 +20,7 @@ import com.fraktalio.fmodel.application.publishTo
 import com.fraktalio.fmodel.example.domain.*
 import com.fraktalio.fmodel.example.statestoredsystem.adapter.persistence.RestaurantCoroutineRepository
 import com.fraktalio.fmodel.example.statestoredsystem.application.Aggregate
+import kotlinx.collections.immutable.toImmutableList
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -56,6 +57,17 @@ internal class RestController(
             //.publishEitherTo(aggregate) //
             .publishTo(aggregate)
 
+    /**
+     * Save new restaurant example
+     *
+     * @param request
+     */
+    @GetMapping("/restaurants/create/example")
+    suspend fun save() =
+        CreateRestaurantRequest()
+            .convertToCommand()
+            .publishTo(aggregate)
+
 }
 
 /**
@@ -65,7 +77,7 @@ private fun CreateRestaurantRequest.convertToCommand() =
     CreateRestaurantCommand(
         RestaurantId(),
         this.name,
-        RestaurantMenuVO(this.menuItems.map { MenuItemVO(it.id, it.id, it.name, Money(it.price)) })
+        RestaurantMenuVO(this.menuItems.map { MenuItemVO(it.id, it.id, it.name, Money(it.price)) }.toImmutableList())
     )
 
 

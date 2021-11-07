@@ -19,6 +19,7 @@ package com.fraktalio.fmodel.example.domain
 import com.fraktalio.fmodel.domain.View
 import com.fraktalio.fmodel.example.domain.RestaurantOrderViewState.Status.CREATED
 import com.fraktalio.fmodel.example.domain.RestaurantOrderViewState.Status.PREPARED
+import kotlinx.collections.immutable.ImmutableList
 
 /**
  * A convenient type alias for View<RestaurantOrderViewState?, RestaurantOrderEvent?>
@@ -68,7 +69,7 @@ data class RestaurantOrderViewState(
     val id: RestaurantOrderId,
     val restaurantId: RestaurantId,
     val status: Status,
-    val lineItems: List<RestaurantOrderLineItem>
+    val lineItems: ImmutableList<RestaurantOrderLineItem>
 ) {
     enum class Status {
         CREATED, PREPARED, CANCELLED

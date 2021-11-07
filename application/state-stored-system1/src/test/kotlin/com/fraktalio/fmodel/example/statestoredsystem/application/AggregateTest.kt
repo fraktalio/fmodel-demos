@@ -19,6 +19,8 @@ package com.fraktalio.fmodel.example.statestoredsystem.application
 import com.fraktalio.fmodel.application.StateRepository
 import com.fraktalio.fmodel.application.StateStoredAggregate
 import com.fraktalio.fmodel.example.domain.*
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -39,7 +41,7 @@ internal class AggregateTest(
 
         val createRestaurantCommand = CreateRestaurantCommand(
             RestaurantId(), "name", RestaurantMenuVO(
-                listOf(MenuItemVO("menu id", "menu id", "menu item name", Money(BigDecimal.valueOf(1.0)))),
+                persistentListOf(MenuItemVO("menu id", "menu id", "menu item name", Money(BigDecimal.valueOf(1.0)))),
                 uuid,
                 RestaurantMenuCuisine.GENERAL
             )
@@ -59,7 +61,7 @@ internal class AggregateTest(
                         it.name,
                         it.price
                     )
-                },
+                }.toImmutableList(),
                 RestaurantMenuCuisine.GENERAL,
                 Restaurant.MenuStatus.ACTIVE
             ),
@@ -77,7 +79,7 @@ internal class AggregateTest(
         val createRestaurantOrderCommand = CreateRestaurantOrderCommand(
             RestaurantOrderId(),
             RestaurantId(),
-            listOf(RestaurantOrderLineItem("1", 1, "menu id", "menu id"))
+            persistentListOf(RestaurantOrderLineItem("1", 1, "menu id", "menu id"))
         )
 
         val result = aggregate.handleEither(createRestaurantOrderCommand)
@@ -101,7 +103,7 @@ internal class AggregateTest(
         val createRestaurantOrderCommand = CreateRestaurantOrderCommand(
             RestaurantOrderId(),
             RestaurantId(),
-            listOf(RestaurantOrderLineItem("1", 1, "menu id", "menu id"))
+            persistentListOf(RestaurantOrderLineItem("1", 1, "menu id", "menu id"))
         )
         val markRestaurantOrderAsPreparedCommand = MarkRestaurantOrderAsPreparedCommand(
             createRestaurantOrderCommand.identifier

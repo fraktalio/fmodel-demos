@@ -35,6 +35,11 @@
             <version>${kotlin.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-collections-immutable-jvm</artifactId>
+            <version>0.3.4</version>
+        </dependency>
+        <dependency>
             <groupId>com.fraktalio.fmodel</groupId>
             <artifactId>domain</artifactId>
             <version>2.0.0</version>

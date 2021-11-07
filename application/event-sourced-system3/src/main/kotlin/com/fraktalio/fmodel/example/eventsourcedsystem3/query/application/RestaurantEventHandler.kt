@@ -21,6 +21,7 @@ import com.fraktalio.fmodel.example.eventsourcedsystem3.query.adapter.persistanc
 import com.fraktalio.fmodel.example.eventsourcedsystem3.query.adapter.persistance.MenuItemR2DBCEntity
 import com.fraktalio.fmodel.example.eventsourcedsystem3.query.adapter.persistance.RestaurantCoroutineRepository
 import com.fraktalio.fmodel.example.eventsourcedsystem3.query.adapter.persistance.RestaurantR2DBCEntity
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.runBlocking
 import org.axonframework.config.ProcessingGroup
 import org.axonframework.eventhandling.EventHandler
@@ -78,7 +79,7 @@ internal class RestaurantEventHandler(
         return restaurantEntity?.toRestaurant(
             RestaurantViewState.RestaurantMenu(
                 UUID.fromString(restaurantEntity.menuId),
-                menuItemEntities.map { it.toMenuItem() },
+                menuItemEntities.map { it.toMenuItem() }.toImmutableList(),
                 restaurantEntity.cuisine
             )
         )

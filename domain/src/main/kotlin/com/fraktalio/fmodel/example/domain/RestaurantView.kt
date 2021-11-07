@@ -20,6 +20,8 @@ import com.fraktalio.fmodel.domain.View
 import com.fraktalio.fmodel.example.domain.RestaurantViewState.*
 import com.fraktalio.fmodel.example.domain.RestaurantViewState.MenuStatus.ACTIVE
 import com.fraktalio.fmodel.example.domain.RestaurantViewState.MenuStatus.PASSIVE
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 import java.util.*
 import java.util.stream.Collectors
 
@@ -47,7 +49,7 @@ fun restaurantView() = RestaurantView(
                 e.name,
                 RestaurantMenu(
                     e.menu.menuId,
-                    e.menu.menuItems.map { MenuItem(it.id, it.menuItemId, it.name, it.price) },
+                    e.menu.menuItems.map { MenuItem(it.id, it.menuItemId, it.name, it.price) }.toImmutableList(),
                     e.menu.cuisine
                 ),
                 Status.OPEN
@@ -58,7 +60,7 @@ fun restaurantView() = RestaurantView(
                     s.name,
                     RestaurantMenu(
                         e.menu.menuId,
-                        e.menu.menuItems.map { MenuItem(it.id, it.menuItemId, it.name, it.price) },
+                        e.menu.menuItems.map { MenuItem(it.id, it.menuItemId, it.name, it.price) }.toImmutableList(),
                         e.menu.cuisine
                     ), s.status
                 )
@@ -131,7 +133,7 @@ data class RestaurantViewState(
 
     data class RestaurantMenu(
         val menuId: UUID,
-        val items: List<MenuItem>,
+        val items: ImmutableList<MenuItem>,
         val cuisine: RestaurantMenuCuisine,
         val status: MenuStatus = ACTIVE
     ) {

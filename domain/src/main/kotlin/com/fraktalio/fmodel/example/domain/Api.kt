@@ -19,6 +19,7 @@ package com.fraktalio.fmodel.example.domain
 /**
  * @author Иван Дугалић / Ivan Dugalic / @idugalic
  */
+import kotlinx.collections.immutable.ImmutableList
 import java.math.BigDecimal
 import java.util.*
 
@@ -54,7 +55,7 @@ enum class RestaurantMenuCuisine {
 }
 
 data class RestaurantMenuVO(
-    val menuItems: List<MenuItemVO>,
+    val menuItems: ImmutableList<MenuItemVO>,
     val menuId: UUID = UUID.randomUUID(),
     val cuisine: RestaurantMenuCuisine = RestaurantMenuCuisine.GENERAL
 )
@@ -100,13 +101,13 @@ data class PassivateRestaurantMenuCommand(
 data class PlaceRestaurantOrderCommand(
     override val identifier: RestaurantId,
     val restaurantOrderIdentifier: RestaurantOrderId = RestaurantOrderId(),
-    val lineItems: List<RestaurantOrderLineItem>
+    val lineItems: ImmutableList<RestaurantOrderLineItem>
 ) : RestaurantCommand()
 
 data class CreateRestaurantOrderCommand(
     override val identifier: RestaurantOrderId,
     val restaurantIdentifier: RestaurantId = RestaurantId(),
-    val lineItems: List<RestaurantOrderLineItem>
+    val lineItems: ImmutableList<RestaurantOrderLineItem>
 ) : RestaurantOrderCommand()
 
 data class MarkRestaurantOrderAsPreparedCommand(
@@ -185,13 +186,13 @@ data class RestaurantMenuNotPassivatedEvent(
 
 data class RestaurantOrderPlacedAtRestaurantEvent(
     override val identifier: RestaurantId,
-    val lineItems: List<RestaurantOrderLineItem>,
+    val lineItems: ImmutableList<RestaurantOrderLineItem>,
     val restaurantOrderId: RestaurantOrderId
 ) : RestaurantEvent()
 
 data class RestaurantOrderNotPlacedAtRestaurantEvent(
     override val identifier: RestaurantId,
-    val lineItems: List<RestaurantOrderLineItem>,
+    val lineItems: ImmutableList<RestaurantOrderLineItem>,
     val restaurantOrderId: RestaurantOrderId,
     override val reason: String
 ) : RestaurantErrorEvent()
@@ -206,7 +207,7 @@ data class RestaurantOrderRejectedByRestaurantEvent(
 
 data class RestaurantOrderCreatedEvent(
     override val identifier: RestaurantOrderId,
-    val lineItems: List<RestaurantOrderLineItem>,
+    val lineItems: ImmutableList<RestaurantOrderLineItem>,
     val restaurantId: RestaurantId
 ) : RestaurantOrderEvent()
 

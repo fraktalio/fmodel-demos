@@ -19,6 +19,8 @@ package com.fraktalio.fmodel.example.statestoredsystem.adapter.persistence
 import com.fraktalio.fmodel.application.StateRepository
 import com.fraktalio.fmodel.example.domain.*
 import com.fraktalio.fmodel.example.statestoredsystem.application.AggregateState
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 import org.springframework.transaction.reactive.TransactionalOperator
 import org.springframework.transaction.reactive.executeAndAwait
 import java.util.*
@@ -58,7 +60,7 @@ internal open class AggregateStateStoredRepositoryImpl(
             is RestaurantOrderCommand -> AggregateState(
                 restaurantOrderRepository.findById(this.identifier.identifier.toString()).toRestaurantOrder(
                     restaurantOrderItemRepository.findByOrderId(this.identifier.identifier.toString())
-                        .map { it.toRestaurantOrderLineItem() }
+                        .map { it.toRestaurantOrderLineItem() }.toImmutableList()
                 ),
                 null
             )
@@ -73,7 +75,7 @@ internal open class AggregateStateStoredRepositoryImpl(
                     restaurantEntity?.toRestaurant(
                         Restaurant.RestaurantMenu(
                             UUID.fromString(restaurantEntity.menuId),
-                            menuItemEntities.map { it.toMenuItem() },
+                            menuItemEntities.map { it.toMenuItem() }.toImmutableList(),
                             restaurantEntity.cuisine
                         )
                     )
@@ -150,7 +152,7 @@ internal open class AggregateStateStoredRepositoryImpl(
     }
 
 
-    private fun RestaurantOrderR2DBCEntity?.toRestaurantOrder(lineItems: List<RestaurantOrderLineItem>): RestaurantOrder? =
+    private fun RestaurantOrderR2DBCEntity?.toRestaurantOrder(lineItems: ImmutableList<RestaurantOrderLineItem>): RestaurantOrder? =
         when {
             this != null -> RestaurantOrder(
                 RestaurantOrderId(UUID.fromString(this.id)),

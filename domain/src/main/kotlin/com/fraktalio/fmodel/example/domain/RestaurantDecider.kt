@@ -20,6 +20,8 @@ import com.fraktalio.fmodel.domain.Decider
 import com.fraktalio.fmodel.example.domain.Restaurant.*
 import com.fraktalio.fmodel.example.domain.Restaurant.MenuStatus.ACTIVE
 import com.fraktalio.fmodel.example.domain.Restaurant.MenuStatus.PASSIVE
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import java.util.*
@@ -120,7 +122,7 @@ fun restaurantDecider() = RestaurantDecider(
                 e.name,
                 RestaurantMenu(
                     e.menu.menuId,
-                    e.menu.menuItems.map { MenuItem(it.id, it.menuItemId, it.name, it.price) },
+                    e.menu.menuItems.map { MenuItem(it.id, it.menuItemId, it.name, it.price) }.toImmutableList(),
                     e.menu.cuisine
                 ),
                 Status.OPEN
@@ -131,7 +133,7 @@ fun restaurantDecider() = RestaurantDecider(
                     s.name,
                     RestaurantMenu(
                         e.menu.menuId,
-                        e.menu.menuItems.map { MenuItem(it.id, it.menuItemId, it.name, it.price) },
+                        e.menu.menuItems.map { MenuItem(it.id, it.menuItemId, it.name, it.price) }.toImmutableList(),
                         e.menu.cuisine
                     ), s.status
                 )
@@ -204,7 +206,7 @@ data class Restaurant(
 
     data class RestaurantMenu(
         val menuId: UUID,
-        val items: List<MenuItem>,
+        val items: ImmutableList<MenuItem>,
         val cuisine: RestaurantMenuCuisine,
         val status: MenuStatus = ACTIVE
     ) {

@@ -19,6 +19,8 @@ package com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.web
 import com.fraktalio.fmodel.application.publishTo
 import com.fraktalio.fmodel.example.domain.*
 import com.fraktalio.fmodel.example.eventsourcedsystem.command.application.OrderRestaurantAggregate
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import org.axonframework.commandhandling.gateway.CommandGateway
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -110,7 +112,7 @@ internal class CommandRestController(
             PlaceRestaurantOrderCommand(
                 RestaurantId(restaurantId),
                 RestaurantOrderId(),
-                listOf(RestaurantOrderLineItem("1", 1, "1", "Sarma"))
+                persistentListOf(RestaurantOrderLineItem("1", 1, "1", "Sarma"))
             )
         )
 
@@ -125,7 +127,7 @@ private fun CreateRestaurantRequest.convertToCommand() =
     CreateRestaurantCommand(
         RestaurantId(),
         this.name,
-        RestaurantMenuVO(this.menuItems.map { MenuItemVO(it.id, it.id, it.name, Money(it.price)) })
+        RestaurantMenuVO(this.menuItems.map { MenuItemVO(it.id, it.id, it.name, Money(it.price)) }.toImmutableList())
     )
 
 

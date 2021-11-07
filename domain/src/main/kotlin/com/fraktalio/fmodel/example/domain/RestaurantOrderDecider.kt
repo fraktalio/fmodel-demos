@@ -19,6 +19,7 @@ package com.fraktalio.fmodel.example.domain
 import com.fraktalio.fmodel.domain.Decider
 import com.fraktalio.fmodel.example.domain.RestaurantOrder.Status.CREATED
 import com.fraktalio.fmodel.example.domain.RestaurantOrder.Status.PREPARED
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 
@@ -94,7 +95,7 @@ data class RestaurantOrder(
     val id: RestaurantOrderId,
     val restaurantId: RestaurantId,
     val status: Status,
-    val lineItems: List<RestaurantOrderLineItem>
+    val lineItems: ImmutableList<RestaurantOrderLineItem>
 ) {
     enum class Status {
         CREATED, PREPARED, REJECTED, CANCELLED
