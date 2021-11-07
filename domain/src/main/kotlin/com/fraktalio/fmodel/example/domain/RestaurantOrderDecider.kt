@@ -48,10 +48,8 @@ fun restaurantOrderDecider() = RestaurantOrderDecider(
                 if (s == null) flowOf(RestaurantOrderCreatedEvent(c.identifier, c.lineItems, c.restaurantIdentifier))
                 // ** negative flow 1 (publishing business error events) **
                 else flowOf(
-                    RestaurantOrderNotCreatedEvent(
+                    RestaurantOrderRejectedEvent(
                         c.identifier,
-                        c.lineItems,
-                        c.restaurantIdentifier,
                         "Restaurant order already exists"
                     )
                 )

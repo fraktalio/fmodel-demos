@@ -210,13 +210,6 @@ data class RestaurantOrderCreatedEvent(
     val restaurantId: RestaurantId
 ) : RestaurantOrderEvent()
 
-data class RestaurantOrderNotCreatedEvent(
-    override val identifier: RestaurantOrderId,
-    val lineItems: List<RestaurantOrderLineItem>,
-    val restaurantId: RestaurantId,
-    override val reason: String
-) : RestaurantOrderErrorEvent()
-
 data class RestaurantOrderPreparedEvent(
     override val identifier: RestaurantOrderId,
 ) : RestaurantOrderEvent()

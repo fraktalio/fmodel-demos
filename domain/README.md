@@ -82,15 +82,19 @@ Events represent the state change itself, a fact. These events represent decisio
 
 #### Sum/OR
 
-We model our events as a `Sum` type (`OR` relationship) by using `sealed` class. In this example, we have three possible
+We model our events as a `Sum` type (`OR` relationship) by using `sealed` class. In this example, we have four possible
 sub-classes of `RestaurantOrderEvent` which are known at compile time: `RestaurantOrderCreatedEvent`
-, `RestaurantOrderPreparedEvent` and `RestaurantOrderRejectedEvent`.
+, `RestaurantOrderPreparedEvent`, `RestaurantOrderNotPreparedEvent` and `RestaurantOrderRejectedEvent`.
 
 ```kotlin
 sealed class Event
 
 sealed class RestaurantOrderEvent : Event() {
     abstract val identifier: RestaurantOrderId
+}
+
+sealed class RestaurantOrderErrorEvent : RestaurantOrderEvent() {
+    abstract val reason: String
 }
 
 data class RestaurantOrderCreatedEvent(
@@ -105,8 +109,13 @@ data class RestaurantOrderPreparedEvent(
 
 data class RestaurantOrderRejectedEvent(
     override val identifier: RestaurantOrderId,
-    val reason: String
-) : RestaurantOrderEvent()
+    override val reason: String
+) : RestaurantOrderErrorEvent()
+
+data class RestaurantOrderNotPreparedEvent(
+    override val identifier: RestaurantOrderId,
+    override val reason: String
+) : RestaurantOrderErrorEvent()
 ```
 
 #### Product/AND
@@ -179,10 +188,8 @@ fun restaurantOrderDecider() = Decider<RestaurantOrderCommand?, RestaurantOrder?
                 if (s == null) flowOf(RestaurantOrderCreatedEvent(c.identifier, c.lineItems, c.restaurantIdentifier))
                 // ** negative flow 1 (publishing business error events) **
                 else flowOf(
-                    RestaurantOrderNotCreatedEvent(
+                    RestaurantOrderRejectedEvent(
                         c.identifier,
-                        c.lineItems,
-                        c.restaurantIdentifier,
                         "Restaurant order already exists"
                     )
                 )
