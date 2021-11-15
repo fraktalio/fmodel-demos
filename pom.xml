@@ -28,7 +28,7 @@
 
     <properties>
         <java.version>11</java.version>
-        <kotlin.version>1.5.31</kotlin.version>
+        <kotlin.version>1.6.0</kotlin.version>
     </properties>
 
     <modules>
