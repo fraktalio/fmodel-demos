@@ -29,6 +29,7 @@
     <properties>
         <java.version>11</java.version>
         <kotlin.version>1.6.0</kotlin.version>
+        <fmodel.version>2.2.0</fmodel.version>
     </properties>
 
     <modules>
