@@ -17,6 +17,7 @@
 package com.fraktalio.fmodel.example.eventsourcedsystem.command.application
 
 import com.fraktalio.fmodel.application.EventSourcingAggregate
+import com.fraktalio.fmodel.application.eventSourcingOrchestratingAggregate
 import com.fraktalio.fmodel.domain.combine
 import com.fraktalio.fmodel.example.domain.*
 import com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.persistence.AggregateEventStoreRepository
@@ -45,7 +46,7 @@ internal fun aggregate(
     restaurantOrderSaga: RestaurantOrderSaga,
     restaurantSaga: RestaurantSaga,
     eventRepository: AggregateEventStoreRepository
-) = OrderRestaurantAggregate(
+) = eventSourcingOrchestratingAggregate(
 
     // Combining two deciders into one.
     decider = restaurantOrderDecider.combine(restaurantDecider),

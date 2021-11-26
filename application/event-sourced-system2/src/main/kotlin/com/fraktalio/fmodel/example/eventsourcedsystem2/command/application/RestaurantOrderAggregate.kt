@@ -17,6 +17,7 @@
 package com.fraktalio.fmodel.example.eventsourcedsystem2.command.application
 
 import com.fraktalio.fmodel.application.EventSourcingAggregate
+import com.fraktalio.fmodel.application.eventSourcingAggregate
 import com.fraktalio.fmodel.example.domain.RestaurantOrder
 import com.fraktalio.fmodel.example.domain.RestaurantOrderCommand
 import com.fraktalio.fmodel.example.domain.RestaurantOrderDecider
@@ -39,7 +40,7 @@ typealias RestaurantOrderAggregate = EventSourcingAggregate<RestaurantOrderComma
 internal fun restaurantOrderAggregate(
     restaurantOrderDecider: RestaurantOrderDecider,
     eventRepository: RestaurantOrderAggregateEventStoreRepository
-) = RestaurantOrderAggregate(
+) = eventSourcingAggregate(
 
     decider = restaurantOrderDecider,
     eventRepository = eventRepository,

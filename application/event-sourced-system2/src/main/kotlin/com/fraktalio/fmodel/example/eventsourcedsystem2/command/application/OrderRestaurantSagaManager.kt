@@ -33,7 +33,7 @@ internal fun sagaManager(
     restaurantOrderSaga: RestaurantOrderSaga,
     restaurantSaga: RestaurantSaga,
     actionPublisher: ActionPublisher<Command?>
-) = OrderRestaurantSagaManager(
+) = com.fraktalio.fmodel.application.sagaManager(
     // Combining individual choreography Sagas into one orchestrating Saga.
     saga = restaurantOrderSaga.combine(restaurantSaga),
     actionPublisher = actionPublisher

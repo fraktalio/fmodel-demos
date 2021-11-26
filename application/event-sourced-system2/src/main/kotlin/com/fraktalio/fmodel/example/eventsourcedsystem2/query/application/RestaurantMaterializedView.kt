@@ -17,6 +17,7 @@
 package com.fraktalio.fmodel.example.eventsourcedsystem2.query.application
 
 import com.fraktalio.fmodel.application.MaterializedView
+import com.fraktalio.fmodel.application.materializedView
 import com.fraktalio.fmodel.example.domain.RestaurantEvent
 import com.fraktalio.fmodel.example.domain.RestaurantView
 import com.fraktalio.fmodel.example.domain.RestaurantViewState
@@ -31,7 +32,7 @@ typealias RestaurantMaterializedView = MaterializedView<RestaurantViewState?, Re
 internal fun restaurantMaterializedView(
     restaurantView: RestaurantView,
     viewStateRepository: RestaurantMaterializedViewStateRepository
-) = RestaurantMaterializedView(
+) = materializedView(
     view = restaurantView,
     viewStateRepository = viewStateRepository
 )

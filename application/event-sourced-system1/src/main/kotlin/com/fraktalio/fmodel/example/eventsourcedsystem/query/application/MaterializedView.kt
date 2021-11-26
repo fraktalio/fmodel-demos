@@ -30,7 +30,7 @@ internal fun materializedView(
     restaurantViewState: RestaurantView,
     restaurantOrderViewState: RestaurantOrderView,
     viewStateRepository: MaterializedViewStateRepository
-) = OrderRestaurantMaterializedView(
+) = com.fraktalio.fmodel.application.materializedView(
     view = restaurantViewState.combine(restaurantOrderViewState).dimapOnState(
         fl = { Pair(it.restaurant, it.order) },
         fr = { MaterializedViewState(it.first, it.second) }
