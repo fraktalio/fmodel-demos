@@ -54,7 +54,6 @@ internal class RestController(
     suspend fun save(@RequestBody request: CreateRestaurantRequest) =
         request
             .convertToCommand()
-            //.publishEitherTo(aggregate) //
             .publishTo(aggregate)
 
     /**
