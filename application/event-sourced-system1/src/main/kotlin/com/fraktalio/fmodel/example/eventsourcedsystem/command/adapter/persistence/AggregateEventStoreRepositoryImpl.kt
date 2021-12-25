@@ -20,13 +20,10 @@ import com.fraktalio.fmodel.application.EventRepository
 import com.fraktalio.fmodel.example.domain.*
 import com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.getAggregateType
 import com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.getId
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.axonframework.eventhandling.GenericDomainEventMessage
 import org.axonframework.eventsourcing.eventstore.EventStore
-import java.util.*
 
 /**
  * A convenient type alias for EventRepository<Command?, Event?>
@@ -47,11 +44,15 @@ internal open class AggregateEventStoreRepositoryImpl(
     private val axonServerEventStore: EventStore
 ) : AggregateEventStoreRepository {
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val axonServer = Dispatchers.IO.limitedParallelism(10)
+
     /**
      * Fetch events for the given command/this
      *
      * @return the [Flow] of [Event]s
      */
+    @OptIn(ExperimentalCoroutinesApi::class)
     override fun Command?.fetchEvents(): Flow<Event?> =
         when (this) {
             is CreateRestaurantCommand,
@@ -60,18 +61,23 @@ internal open class AggregateEventStoreRepositoryImpl(
             is PassivateRestaurantMenuCommand,
             is CreateRestaurantOrderCommand,
             is MarkRestaurantOrderAsPreparedCommand ->
-                axonServerEventStore.readEvents(getId()).asFlow().map { it.payload as Event }
+                flow {
+                    withContext(axonServer) {
+                        emitAll(axonServerEventStore.fetchEvents(getId()))
+                    }
+
+                }
             is PlaceRestaurantOrderCommand ->
                 // This Flow builder creates an instance of a coldFlow with elements that are sent to a SendChannel provided to the builder's block of code via ProducerScope.
                 // It allows elements to be produced by code that is running in a different context or concurrently.
                 channelFlow {
-                    launch(Dispatchers.IO) {
-                        axonServerEventStore.readEvents(getId())
-                            .forEach { send(it.payload as Event) }
+                    launch(axonServer) {
+                        axonServerEventStore.fetchEvents<Event>(getId())
+                            .collect { send(it) }
                     }
-                    launch(Dispatchers.IO) {
-                        axonServerEventStore.readEvents(restaurantOrderIdentifier.identifier.toString())
-                            .forEach { send(it.payload as Event) }
+                    launch(axonServer) {
+                        axonServerEventStore.fetchEvents<Event>(restaurantOrderIdentifier.identifier.toString())
+                            .collect { send(it) }
                     }
                 }
             null -> emptyFlow<Event>()
@@ -86,19 +92,16 @@ internal open class AggregateEventStoreRepositoryImpl(
     override suspend fun Event?.save(): Event? =
         when (this) {
             is Event -> {
-                axonServerEventStore.publish(
-                    GenericDomainEventMessage(
-                        getAggregateType(),
-                        getId(),
-                        axonServerEventStore.lastSequenceNumberFor(getId())
-                            .orElse(-1) + 1,
-                        this
-                    )
-                )
+                withContext(axonServer) {
+                    with(axonServerEventStore) {
+                        publishEvents(listOf(this@save), lastSequenceNumber(this@save.getId()))
+                    }
+                }
                 this
             }
             null -> null
         }
+
 
     /**
      * Save the events of type [Event] into the Axon Server
@@ -109,12 +112,11 @@ internal open class AggregateEventStoreRepositoryImpl(
         runBlocking {
 
             val restaurantEvent = this@save.filterIsInstance<RestaurantEvent>().firstOrNull()
-            val restaurantOrderEvent = this@save.filterIsInstance<RestaurantOrderEvent>().firstOrNull()
-
             val lastRestaurantSequenceNumber =
-                if (restaurantEvent != null) axonServerEventStore.lastSequenceNumberFor(restaurantEvent.getId()) else Optional.empty()
+                if (restaurantEvent != null) axonServerEventStore.lastSequenceNumber(restaurantEvent.getId()) else -1
+            val restaurantOrderEvent = this@save.filterIsInstance<RestaurantOrderEvent>().firstOrNull()
             val lastRestaurantOrderSequenceNumber =
-                if (restaurantOrderEvent != null) axonServerEventStore.lastSequenceNumberFor(restaurantOrderEvent.getId()) else Optional.empty()
+                if (restaurantOrderEvent != null) axonServerEventStore.lastSequenceNumber(restaurantOrderEvent.getId()) else -1
 
             var restaurantIndex = 0
             var restaurantOrderIndex = 0
@@ -127,14 +129,14 @@ internal open class AggregateEventStoreRepositoryImpl(
                                 GenericDomainEventMessage(
                                     event.getAggregateType(),
                                     event.getId(),
-                                    lastRestaurantSequenceNumber.orElse(-1) + ++restaurantIndex,
+                                    lastRestaurantSequenceNumber + ++restaurantIndex,
                                     event
                                 )
                             is RestaurantOrderEvent ->
                                 GenericDomainEventMessage(
                                     event.getAggregateType(),
                                     event.getId(),
-                                    lastRestaurantOrderSequenceNumber.orElse(-1) + ++restaurantOrderIndex,
+                                    lastRestaurantOrderSequenceNumber + ++restaurantOrderIndex,
                                     event
                                 )
                         }

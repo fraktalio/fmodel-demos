@@ -68,5 +68,10 @@ internal open class AxonCommandHandler(private val aggregate: OrderRestaurantAgg
         publish(command)
     }
 
+    @CommandHandler
+    fun handle(command: CreateRestaurantOrderCommand) {
+        publish(command)
+    }
+
 }
 

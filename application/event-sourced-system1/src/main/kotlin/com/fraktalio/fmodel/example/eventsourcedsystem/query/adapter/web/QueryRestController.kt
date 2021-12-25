@@ -18,8 +18,11 @@ package com.fraktalio.fmodel.example.eventsourcedsystem.query.adapter.web
 
 import com.fraktalio.fmodel.example.eventsourcedsystem.query.adapter.FindAllRestaurantsQuery
 import com.fraktalio.fmodel.example.eventsourcedsystem.query.adapter.persistance.RestaurantCoroutineRepository
-import com.fraktalio.fmodel.example.eventsourcedsystem.query.adapter.persistance.RestaurantR2DBCEntity
-import org.axonframework.messaging.responsetypes.ResponseTypes
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.withContext
 import org.axonframework.queryhandling.QueryGateway
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
@@ -36,20 +39,32 @@ internal class QueryRestController(
     private val restaurantRepository: RestaurantCoroutineRepository,
     private val queryGateway: QueryGateway
 ) {
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val axonServerBusses = Dispatchers.IO.limitedParallelism(10)
+
     /**
      * Get restaurants - non location transparent version of the endpoint
      **/
     @GetMapping("/example/restaurant")
     suspend fun getRestaurants() =
-        restaurantRepository.findAll()
+        withContext(axonServerBusses) {
+            restaurantRepository.findAll()
+        }
 
     /**
      * Get restaurants - location transparent version of the endpoint.
      * Using the Axon Query Bus/Gateway
      **/
     @GetMapping("/example/bus/restaurant")
-    suspend fun getRestaurantsViaQueryBus() = queryGateway.query(
-        FindAllRestaurantsQuery(),
-        ResponseTypes.multipleInstancesOf(RestaurantR2DBCEntity::class.java)
-    )
+    fun getRestaurantsViaQueryBus() =
+        flow {
+            emitAll(
+                withContext(axonServerBusses) {
+                    queryGateway.queryFlow(
+                        FindAllRestaurantsQuery()
+                    )
+                }
+            )
+        }
 }

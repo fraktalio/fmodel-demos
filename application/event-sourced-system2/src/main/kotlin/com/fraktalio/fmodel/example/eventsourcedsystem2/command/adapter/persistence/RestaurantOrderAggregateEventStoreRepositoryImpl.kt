@@ -17,17 +17,15 @@
 package com.fraktalio.fmodel.example.eventsourcedsystem2.command.adapter.persistence
 
 import com.fraktalio.fmodel.application.EventRepository
-import com.fraktalio.fmodel.example.domain.*
-import com.fraktalio.fmodel.example.eventsourcedsystem2.command.adapter.getAggregateType
+import com.fraktalio.fmodel.example.domain.Event
+import com.fraktalio.fmodel.example.domain.RestaurantOrderCommand
+import com.fraktalio.fmodel.example.domain.RestaurantOrderEvent
 import com.fraktalio.fmodel.example.eventsourcedsystem2.command.adapter.getId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import org.axonframework.eventhandling.GenericDomainEventMessage
 import org.axonframework.eventsourcing.eventstore.EventStore
-import java.util.*
 
 /**
  * A convenient type alias for EventRepository<RestaurantOrderCommand?, RestaurantOrderEvent?>
@@ -58,6 +56,7 @@ internal open class RestaurantOrderAggregateEventStoreRepositoryImpl(
                     null -> emptyFlow()
                 }
             )
+
         }
 
 
@@ -70,7 +69,9 @@ internal open class RestaurantOrderAggregateEventStoreRepositoryImpl(
         when (this) {
             is RestaurantOrderEvent -> {
                 withContext(axonServer) {
-                    axonServerEventStore.publishEvents(listOf(this@save))
+                    with(axonServerEventStore) {
+                        publishEvents(listOf(this@save), lastSequenceNumber(this@save.getId()))
+                    }
                 }
                 this
             }
@@ -85,7 +86,10 @@ internal open class RestaurantOrderAggregateEventStoreRepositoryImpl(
     override fun Flow<RestaurantOrderEvent?>.save(): Flow<RestaurantOrderEvent?> =
         flow {
             withContext(axonServer) {
-                axonServerEventStore.publishEvents(filterNotNull().toList())
+                with(axonServerEventStore) {
+                    val events = filterNotNull().toList()
+                    publishEvents(events, lastSequenceNumber(events.first().getId()))
+                }
             }
             emitAll(filterNotNull())
         }

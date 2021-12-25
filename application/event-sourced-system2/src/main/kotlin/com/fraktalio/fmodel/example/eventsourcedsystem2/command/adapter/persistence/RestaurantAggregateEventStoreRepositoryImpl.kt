@@ -58,7 +58,6 @@ internal open class RestaurantAggregateEventStoreRepositoryImpl(
 
         }
 
-
     /**
      * Save the event of type [Event] into the Axon Server
      *
@@ -68,13 +67,14 @@ internal open class RestaurantAggregateEventStoreRepositoryImpl(
         when (this) {
             is RestaurantEvent -> {
                 withContext(axonServer) {
-                    axonServerEventStore.publishEvents(listOf(this@save))
+                    with(axonServerEventStore) {
+                        publishEvents(listOf(this@save), lastSequenceNumber(this@save.getId()))
+                    }
                 }
                 this
             }
             null -> null
         }
-
 
     /**
      * Save the events of type [Event] into the Axon Server
@@ -84,7 +84,10 @@ internal open class RestaurantAggregateEventStoreRepositoryImpl(
     override fun Flow<RestaurantEvent?>.save(): Flow<RestaurantEvent?> =
         flow {
             withContext(axonServer) {
-                axonServerEventStore.publishEvents(filterNotNull().toList())
+                with(axonServerEventStore) {
+                    val events = filterNotNull().toList()
+                    publishEvents(events, lastSequenceNumber(events.first().getId()))
+                }
             }
             emitAll(filterNotNull())
         }

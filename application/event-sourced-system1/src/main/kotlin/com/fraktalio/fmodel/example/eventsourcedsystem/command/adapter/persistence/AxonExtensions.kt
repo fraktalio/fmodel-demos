@@ -1,8 +1,8 @@
-package com.fraktalio.fmodel.example.eventsourcedsystem2.command.adapter.persistence
+package com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.persistence
 
 import com.fraktalio.fmodel.example.domain.Event
-import com.fraktalio.fmodel.example.eventsourcedsystem2.command.adapter.getAggregateType
-import com.fraktalio.fmodel.example.eventsourcedsystem2.command.adapter.getId
+import com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.getAggregateType
+import com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.getId
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runInterruptible
