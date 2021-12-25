@@ -19,6 +19,9 @@ package com.fraktalio.fmodel.example.eventsourcedsystem2.command.adapter.web
 import com.fraktalio.fmodel.example.domain.*
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.withContext
 import org.axonframework.commandhandling.gateway.CommandGateway
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -35,7 +38,10 @@ import java.util.*
 @RestController
 internal class CommandRestController(
     private val commandGateway: CommandGateway
+
 ) {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val axonServerBusses = Dispatchers.IO.limitedParallelism(20)
 
     /**
      * Create restaurant via axon command bus
@@ -46,8 +52,10 @@ internal class CommandRestController(
      */
     // @PostMapping("/bus/restaurant")
     @GetMapping("/example/bus/restaurant/create")
-    fun createRestaurantViaBus() =
-        commandGateway.send<Command>(CreateRestaurantRequest().convertToCommand())
+    suspend fun createRestaurantViaBus() =
+        withContext(axonServerBusses) {
+            commandGateway.sendCommand<Command, Any>(CreateRestaurantRequest().convertToCommand())
+        }
 
     /**
      * Activate restaurant menu via axon command bus
@@ -61,8 +69,10 @@ internal class CommandRestController(
      */
     // @PostMapping("/bus/restaurant/{restaurantId}/activate/{menuId}")
     @GetMapping("/example/bus/restaurant/{restaurantId}/activate/{menuId}")
-    fun activateRestaurantMenuViaBus(@PathVariable restaurantId: UUID, @PathVariable menuId: UUID) =
-        commandGateway.send<Command>(ActivateRestaurantMenuCommand(RestaurantId(restaurantId), menuId))
+    suspend fun activateRestaurantMenuViaBus(@PathVariable restaurantId: UUID, @PathVariable menuId: UUID) =
+        withContext(axonServerBusses) {
+            commandGateway.sendCommand<Command, Any>(ActivateRestaurantMenuCommand(RestaurantId(restaurantId), menuId))
+        }
 
     /**
      * Passivate restaurant menu via axon command bus
@@ -76,8 +86,10 @@ internal class CommandRestController(
      */
     // @PostMapping("/bus/restaurant/{restaurantId}/passivate/{menuId}")
     @GetMapping("/example/bus/restaurant/{restaurantId}/passivate/{menuId}")
-    fun passivateRestaurantMenuViaBus(@PathVariable restaurantId: UUID, @PathVariable menuId: UUID) =
-        commandGateway.send<Command>(PassivateRestaurantMenuCommand(RestaurantId(restaurantId), menuId))
+    suspend fun passivateRestaurantMenuViaBus(@PathVariable restaurantId: UUID, @PathVariable menuId: UUID) =
+        withContext(axonServerBusses) {
+            commandGateway.sendCommand<Command, Any>(PassivateRestaurantMenuCommand(RestaurantId(restaurantId), menuId))
+        }
 
     /**
      * Place restaurant order via axon command bus
@@ -90,14 +102,16 @@ internal class CommandRestController(
      * @param menuId
      */
     @GetMapping("/example/bus/restaurant/{restaurantId}/order")
-    fun placeRestaurantOrderViaBus(@PathVariable restaurantId: UUID) =
-        commandGateway.send<Command>(
-            PlaceRestaurantOrderCommand(
-                RestaurantId(restaurantId),
-                RestaurantOrderId(),
-                persistentListOf(RestaurantOrderLineItem("1", 1, "1", "Sarma"))
+    suspend fun placeRestaurantOrderViaBus(@PathVariable restaurantId: UUID) =
+        withContext(axonServerBusses) {
+            commandGateway.sendCommand<Command, Any>(
+                PlaceRestaurantOrderCommand(
+                    RestaurantId(restaurantId),
+                    RestaurantOrderId(),
+                    persistentListOf(RestaurantOrderLineItem("1", 1, "1", "Sarma"))
+                )
             )
-        )
+        }
 
 }
 

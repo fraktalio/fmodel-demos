@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.fraktalio.fmodel.example.eventsourcedsystem2.command.adapter.axon
+package com.fraktalio.fmodel.example.eventsourcedsystem2.command.adapter.bus
 
 import com.fraktalio.fmodel.application.publishTo
 import com.fraktalio.fmodel.example.domain.*
@@ -41,14 +41,12 @@ internal open class AxonCommandHandler(
     private val restaurantAggregate: RestaurantAggregate,
     private val restaurantOrderAggregate: RestaurantOrderAggregate
 ) {
-
     private fun publish(command: Command) {
         runBlocking {
             when (command) {
                 is RestaurantCommand -> command.publishTo(restaurantAggregate).collect()
                 is RestaurantOrderCommand -> command.publishTo(restaurantOrderAggregate).collect()
             }
-
         }
     }
 
@@ -74,6 +72,11 @@ internal open class AxonCommandHandler(
 
     @CommandHandler
     fun handle(command: PlaceRestaurantOrderCommand) {
+        publish(command)
+    }
+
+    @CommandHandler
+    fun handle(command: CreateRestaurantOrderCommand) {
         publish(command)
     }
 

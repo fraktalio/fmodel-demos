@@ -1,4 +1,4 @@
-package com.fraktalio.fmodel.example.eventsourcedsystem2.command.adapter.axon
+package com.fraktalio.fmodel.example.eventsourcedsystem2.command.adapter.bus
 
 import com.fraktalio.fmodel.application.publishTo
 import com.fraktalio.fmodel.example.domain.Event
@@ -16,7 +16,6 @@ internal class AxonSagaEventHandler(private val sagaManager: OrderRestaurantSaga
     @EventHandler
     fun handle(event: Event) {
         runBlocking {
-            //sagaManager.handle(event).collect()
             event.publishTo(sagaManager).collect()
         }
     }

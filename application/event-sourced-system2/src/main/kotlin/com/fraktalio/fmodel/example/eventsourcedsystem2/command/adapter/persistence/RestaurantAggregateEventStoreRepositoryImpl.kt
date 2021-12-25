@@ -20,13 +20,12 @@ import com.fraktalio.fmodel.application.EventRepository
 import com.fraktalio.fmodel.example.domain.Event
 import com.fraktalio.fmodel.example.domain.RestaurantCommand
 import com.fraktalio.fmodel.example.domain.RestaurantEvent
-import com.fraktalio.fmodel.example.eventsourcedsystem2.command.adapter.getAggregateType
 import com.fraktalio.fmodel.example.eventsourcedsystem2.command.adapter.getId
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.runBlocking
-import org.axonframework.eventhandling.GenericDomainEventMessage
+import kotlinx.coroutines.withContext
 import org.axonframework.eventsourcing.eventstore.EventStore
-import java.util.*
 
 /**
  * A convenient type alias for  EventRepository<RestaurantCommand?, RestaurantEvent?>
@@ -37,16 +36,26 @@ internal open class RestaurantAggregateEventStoreRepositoryImpl(
     private val axonServerEventStore: EventStore
 ) : RestaurantAggregateEventStoreRepository {
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val axonServer = Dispatchers.IO.limitedParallelism(10)
+
     /**
      * Fetch events for the given command/this
      *
      * @return the [Flow] of [Event]s
      */
     override fun RestaurantCommand?.fetchEvents(): Flow<RestaurantEvent?> =
-        when (this) {
-            is RestaurantCommand ->
-                axonServerEventStore.readEvents(getId()).asFlow().map { it.payload as RestaurantEvent }
-            null -> emptyFlow<RestaurantEvent>()
+        flow {
+            emitAll(
+                when (this@fetchEvents) {
+                    is RestaurantCommand ->
+                        withContext(axonServer) {
+                            axonServerEventStore.fetchEvents(getId())
+                        }
+                    null -> emptyFlow()
+                }
+            )
+
         }
 
 
@@ -58,19 +67,14 @@ internal open class RestaurantAggregateEventStoreRepositoryImpl(
     override suspend fun RestaurantEvent?.save(): RestaurantEvent? =
         when (this) {
             is RestaurantEvent -> {
-                axonServerEventStore.publish(
-                    GenericDomainEventMessage(
-                        getAggregateType(),
-                        getId(),
-                        axonServerEventStore.lastSequenceNumberFor(getId())
-                            .orElse(-1) + 1,
-                        this
-                    )
-                )
+                withContext(axonServer) {
+                    axonServerEventStore.publishEvents(listOf(this@save))
+                }
                 this
             }
             null -> null
         }
+
 
     /**
      * Save the events of type [Event] into the Axon Server
@@ -78,28 +82,10 @@ internal open class RestaurantAggregateEventStoreRepositoryImpl(
      * @return the [Flow] of saved [Event]s
      */
     override fun Flow<RestaurantEvent?>.save(): Flow<RestaurantEvent?> =
-        runBlocking {
-
-            val event = this@save.filterIsInstance<RestaurantEvent>().firstOrNull()
-
-            val lastSequenceNumber =
-                if (event != null) axonServerEventStore.lastSequenceNumberFor(event.getId()) else Optional.empty()
-
-            var index = 0
-
-            axonServerEventStore.publish(
-                this@save
-                    .filterNotNull()
-                    .toList()
-                    .map {
-                        GenericDomainEventMessage(
-                            it.getAggregateType(),
-                            it.getId(),
-                            lastSequenceNumber.orElse(-1) + ++index,
-                            it
-                        )
-                    }
-            )
-            this@save.filterNotNull()
+        flow {
+            withContext(axonServer) {
+                axonServerEventStore.publishEvents(filterNotNull().toList())
+            }
+            emitAll(filterNotNull())
         }
 }

@@ -19,8 +19,8 @@ package com.fraktalio.fmodel.example.eventsourcedsystem2
 import com.fraktalio.fmodel.application.ActionPublisher
 import com.fraktalio.fmodel.application.EventRepository
 import com.fraktalio.fmodel.example.domain.*
-import com.fraktalio.fmodel.example.eventsourcedsystem2.command.adapter.axon.ActionPublisherImpl
-import com.fraktalio.fmodel.example.eventsourcedsystem2.command.adapter.axon.AxonCommandHandler
+import com.fraktalio.fmodel.example.eventsourcedsystem2.command.adapter.bus.ActionPublisherImpl
+import com.fraktalio.fmodel.example.eventsourcedsystem2.command.adapter.bus.AxonCommandHandler
 import com.fraktalio.fmodel.example.eventsourcedsystem2.command.adapter.getId
 import com.fraktalio.fmodel.example.eventsourcedsystem2.command.adapter.persistence.RestaurantAggregateEventStoreRepositoryImpl
 import com.fraktalio.fmodel.example.eventsourcedsystem2.command.adapter.persistence.RestaurantOrderAggregateEventStoreRepositoryImpl
@@ -29,6 +29,7 @@ import com.fraktalio.fmodel.example.eventsourcedsystem2.query.adapter.persistanc
 import com.fraktalio.fmodel.example.eventsourcedsystem2.query.application.restaurantMaterializedView
 import com.fraktalio.fmodel.example.eventsourcedsystem2.query.application.restaurantOrderMaterializedView
 import io.r2dbc.spi.ConnectionFactory
+import org.axonframework.commandhandling.CommandBus
 import org.axonframework.commandhandling.distributed.MetaDataRoutingStrategy
 import org.axonframework.commandhandling.distributed.RoutingStrategy
 import org.axonframework.commandhandling.distributed.UnresolvedRoutingKeyPolicy
@@ -36,6 +37,7 @@ import org.axonframework.commandhandling.gateway.CommandGateway
 import org.axonframework.eventsourcing.eventstore.EventStore
 import org.axonframework.messaging.Message
 import org.axonframework.messaging.MessageDispatchInterceptor
+import org.axonframework.messaging.interceptors.LoggingInterceptor
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
@@ -180,8 +182,14 @@ class Configuration {
             .build()
 
     @Autowired
-    fun registerCommandBusInterceptors(commandGateway: CommandGateway) {
+    fun registerCommandGatewayInterceptors(commandGateway: CommandGateway) {
         commandGateway.registerDispatchInterceptor(RoutingInterceptor())
+        commandGateway.registerDispatchInterceptor(LoggingInterceptor())
+    }
+
+    @Autowired
+    fun registerCommandGatewayInterceptors(commandBus: CommandBus) {
+        commandBus.registerHandlerInterceptor(LoggingInterceptor())
     }
 }
 
