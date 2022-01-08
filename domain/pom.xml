@@ -41,8 +41,13 @@
         </dependency>
         <dependency>
             <groupId>com.fraktalio.fmodel</groupId>
-            <artifactId>domain</artifactId>
+            <artifactId>domain-jvm</artifactId>
             <version>${fmodel.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-coroutines-core-jvm</artifactId>
+            <version>1.6.0</version>
         </dependency>
     </dependencies>
 

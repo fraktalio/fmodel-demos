@@ -1,7 +1,6 @@
 package com.fraktalio.fmodel.example.eventsourcedsystem3.command.application
 
 import com.fraktalio.fmodel.domain.Decider
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.runBlocking
 import org.axonframework.eventsourcing.EventSourcingHandler
 import org.axonframework.modelling.command.AggregateIdentifier

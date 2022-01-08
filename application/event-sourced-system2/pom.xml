@@ -79,7 +79,7 @@
 
         <dependency>
             <groupId>com.fraktalio.fmodel</groupId>
-            <artifactId>application-vanilla</artifactId>
+            <artifactId>application-vanilla-jvm</artifactId>
             <version>${fmodel.version}</version>
         </dependency>
         <dependency>

@@ -5,7 +5,6 @@ import com.fraktalio.fmodel.example.domain.Command
 import com.fraktalio.fmodel.example.domain.Event
 import com.fraktalio.fmodel.example.domain.RestaurantOrderSaga
 import com.fraktalio.fmodel.example.domain.RestaurantSaga
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.runBlocking
 import org.axonframework.commandhandling.gateway.CommandGateway
 import org.axonframework.config.ProcessingGroup
