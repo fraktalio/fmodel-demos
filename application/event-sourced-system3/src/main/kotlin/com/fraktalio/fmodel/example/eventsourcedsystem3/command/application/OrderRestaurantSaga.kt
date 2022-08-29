@@ -27,9 +27,7 @@ internal class OrderRestaurantSaga(
             restaurantSaga
                 .combine(restaurantOrderSaga)
                 .react(event)
-                .collect {
-                    if (it != null) commandGateway.send<Command>(it)
-                }
+                .collect { commandGateway.send<Command>(it) }
         }
     }
 }

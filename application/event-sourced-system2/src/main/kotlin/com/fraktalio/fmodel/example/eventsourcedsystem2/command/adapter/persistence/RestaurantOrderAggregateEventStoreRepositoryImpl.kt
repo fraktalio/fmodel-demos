@@ -17,9 +17,7 @@
 package com.fraktalio.fmodel.example.eventsourcedsystem2.command.adapter.persistence
 
 import com.fraktalio.fmodel.application.EventRepository
-import com.fraktalio.fmodel.example.domain.Event
-import com.fraktalio.fmodel.example.domain.RestaurantOrderCommand
-import com.fraktalio.fmodel.example.domain.RestaurantOrderEvent
+import com.fraktalio.fmodel.example.domain.*
 import com.fraktalio.fmodel.example.eventsourcedsystem2.command.adapter.getId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -45,18 +43,10 @@ internal open class RestaurantOrderAggregateEventStoreRepositoryImpl(
      *
      * @return the [Flow] of [Event]s
      */
-    override fun RestaurantOrderCommand?.fetchEvents(): Flow<RestaurantOrderEvent?> =
-        flow {
-            emitAll(
-                when (this@fetchEvents) {
-                    is RestaurantOrderCommand ->
-                        withContext(axonServer) {
-                            axonServerEventStore.fetchEvents(getId())
-                        }
-                    null -> emptyFlow()
-                }
-            )
-
+    override fun RestaurantOrderCommand?.fetchEvents(): Flow<RestaurantOrderEvent> =
+        when (this) {
+            is RestaurantOrderCommand -> axonServerEventStore.fetchEvents<RestaurantOrderEvent>(getId()).flowOn(axonServer)
+            null -> emptyFlow()
         }
 
 

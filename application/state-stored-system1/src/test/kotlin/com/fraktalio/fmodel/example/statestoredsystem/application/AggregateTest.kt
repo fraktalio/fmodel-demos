@@ -18,10 +18,11 @@ package com.fraktalio.fmodel.example.statestoredsystem.application
 
 import com.fraktalio.fmodel.application.StateRepository
 import com.fraktalio.fmodel.application.StateStoredAggregate
-import com.fraktalio.fmodel.application.handleEither
+import com.fraktalio.fmodel.application.handleWithEffect
 import com.fraktalio.fmodel.example.domain.*
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -37,6 +38,7 @@ internal class AggregateTest(
 
     val uuid: UUID = UUID.randomUUID()
 
+    @OptIn(FlowPreview::class)
     @Test
     fun `Assert handling CreateRestaurantCommand command is successful`() = runBlocking<Unit> {
 
@@ -47,7 +49,7 @@ internal class AggregateTest(
                 RestaurantMenuCuisine.GENERAL
             )
         )
-        assertThat(aggregate.handleEither(createRestaurantCommand).isRight()).isTrue
+        assertThat(aggregate.handleWithEffect(createRestaurantCommand).toEither().isRight()).isTrue
 
 
         val expectedResult = Restaurant(
@@ -83,7 +85,7 @@ internal class AggregateTest(
             persistentListOf(RestaurantOrderLineItem("1", 1, "menu id", "menu id"))
         )
 
-        val result = aggregate.handleEither(createRestaurantOrderCommand)
+        val result = aggregate.handleWithEffect(createRestaurantOrderCommand).toEither()
         result.mapLeft { println(it.throwable?.message) }
         assertThat(result.isRight()).isTrue
 
@@ -98,6 +100,7 @@ internal class AggregateTest(
 
     }
 
+    @OptIn(FlowPreview::class)
     @Test
     fun `Assert handling commands is successful`() = runBlocking<Unit> {
 
@@ -110,7 +113,7 @@ internal class AggregateTest(
             createRestaurantOrderCommand.identifier
         )
 
-        assertThat(aggregate.handleEither(createRestaurantOrderCommand).isRight()).isTrue
+        assertThat(aggregate.handleWithEffect(createRestaurantOrderCommand).toEither().isRight()).isTrue
         val expectedResult1 = RestaurantOrder(
             createRestaurantOrderCommand.identifier,
             createRestaurantOrderCommand.restaurantIdentifier,
@@ -121,7 +124,7 @@ internal class AggregateTest(
         assertThat(actualResult).isEqualTo(AggregateState(expectedResult1, null))
 
 
-        assertThat(aggregate.handleEither(markRestaurantOrderAsPreparedCommand).isRight()).isTrue
+        assertThat(aggregate.handleWithEffect(markRestaurantOrderAsPreparedCommand).toEither().isRight()).isTrue
         val expectedResult2 = RestaurantOrder(
             createRestaurantOrderCommand.identifier,
             createRestaurantOrderCommand.restaurantIdentifier,

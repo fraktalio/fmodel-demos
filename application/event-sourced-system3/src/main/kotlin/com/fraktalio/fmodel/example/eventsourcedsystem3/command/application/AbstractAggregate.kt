@@ -17,7 +17,7 @@ abstract class AbstractAggregate<C, S, E> {
     protected fun handleIt(command: C) {
         runBlocking {
             decider.decide(command, state).collect {
-                if (it != null) AggregateLifecycle.apply(it)
+                AggregateLifecycle.apply(it)
             }
         }
     }

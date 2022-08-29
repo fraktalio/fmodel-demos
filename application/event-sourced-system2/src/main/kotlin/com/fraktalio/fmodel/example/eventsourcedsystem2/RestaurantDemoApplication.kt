@@ -102,14 +102,14 @@ class Configuration {
     ) = restaurantOrderAggregate(restaurantOrderDecider, restaurantOrderAggregateRepositoryBean)
 
     @Bean
-    internal fun actionPublisherBean(commandGateway: CommandGateway): ActionPublisher<Command?> =
+    internal fun actionPublisherBean(commandGateway: CommandGateway): ActionPublisher<Command> =
         ActionPublisherImpl(commandGateway)
 
     @Bean
     internal fun orderRestaurantSagaManagerBean(
         restaurantSaga: RestaurantSaga,
         restaurantOrderSaga: RestaurantOrderSaga,
-        actionPublisher: ActionPublisher<Command?>
+        actionPublisher: ActionPublisher<Command>
     ) = sagaManager(restaurantOrderSaga, restaurantSaga, actionPublisher)
 
     @Bean

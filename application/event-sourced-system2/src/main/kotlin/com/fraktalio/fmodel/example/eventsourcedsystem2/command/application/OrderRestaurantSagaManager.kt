@@ -23,16 +23,18 @@ import com.fraktalio.fmodel.example.domain.Command
 import com.fraktalio.fmodel.example.domain.Event
 import com.fraktalio.fmodel.example.domain.RestaurantOrderSaga
 import com.fraktalio.fmodel.example.domain.RestaurantSaga
+import kotlinx.coroutines.FlowPreview
 
 /**
  * A convenient type alias for  EventSourcingAggregate<RestaurantCommand?, Restaurant?, RestaurantEvent?>
  */
-typealias OrderRestaurantSagaManager = SagaManager<Event?, Command?>
+typealias OrderRestaurantSagaManager = SagaManager<Event?, Command>
 
+@OptIn(FlowPreview::class)
 internal fun sagaManager(
     restaurantOrderSaga: RestaurantOrderSaga,
     restaurantSaga: RestaurantSaga,
-    actionPublisher: ActionPublisher<Command?>
+    actionPublisher: ActionPublisher<Command>
 ) = com.fraktalio.fmodel.application.sagaManager(
     // Combining individual choreography Sagas into one orchestrating Saga.
     saga = restaurantOrderSaga.combine(restaurantSaga),

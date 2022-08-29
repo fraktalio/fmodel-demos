@@ -28,8 +28,8 @@
 
     <properties>
         <java.version>11</java.version>
-        <kotlin.version>1.6.10</kotlin.version>
-        <fmodel.version>3.0.0</fmodel.version>
+        <kotlin.version>1.7.10</kotlin.version>
+        <fmodel.version>3.1.1-SNAPSHOT</fmodel.version>
     </properties>
 
     <modules>

@@ -23,7 +23,7 @@ import kotlinx.coroutines.flow.flowOf
 /**
  * A convenient type alias for Saga<RestaurantEvent?, RestaurantOrderCommand?>
  */
-typealias RestaurantOrderSaga = Saga<RestaurantEvent?, RestaurantOrderCommand?>
+typealias RestaurantOrderSaga = Saga<RestaurantEvent?, RestaurantOrderCommand>
 
 /**
  * Saga is a datatype that represents the central point of control deciding what to execute next.

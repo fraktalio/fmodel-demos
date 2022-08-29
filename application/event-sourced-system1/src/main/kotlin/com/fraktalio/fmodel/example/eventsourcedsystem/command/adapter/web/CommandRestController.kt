@@ -23,6 +23,7 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.withContext
 import org.axonframework.commandhandling.gateway.CommandGateway
 import org.springframework.web.bind.annotation.GetMapping
@@ -54,6 +55,7 @@ internal class CommandRestController(
      * We made it a GET, but it should be POST ;)
      */
     // @PostMapping("/restaurant")
+    @OptIn(FlowPreview::class)
     @GetMapping("/example/restaurant/create")
     suspend fun createRestaurant() =
         CreateRestaurantRequest()

@@ -21,6 +21,7 @@ import com.fraktalio.fmodel.example.domain.*
 import com.fraktalio.fmodel.example.statestoredsystem.adapter.persistence.RestaurantCoroutineRepository
 import com.fraktalio.fmodel.example.statestoredsystem.application.Aggregate
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.FlowPreview
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -34,6 +35,7 @@ import java.math.BigDecimal
  * @property restaurantRepository Restaurant repository
  * @constructor Creates Rest controller
  */
+@OptIn(FlowPreview::class)
 @RestController
 internal class RestController(
     private val aggregate: Aggregate,

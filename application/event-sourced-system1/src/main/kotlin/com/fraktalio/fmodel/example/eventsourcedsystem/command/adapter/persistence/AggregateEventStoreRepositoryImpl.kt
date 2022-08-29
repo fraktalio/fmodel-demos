@@ -52,35 +52,10 @@ internal open class AggregateEventStoreRepositoryImpl(
      *
      * @return the [Flow] of [Event]s
      */
-    @OptIn(ExperimentalCoroutinesApi::class)
-    override fun Command?.fetchEvents(): Flow<Event?> =
+    override fun Command?.fetchEvents(): Flow<Event> =
         when (this) {
-            is CreateRestaurantCommand,
-            is ChangeRestaurantMenuCommand,
-            is ActivateRestaurantMenuCommand,
-            is PassivateRestaurantMenuCommand,
-            is CreateRestaurantOrderCommand,
-            is MarkRestaurantOrderAsPreparedCommand ->
-                flow {
-                    withContext(axonServer) {
-                        emitAll(axonServerEventStore.fetchEvents(getId()))
-                    }
-
-                }
-            is PlaceRestaurantOrderCommand ->
-                // This Flow builder creates an instance of a coldFlow with elements that are sent to a SendChannel provided to the builder's block of code via ProducerScope.
-                // It allows elements to be produced by code that is running in a different context or concurrently.
-                channelFlow {
-                    launch(axonServer) {
-                        axonServerEventStore.fetchEvents<Event>(getId())
-                            .collect { send(it) }
-                    }
-                    launch(axonServer) {
-                        axonServerEventStore.fetchEvents<Event>(restaurantOrderIdentifier.identifier.toString())
-                            .collect { send(it) }
-                    }
-                }
-            null -> emptyFlow<Event>()
+            is Command -> axonServerEventStore.fetchEvents<Event>(getId()).flowOn(axonServer)
+            null -> emptyFlow()
         }
 
 

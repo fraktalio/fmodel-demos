@@ -20,6 +20,7 @@ import com.fraktalio.fmodel.application.publishTo
 import com.fraktalio.fmodel.example.domain.*
 import com.fraktalio.fmodel.example.eventsourcedsystem2.command.application.RestaurantAggregate
 import com.fraktalio.fmodel.example.eventsourcedsystem2.command.application.RestaurantOrderAggregate
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.runBlocking
 import org.axonframework.commandhandling.CommandHandler
@@ -41,6 +42,7 @@ internal open class AxonCommandHandler(
     private val restaurantAggregate: RestaurantAggregate,
     private val restaurantOrderAggregate: RestaurantOrderAggregate
 ) {
+    @OptIn(FlowPreview::class)
     private fun publish(command: Command) {
         runBlocking {
             when (command) {

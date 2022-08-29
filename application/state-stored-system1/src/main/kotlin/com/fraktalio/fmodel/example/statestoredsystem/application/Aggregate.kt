@@ -17,15 +17,17 @@
 package com.fraktalio.fmodel.example.statestoredsystem.application
 
 import com.fraktalio.fmodel.application.StateStoredAggregate
+import com.fraktalio.fmodel.application.StateStoredOrchestratingAggregate
 import com.fraktalio.fmodel.application.stateStoredOrchestratingAggregate
 import com.fraktalio.fmodel.domain.combine
 import com.fraktalio.fmodel.example.domain.*
 import com.fraktalio.fmodel.example.statestoredsystem.adapter.persistence.AggregateStateStoredRepository
+import kotlinx.coroutines.FlowPreview
 
 /**
  * A convenient type alias for StateStoredAggregate<Command?, AggregateState, Event?>
  */
-typealias Aggregate = StateStoredAggregate<Command?, AggregateState, Event?>
+typealias Aggregate = StateStoredOrchestratingAggregate<Command, AggregateState, Event>
 
 /**
  * One, big aggregate that is combining all deciders: [restaurantOrderDecider], [restaurantDecider].
@@ -40,13 +42,17 @@ typealias Aggregate = StateStoredAggregate<Command?, AggregateState, Event?>
  *
  * @author Иван Дугалић / Ivan Dugalic / @idugalic
  */
+@OptIn(FlowPreview::class)
 internal fun aggregate(
     restaurantOrderDecider: RestaurantOrderDecider,
     restaurantDecider: RestaurantDecider,
     restaurantOrderSaga: RestaurantOrderSaga,
     restaurantSaga: RestaurantSaga,
     aggregateRepository: AggregateStateStoredRepository
-) = stateStoredOrchestratingAggregate(
+): StateStoredOrchestratingAggregate<Command?, AggregateState, Event?> =
+
+
+    stateStoredOrchestratingAggregate(
 
     // Combining two deciders into one, and map the inconvenient Pair into a domain specific Data class that will represent aggregated state better.
     decider = restaurantOrderDecider.combine(restaurantDecider).dimapOnState(

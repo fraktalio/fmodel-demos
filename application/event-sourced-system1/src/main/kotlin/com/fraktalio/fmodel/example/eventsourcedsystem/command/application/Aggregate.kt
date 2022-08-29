@@ -21,6 +21,7 @@ import com.fraktalio.fmodel.application.eventSourcingOrchestratingAggregate
 import com.fraktalio.fmodel.domain.combine
 import com.fraktalio.fmodel.example.domain.*
 import com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.persistence.AggregateEventStoreRepository
+import kotlinx.coroutines.FlowPreview
 
 /**
  * A convenient type alias for EventSourcingAggregate<Command?, Pair<RestaurantOrder?, Restaurant?>, Event?>
@@ -40,6 +41,7 @@ typealias OrderRestaurantAggregate = EventSourcingAggregate<Command?, Pair<Resta
  *
  * @author Иван Дугалић / Ivan Dugalic / @idugalic
  */
+@OptIn(FlowPreview::class)
 internal fun aggregate(
     restaurantOrderDecider: RestaurantOrderDecider,
     restaurantDecider: RestaurantDecider,

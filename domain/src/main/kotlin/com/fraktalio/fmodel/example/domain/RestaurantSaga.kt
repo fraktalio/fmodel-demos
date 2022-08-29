@@ -20,9 +20,9 @@ import com.fraktalio.fmodel.domain.Saga
 import kotlinx.coroutines.flow.emptyFlow
 
 /**
- * A convenient type alias for Saga<RestaurantEvent?, RestaurantOrderCommand?>
+ * A convenient type alias for Saga<RestaurantEvent?, RestaurantOrderCommand>
  */
-typealias RestaurantSaga = Saga<RestaurantOrderEvent?, RestaurantCommand?>
+typealias RestaurantSaga = Saga<RestaurantOrderEvent?, RestaurantCommand>
 
 /**
  * Saga is a datatype that represents the central point of control deciding what to execute next.
