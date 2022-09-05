@@ -58,8 +58,8 @@ internal open class AggregateStateStoredRepositoryImpl(
         when (this) {
 
             is RestaurantOrderCommand -> AggregateState(
-                restaurantOrderRepository.findById(this.identifier.identifier.toString()).toRestaurantOrder(
-                    restaurantOrderItemRepository.findByOrderId(this.identifier.identifier.toString())
+                restaurantOrderRepository.findById(this.identifierString).toRestaurantOrder(
+                    restaurantOrderItemRepository.findByOrderId(this.identifierString)
                         .map { it.toRestaurantOrderLineItem() }.toImmutableList()
                 ),
                 null
@@ -67,9 +67,9 @@ internal open class AggregateStateStoredRepositoryImpl(
 
             is RestaurantCommand -> {
                 val restaurantEntity: RestaurantR2DBCEntity? =
-                    restaurantRepository.findById(this.identifier.identifier.toString())
+                    restaurantRepository.findById(this.identifierString)
                 val menuItemEntities =
-                    menuItemRepository.findByRestaurantId(this.identifier.identifier.toString())
+                    menuItemRepository.findByRestaurantId(this.identifierString)
                 AggregateState(
                     null,
                     restaurantEntity?.toRestaurant(

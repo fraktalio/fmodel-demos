@@ -67,7 +67,9 @@ data class RestaurantOrderLineItem(val id: String, val quantity: Int, val menuIt
 // ******************************************** Commands ********************************************
 // **************************************************************************************************
 
-sealed class Command
+sealed class Command {
+    abstract val identifierString: String
+}
 
 sealed class RestaurantCommand : Command() {
     abstract val identifier: RestaurantId
@@ -81,44 +83,67 @@ data class CreateRestaurantCommand(
     override val identifier: RestaurantId = RestaurantId(),
     val name: String,
     val menu: RestaurantMenuVO
-) : RestaurantCommand()
+) : RestaurantCommand() {
+    override val identifierString: String
+        get() = identifier.identifier.toString()
+}
 
 data class ChangeRestaurantMenuCommand(
     override val identifier: RestaurantId = RestaurantId(),
     val menu: RestaurantMenuVO
-) : RestaurantCommand()
+) : RestaurantCommand() {
+    override val identifierString: String
+        get() = identifier.identifier.toString()
+}
 
 data class ActivateRestaurantMenuCommand(
     override val identifier: RestaurantId,
     val menuId: UUID
-) : RestaurantCommand()
+) : RestaurantCommand() {
+    override val identifierString: String
+        get() = identifier.identifier.toString()
+}
 
 data class PassivateRestaurantMenuCommand(
     override val identifier: RestaurantId,
     val menuId: UUID
-) : RestaurantCommand()
+) : RestaurantCommand() {
+    override val identifierString: String
+        get() = identifier.identifier.toString()
+}
 
 data class PlaceRestaurantOrderCommand(
     override val identifier: RestaurantId,
     val restaurantOrderIdentifier: RestaurantOrderId = RestaurantOrderId(),
     val lineItems: ImmutableList<RestaurantOrderLineItem>
-) : RestaurantCommand()
+) : RestaurantCommand() {
+    override val identifierString: String
+        get() = identifier.identifier.toString()
+}
 
 data class CreateRestaurantOrderCommand(
     override val identifier: RestaurantOrderId,
     val restaurantIdentifier: RestaurantId = RestaurantId(),
     val lineItems: ImmutableList<RestaurantOrderLineItem>
-) : RestaurantOrderCommand()
+) : RestaurantOrderCommand() {
+    override val identifierString: String
+        get() = identifier.identifier.toString()
+}
 
 data class MarkRestaurantOrderAsPreparedCommand(
     override val identifier: RestaurantOrderId
-) : RestaurantOrderCommand()
+) : RestaurantOrderCommand() {
+    override val identifierString: String
+        get() = identifier.identifier.toString()
+}
 
 
 // ********************************************** Events ********************************************
 // **************************************************************************************************
 
-sealed class Event
+sealed class Event {
+    abstract val identifierString: String
+}
 
 sealed class RestaurantEvent : Event() {
     abstract val identifier: RestaurantId
@@ -142,66 +167,99 @@ data class RestaurantCreatedEvent(
     override val identifier: RestaurantId,
     val name: String,
     val menu: RestaurantMenuVO
-) : RestaurantEvent()
+) : RestaurantEvent() {
+    override val identifierString: String
+        get() = identifier.identifier.toString()
+}
 
 data class RestaurantNotCreatedEvent(
     override val identifier: RestaurantId,
     val name: String,
     val menu: RestaurantMenuVO,
     override val reason: String
-) : RestaurantErrorEvent()
+) : RestaurantErrorEvent() {
+    override val identifierString: String
+        get() = identifier.identifier.toString()
+}
 
 data class RestaurantMenuChangedEvent(
     override val identifier: RestaurantId,
     val menu: RestaurantMenuVO
-) : RestaurantEvent()
+) : RestaurantEvent() {
+    override val identifierString: String
+        get() = identifier.identifier.toString()
+}
 
 data class RestaurantMenuNotChangedEvent(
     override val identifier: RestaurantId,
     val menu: RestaurantMenuVO,
     override val reason: String
-) : RestaurantErrorEvent()
+) : RestaurantErrorEvent() {
+    override val identifierString: String
+        get() = identifier.identifier.toString()
+}
 
 data class RestaurantMenuActivatedEvent(
     override val identifier: RestaurantId,
     val menuId: UUID,
-) : RestaurantEvent()
+) : RestaurantEvent() {
+    override val identifierString: String
+        get() = identifier.identifier.toString()
+}
 
 data class RestaurantMenuNotActivatedEvent(
     override val identifier: RestaurantId,
     val menuId: UUID,
     override val reason: String
-) : RestaurantErrorEvent()
+) : RestaurantErrorEvent() {
+    override val identifierString: String
+        get() = identifier.identifier.toString()
+}
 
 data class RestaurantMenuPassivatedEvent(
     override val identifier: RestaurantId,
     val menuId: UUID,
-) : RestaurantEvent()
+) : RestaurantEvent() {
+    override val identifierString: String
+        get() = identifier.identifier.toString()
+}
 
 data class RestaurantMenuNotPassivatedEvent(
     override val identifier: RestaurantId,
     val menuId: UUID,
     override val reason: String
-) : RestaurantErrorEvent()
+) : RestaurantErrorEvent() {
+    override val identifierString: String
+        get() = identifier.identifier.toString()
+}
 
 data class RestaurantOrderPlacedAtRestaurantEvent(
     override val identifier: RestaurantId,
     val lineItems: ImmutableList<RestaurantOrderLineItem>,
     val restaurantOrderId: RestaurantOrderId
-) : RestaurantEvent()
+) : RestaurantEvent() {
+    override val identifierString: String
+        get() = identifier.identifier.toString()
+}
 
 data class RestaurantOrderNotPlacedAtRestaurantEvent(
     override val identifier: RestaurantId,
     val lineItems: ImmutableList<RestaurantOrderLineItem>,
     val restaurantOrderId: RestaurantOrderId,
     override val reason: String
-) : RestaurantErrorEvent()
+) : RestaurantErrorEvent() {
+    override val identifierString: String
+        get() = identifier.identifier.toString()
+}
 
 data class RestaurantOrderRejectedByRestaurantEvent(
     override val identifier: RestaurantId,
     val restaurantOrderId: RestaurantOrderId,
     override val reason: String
-) : RestaurantErrorEvent()
+) : RestaurantErrorEvent() {
+    override val identifierString: String
+        get() = identifier.identifier.toString()
+}
 
 // Restaurant Order
 
@@ -209,18 +267,30 @@ data class RestaurantOrderCreatedEvent(
     override val identifier: RestaurantOrderId,
     val lineItems: ImmutableList<RestaurantOrderLineItem>,
     val restaurantId: RestaurantId
-) : RestaurantOrderEvent()
+) : RestaurantOrderEvent() {
+    override val identifierString: String
+        get() = identifier.identifier.toString()
+}
 
 data class RestaurantOrderPreparedEvent(
     override val identifier: RestaurantOrderId,
-) : RestaurantOrderEvent()
+) : RestaurantOrderEvent() {
+    override val identifierString: String
+        get() = identifier.identifier.toString()
+}
 
 data class RestaurantOrderNotPreparedEvent(
     override val identifier: RestaurantOrderId,
     override val reason: String
-) : RestaurantOrderErrorEvent()
+) : RestaurantOrderErrorEvent() {
+    override val identifierString: String
+        get() = identifier.identifier.toString()
+}
 
 data class RestaurantOrderRejectedEvent(
     override val identifier: RestaurantOrderId,
     override val reason: String
-) : RestaurantOrderErrorEvent()
+) : RestaurantOrderErrorEvent() {
+    override val identifierString: String
+        get() = identifier.identifier.toString()
+}

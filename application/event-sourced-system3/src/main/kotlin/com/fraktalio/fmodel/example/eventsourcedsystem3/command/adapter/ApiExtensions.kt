@@ -16,15 +16,11 @@
 
 package com.fraktalio.fmodel.example.eventsourcedsystem3.command.adapter
 
-import com.fraktalio.fmodel.example.domain.*
+import com.fraktalio.fmodel.example.domain.Command
+import com.fraktalio.fmodel.example.domain.Event
 
-fun Command.getId() = when (this) {
-    is RestaurantCommand -> this.identifier.identifier.toString()
-    is RestaurantOrderCommand -> this.identifier.identifier.toString()
-}
+fun Command.getId() = identifierString
 
-fun Event.getId() = when (this) {
-    is RestaurantEvent -> this.identifier.identifier.toString()
-    is RestaurantOrderEvent -> this.identifier.identifier.toString()
-}
+
+fun Event.getId() = identifierString
 

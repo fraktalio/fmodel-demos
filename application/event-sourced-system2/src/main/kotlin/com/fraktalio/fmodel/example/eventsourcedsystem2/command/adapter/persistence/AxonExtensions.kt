@@ -16,6 +16,7 @@ suspend fun EventStore.fetchEventStream(aggregateIdentifier: String): DomainEven
         readEvents(aggregateIdentifier)
     }
 
+@Suppress("UNCHECKED_CAST")
 fun <E> EventStore.fetchEvents(aggregateIdentifier: String): Flow<E> where E : Event =
     flow {
         emitAll(fetchEventStream(aggregateIdentifier).asFlow().map { it.payload as E })

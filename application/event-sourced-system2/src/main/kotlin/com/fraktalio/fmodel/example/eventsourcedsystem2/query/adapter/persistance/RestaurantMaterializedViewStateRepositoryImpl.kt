@@ -86,7 +86,7 @@ internal open class RestaurantMaterializedViewStateRepositoryImpl(
                     // check if it is Creat or Update
                     restaurantEntity.newRestaurant =
                         !restaurantRepository.existsById(restaurant.id.identifier.toString())
-                    val savedRestaurantEntity = restaurantRepository.save(restaurantEntity)
+                    restaurantRepository.save(restaurantEntity)
                     restaurant.menu.items.forEach {
                         val menuItemEntity = it.toMenuItemEntity(
                             restaurant.menu.menuId.toString(),
@@ -94,7 +94,7 @@ internal open class RestaurantMaterializedViewStateRepositoryImpl(
                         )
                         // check if it is Create or Update
                         menuItemEntity.newMenuItem = !menuItemRepository.existsById(it.id)
-                        val savedMenuItemEntity = menuItemRepository.save(menuItemEntity)
+                        menuItemRepository.save(menuItemEntity)
                     }
                 }
 
