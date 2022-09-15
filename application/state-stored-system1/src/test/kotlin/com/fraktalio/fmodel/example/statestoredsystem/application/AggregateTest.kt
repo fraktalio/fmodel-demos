@@ -18,6 +18,7 @@ package com.fraktalio.fmodel.example.statestoredsystem.application
 
 import com.fraktalio.fmodel.application.StateRepository
 import com.fraktalio.fmodel.application.StateStoredAggregate
+import com.fraktalio.fmodel.application.StateStoredOrchestratingAggregate
 import com.fraktalio.fmodel.application.handleWithEffect
 import com.fraktalio.fmodel.example.domain.*
 import kotlinx.collections.immutable.persistentListOf
@@ -33,7 +34,7 @@ import java.util.*
 
 @SpringBootTest
 internal class AggregateTest(
-    @Autowired val aggregate: StateStoredAggregate<Command?, AggregateState, Event?>
+    @Autowired val aggregate: StateStoredOrchestratingAggregate<Command?, AggregateState, Event?>
 ) : StateRepository<Command?, AggregateState> by aggregate {
 
     val uuid: UUID = UUID.randomUUID()

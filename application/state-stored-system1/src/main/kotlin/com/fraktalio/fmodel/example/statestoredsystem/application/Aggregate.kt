@@ -27,7 +27,7 @@ import kotlinx.coroutines.FlowPreview
 /**
  * A convenient type alias for StateStoredAggregate<Command?, AggregateState, Event?>
  */
-typealias Aggregate = StateStoredOrchestratingAggregate<Command, AggregateState, Event>
+typealias Aggregate = StateStoredOrchestratingAggregate<Command?, AggregateState, Event?>
 
 /**
  * One, big aggregate that is combining all deciders: [restaurantOrderDecider], [restaurantDecider].

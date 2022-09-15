@@ -17,6 +17,7 @@
 package com.fraktalio.fmodel.example.eventsourcedsystem.command.application
 
 import com.fraktalio.fmodel.application.EventSourcingAggregate
+import com.fraktalio.fmodel.application.EventSourcingOrchestratingAggregate
 import com.fraktalio.fmodel.application.eventSourcingOrchestratingAggregate
 import com.fraktalio.fmodel.domain.combine
 import com.fraktalio.fmodel.example.domain.*
@@ -26,7 +27,7 @@ import kotlinx.coroutines.FlowPreview
 /**
  * A convenient type alias for EventSourcingAggregate<Command?, Pair<RestaurantOrder?, Restaurant?>, Event?>
  */
-typealias OrderRestaurantAggregate = EventSourcingAggregate<Command?, Pair<RestaurantOrder?, Restaurant?>, Event?>
+typealias OrderRestaurantAggregate = EventSourcingOrchestratingAggregate<Command?, Pair<RestaurantOrder?, Restaurant?>, Event?>
 
 /**
  * One, big aggregate that is combining all deciders: [restaurantOrderDecider], [restaurantDecider].
