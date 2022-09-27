@@ -128,42 +128,17 @@ fun restaurantDecider() = RestaurantDecider(
                 Status.OPEN
             )
             is RestaurantMenuChangedEvent ->
-                if (s != null) Restaurant(
-                    s.id,
-                    s.name,
-                    RestaurantMenu(
+                s?.copy(
+                    menu = RestaurantMenu(
                         e.menu.menuId,
                         e.menu.menuItems.map { MenuItem(it.id, it.menuItemId, it.name, it.price) }.toImmutableList(),
                         e.menu.cuisine
-                    ), s.status
+                    )
                 )
-                else s
-            is RestaurantMenuActivatedEvent ->
-                if (s != null) Restaurant(
-                    s.id,
-                    s.name,
-                    RestaurantMenu(
-                        s.menu.menuId,
-                        s.menu.items,
-                        s.menu.cuisine,
-                        ACTIVE
-                    ), s.status
-                )
-                else s
-            is RestaurantMenuPassivatedEvent ->
-                if (s != null) Restaurant(
-                    s.id,
-                    s.name,
-                    RestaurantMenu(
-                        s.menu.menuId,
-                        s.menu.items,
-                        s.menu.cuisine,
-                        PASSIVE
-                    ), s.status
-                )
-                else s
+            is RestaurantMenuActivatedEvent -> s?.copy(menu = s.menu.copy(status = ACTIVE))
+            is RestaurantMenuPassivatedEvent -> s?.copy(menu = s.menu.copy(status = PASSIVE))
             is RestaurantOrderPlacedAtRestaurantEvent -> s
-            is RestaurantErrorEvent -> s
+            is RestaurantErrorEvent -> s // Error events are not changing the state / We return current state instead.
             null -> s // Null events are not changing the state / We return current state instead. Only the Decider that can handle `null` event can be combined (Monoid) with other Deciders.
         }
     }

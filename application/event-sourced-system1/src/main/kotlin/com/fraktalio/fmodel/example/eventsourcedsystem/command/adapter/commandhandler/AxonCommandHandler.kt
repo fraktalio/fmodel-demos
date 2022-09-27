@@ -18,7 +18,7 @@ package com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.commandh
 
 import com.fraktalio.fmodel.application.publishTo
 import com.fraktalio.fmodel.example.domain.*
-import com.fraktalio.fmodel.example.eventsourcedsystem.command.application.OrderRestaurantAggregate
+import com.fraktalio.fmodel.example.eventsourcedsystem.command.application.Aggregate
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.runBlocking
@@ -36,7 +36,7 @@ import org.axonframework.commandhandling.CommandHandler
  *
  * @author Иван Дугалић / Ivan Dugalic / @idugalic
  */
-internal open class AxonCommandHandler(private val aggregate: OrderRestaurantAggregate) {
+internal open class AxonCommandHandler(private val aggregate: Aggregate) {
 
     @OptIn(FlowPreview::class)
     private fun publish(command: Command) {

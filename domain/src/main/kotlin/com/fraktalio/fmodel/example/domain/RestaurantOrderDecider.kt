@@ -48,15 +48,10 @@ fun restaurantOrderDecider() = RestaurantOrderDecider(
                 // ** positive flow **
                 if (s == null) flowOf(RestaurantOrderCreatedEvent(c.identifier, c.lineItems, c.restaurantIdentifier))
                 // ** negative flow 1 (publishing business error events) **
-                else flowOf(
-                    RestaurantOrderRejectedEvent(
-                        c.identifier,
-                        "Restaurant order already exists"
-                    )
-                )
-            //    ** negative flow 2 (publishing empty flow of events - ignoring negative flows - we are losing information :( ) **
+                else flowOf(RestaurantOrderRejectedEvent(c.identifier, "Restaurant order already exists"))
+            //     ** negative flow 2 (publishing empty flow of events - ignoring negative flows - we are losing information :( ) **
             //  else emptyFlow()
-            //    ** negative flow 3 (throwing exception - we are losing information - filtering exceptions is fragile) **
+            //     ** negative flow 3 (throwing exception - we are losing information - filtering exceptions is fragile) **
             //  else flow { throw RuntimeException("Restaurant order already exists") }
             is MarkRestaurantOrderAsPreparedCommand ->
                 if ((s != null && CREATED == s.status)) flowOf(RestaurantOrderPreparedEvent(c.identifier))
@@ -73,9 +68,7 @@ fun restaurantOrderDecider() = RestaurantOrderDecider(
     evolve = { s, e ->
         when (e) {
             is RestaurantOrderCreatedEvent -> RestaurantOrder(e.identifier, e.restaurantId, CREATED, e.lineItems)
-            is RestaurantOrderPreparedEvent ->
-                if (s != null) RestaurantOrder(s.id, s.restaurantId, PREPARED, s.lineItems)
-                else s
+            is RestaurantOrderPreparedEvent -> s?.copy(status = PREPARED)
             is RestaurantOrderErrorEvent -> s
             null -> s // Null events are not changing the state / We return current state instead. Only the Decider that can handle `null` event can be combined (Monoid) with other Deciders.
         }

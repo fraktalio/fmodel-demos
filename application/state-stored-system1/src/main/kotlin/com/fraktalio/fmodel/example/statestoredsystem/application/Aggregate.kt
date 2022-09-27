@@ -16,7 +16,6 @@
 
 package com.fraktalio.fmodel.example.statestoredsystem.application
 
-import com.fraktalio.fmodel.application.StateStoredAggregate
 import com.fraktalio.fmodel.application.StateStoredOrchestratingAggregate
 import com.fraktalio.fmodel.application.stateStoredOrchestratingAggregate
 import com.fraktalio.fmodel.domain.combine
@@ -49,12 +48,8 @@ internal fun aggregate(
     restaurantOrderSaga: RestaurantOrderSaga,
     restaurantSaga: RestaurantSaga,
     aggregateRepository: AggregateStateStoredRepository
-): StateStoredOrchestratingAggregate<Command?, AggregateState, Event?> =
-
-
-    stateStoredOrchestratingAggregate(
-
-    // Combining two deciders into one, and map the inconvenient Pair into a domain specific Data class that will represent aggregated state better.
+): Aggregate = stateStoredOrchestratingAggregate(
+    // Combining two deciders into one, and (di)map the inconvenient Pair into a domain specific Data class (AggregateState) that will represent aggregated state better.
     decider = restaurantOrderDecider.combine(restaurantDecider).dimapOnState(
         fl = { aggregateState: AggregateState -> Pair(aggregateState.order, aggregateState.restaurant) },
         fr = { pair: Pair<RestaurantOrder?, Restaurant?> -> AggregateState(pair.first, pair.second) }
@@ -65,5 +60,9 @@ internal fun aggregate(
     saga = restaurantOrderSaga.combine(restaurantSaga)
 )
 
+/**
+ * A domain specific representation of the `combined` aggregate state.
+ */
+data class AggregateState(val order: RestaurantOrder?, val restaurant: Restaurant?)
 
 

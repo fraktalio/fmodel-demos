@@ -17,6 +17,7 @@
 package com.fraktalio.fmodel.example.eventsourcedsystem.query.application
 
 import com.fraktalio.fmodel.application.MaterializedView
+import com.fraktalio.fmodel.application.materializedView
 import com.fraktalio.fmodel.domain.combine
 import com.fraktalio.fmodel.example.domain.*
 import com.fraktalio.fmodel.example.eventsourcedsystem.query.adapter.persistance.MaterializedViewStateRepository
@@ -26,16 +27,32 @@ import com.fraktalio.fmodel.example.eventsourcedsystem.query.adapter.persistance
  */
 typealias OrderRestaurantMaterializedView = MaterializedView<MaterializedViewState, Event?>
 
+/**
+ * One, big materialized view that is `combining` all views: [restaurantView], [restaurantOrderView].
+ * Every event will be handled by one of the views.
+ * The view that is not interested in specific event type will simply ignore it (do nothing).
+ *
+ * @param restaurantView restaurantView is used internally to handle events and maintain a view state.
+ * @param restaurantOrderView restaurantOrderView is used internally to handle events and maintain a view state.
+ * @param viewStateRepository is used to store the newly produced view state of the Restaurant and/or Restaurant order together
+ *
+ * @author Иван Дугалић / Ivan Dugalic / @idugalic
+ */
 internal fun materializedView(
-    restaurantViewState: RestaurantView,
-    restaurantOrderViewState: RestaurantOrderView,
+    restaurantView: RestaurantView,
+    restaurantOrderView: RestaurantOrderView,
     viewStateRepository: MaterializedViewStateRepository
-) = com.fraktalio.fmodel.application.materializedView(
-    view = restaurantViewState.combine(restaurantOrderViewState).dimapOnState(
+): OrderRestaurantMaterializedView = materializedView(
+    // Combining two views into one, and (di)map the inconvenient Pair into a domain specific Data class (MaterializedViewState) that will represent view state better.
+    view = restaurantView.combine(restaurantOrderView).dimapOnState(
         fl = { Pair(it.restaurant, it.order) },
         fr = { MaterializedViewState(it.first, it.second) }
     ),
+    // How and where do you want to store new view state.
     viewStateRepository = viewStateRepository
 )
 
+/**
+ * A domain specific representation of the combined view state.
+ */
 data class MaterializedViewState(val restaurant: RestaurantViewState?, val order: RestaurantOrderViewState?)

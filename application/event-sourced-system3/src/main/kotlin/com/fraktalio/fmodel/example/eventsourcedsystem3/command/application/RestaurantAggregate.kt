@@ -44,16 +44,12 @@ class RestaurantAxonAggregate : AbstractAggregate<RestaurantCommand?, Restaurant
     @CommandHandler
     fun handle(command: ChangeRestaurantMenuCommand) = handleIt(command)
 
-
     @CommandHandler
     fun handle(command: ActivateRestaurantMenuCommand) = handleIt(command)
-
 
     @CommandHandler
     fun handle(command: PassivateRestaurantMenuCommand) = handleIt(command)
 
-
     @CommandHandler
     fun handle(command: PlaceRestaurantOrderCommand) = handleIt(command)
-
 }

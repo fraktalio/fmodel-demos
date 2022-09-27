@@ -40,8 +40,7 @@ typealias RestaurantOrderAggregate = EventSourcingAggregate<RestaurantOrderComma
 internal fun restaurantOrderAggregate(
     restaurantOrderDecider: RestaurantOrderDecider,
     eventRepository: RestaurantOrderAggregateEventStoreRepository
-) = eventSourcingAggregate(
-
+): RestaurantOrderAggregate = eventSourcingAggregate(
     decider = restaurantOrderDecider,
     eventRepository = eventRepository,
 )

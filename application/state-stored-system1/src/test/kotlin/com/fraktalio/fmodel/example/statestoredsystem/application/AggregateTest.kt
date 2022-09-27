@@ -17,7 +17,6 @@
 package com.fraktalio.fmodel.example.statestoredsystem.application
 
 import com.fraktalio.fmodel.application.StateRepository
-import com.fraktalio.fmodel.application.StateStoredAggregate
 import com.fraktalio.fmodel.application.StateStoredOrchestratingAggregate
 import com.fraktalio.fmodel.application.handleWithEffect
 import com.fraktalio.fmodel.example.domain.*
@@ -77,6 +76,7 @@ internal class AggregateTest(
 
     }
 
+    @OptIn(FlowPreview::class)
     @Test
     fun `Assert handling createRestaurantOrderCommand is successful`() = runBlocking<Unit> {
 

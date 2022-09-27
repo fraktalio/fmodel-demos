@@ -18,6 +18,7 @@ package com.fraktalio.fmodel.example.eventsourcedsystem2.command.application
 
 import com.fraktalio.fmodel.application.ActionPublisher
 import com.fraktalio.fmodel.application.SagaManager
+import com.fraktalio.fmodel.application.sagaManager
 import com.fraktalio.fmodel.domain.combine
 import com.fraktalio.fmodel.example.domain.Command
 import com.fraktalio.fmodel.example.domain.Event
@@ -30,13 +31,20 @@ import kotlinx.coroutines.FlowPreview
  */
 typealias OrderRestaurantSagaManager = SagaManager<Event?, Command>
 
+/**
+ * @param restaurantOrderSaga restaurantOrderSaga is used internally to handle events of type RestaurantEvent and produce new commands of type RestaurantOrderCommand.
+ * @param restaurantSaga restaurantSaga is used internally to handle events of type RestaurantOrderEvent and produce new commands of type RestaurantCommand.
+ * @param actionPublisher is used to publish newly created commands
+ * @author Иван Дугалић / Ivan Dugalic / @idugalic
+ */
 @OptIn(FlowPreview::class)
 internal fun sagaManager(
     restaurantOrderSaga: RestaurantOrderSaga,
     restaurantSaga: RestaurantSaga,
     actionPublisher: ActionPublisher<Command>
-) = com.fraktalio.fmodel.application.sagaManager(
+) = sagaManager(
     // Combining individual choreography Sagas into one orchestrating Saga.
     saga = restaurantOrderSaga.combine(restaurantSaga),
+    // How and where do you want to publish new commands.
     actionPublisher = actionPublisher
 )

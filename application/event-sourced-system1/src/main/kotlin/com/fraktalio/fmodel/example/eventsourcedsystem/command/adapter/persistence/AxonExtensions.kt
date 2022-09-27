@@ -1,3 +1,5 @@
+@file:Suppress("UNCHECKED_CAST")
+
 package com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.persistence
 
 import com.fraktalio.fmodel.example.domain.Event

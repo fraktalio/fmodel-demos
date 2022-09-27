@@ -28,7 +28,14 @@ import com.fraktalio.fmodel.example.eventsourcedsystem2.query.adapter.persistanc
  */
 typealias RestaurantMaterializedView = MaterializedView<RestaurantViewState?, RestaurantEvent?>
 
-
+/**
+ * Restaurant MaterializedView
+ *
+ * @param restaurantView restaurantView is used internally to handle events and maintain a view state of the restaurant.
+ * @param viewStateRepository is used to store the newly produced view state of the Restaurant
+ *
+ * @author Иван Дугалић / Ivan Dugalic / @idugalic
+ */
 internal fun restaurantMaterializedView(
     restaurantView: RestaurantView,
     viewStateRepository: RestaurantMaterializedViewStateRepository

@@ -22,7 +22,8 @@ capabilities out of the box.
 
 **Requirements**
 
-> You can [download](https://download.axoniq.io/axonserver/AxonServer.zip) a ZIP file with AxonServer as a standalone JAR. This will also give you the AxonServer CLI and information on how to run and configure the server.
+> You can [download](https://download.axoniq.io/axonserver/AxonServer.zip) a ZIP file with AxonServer as a standalone
+> JAR. This will also give you the AxonServer CLI and information on how to run and configure the server.
 >
 > Alternatively, you can run the following command to start AxonServer in a Docker container:
 >

@@ -19,9 +19,13 @@ A pure declaration of the program logic - pure computation
 
 ## Algebraic Data Types - Commands, Events and State
 
-> In computer programming, especially functional programming and type theory, an algebraic data type is a kind of composite, i.e., a type formed by combining other types. Two common classes of algebraic types are `product` types (i.e., tuples and data classes) and `sum` types.
+> In computer programming, especially functional programming and type theory, an algebraic data type is a kind of
+> composite, i.e., a type formed by combining other types. Two common classes of algebraic types are `product` types (
+> i.e., tuples and data classes) and `sum` types.
 
-> `Sum` types and `product` types provide the necessary abstraction for structuring the various data of our domain model. Whereas `sum` types let you model the variations within a particular data type, `product` types help cluster related data into a larger abstraction.
+> `Sum` types and `product` types provide the necessary abstraction for structuring the various data of our domain
+> model. Whereas `sum` types let you model the variations within a particular data type, `product` types help cluster
+> related data into a larger abstraction.
 
 > `Sum` type models an `OR` relationship and `Product` type models an `AND` relationship.
 
@@ -186,25 +190,13 @@ fun restaurantOrderDecider() = Decider<RestaurantOrderCommand?, RestaurantOrder?
             is CreateRestaurantOrderCommand ->
                 // ** positive flow **
                 if (s == null) flowOf(RestaurantOrderCreatedEvent(c.identifier, c.lineItems, c.restaurantIdentifier))
-                // ** negative flow 1 (publishing business error events) **
-                else flowOf(
-                    RestaurantOrderRejectedEvent(
-                        c.identifier,
-                        "Restaurant order already exists"
-                    )
-                )
-            //    ** negative flow 2 (publishing empty flow of events - ignoring negative flows - we are losing information :( ) **
-            //  else emptyFlow()
-            //    ** negative flow 3 (throwing exception - we are losing information - filtering exceptions is fragile) **
-            //  else flow { throw RuntimeException("Restaurant order already exists") }
+                // ** negative flow **
+                else flowOf(RestaurantOrderRejectedEvent(c.identifier, "Restaurant order already exists"))
             is MarkRestaurantOrderAsPreparedCommand ->
+                // ** positive flow **
                 if ((s != null && CREATED == s.status)) flowOf(RestaurantOrderPreparedEvent(c.identifier))
-                else flowOf(
-                    RestaurantOrderNotPreparedEvent(
-                        c.identifier,
-                        "Restaurant order does not exist / not in CREATED status"
-                    )
-                )
+                // ** negative flow **
+                else flowOf(RestaurantOrderNotPreparedEvent(c.identifier, "Restaurant order does not exist or not in CREATED state"))
             null -> emptyFlow() // We ignore the `null` command by emitting the empty flow. Only the Decider that can handle `null` command can be combined (Monoid) with other Deciders.
         }
     },
@@ -212,10 +204,8 @@ fun restaurantOrderDecider() = Decider<RestaurantOrderCommand?, RestaurantOrder?
     evolve = { s, e ->
         when (e) {
             is RestaurantOrderCreatedEvent -> RestaurantOrder(e.identifier, e.restaurantId, CREATED, e.lineItems)
-            is RestaurantOrderPreparedEvent ->
-                if (s != null) RestaurantOrder(s.id, s.restaurantId, PREPARED, s.lineItems)
-                else s
-            is RestaurantOrderErrorEvent -> s
+            is RestaurantOrderPreparedEvent -> s?.copy(status = PREPARED)
+            is RestaurantOrderErrorEvent -> s // Error events are not changing the state / We return current state instead.
             null -> s // Null events are not changing the state / We return current state instead. Only the Decider that can handle `null` event can be combined (Monoid) with other Deciders.
         }
     }
@@ -238,14 +228,12 @@ denormalized state, which is more adequate for querying.
 fun restaurantOrderView() = View<RestaurantOrderView?, RestaurantOrderEvent?>(
     // Initial state of the [RestaurantOrderViewState] is `null`. It does not exist.
     initialState = null,
-    // Exhaustive event-sourcing handling part: for each event of type [RestaurantOrderEvent] you are going to evolve from the current state/s of the [RestaurantOrderViewState] to a new state of the [RestaurantOrderViewState].
+    // Exhaustive event handler(s): for each event of type [RestaurantOrderEvent] you are going to evolve from the current state/s of the [RestaurantOrderViewState] to a new state of the [RestaurantOrderViewState].
     evolve = { s, e ->
         when (e) {
             is RestaurantOrderCreatedEvent -> RestaurantOrderView(e.identifier, e.restaurantId, CREATED, e.lineItems)
-            is RestaurantOrderPreparedEvent ->
-                if (s != null) RestaurantOrderView(s.id, s.restaurantId, PREPARED, s.lineItems)
-                else s
-            is RestaurantOrderErrorEvent -> s
+            is RestaurantOrderPreparedEvent -> s?.copy(status = PREPARED)
+            is RestaurantOrderErrorEvent -> s // We ignore the `error` event by returning current State/s.
             null -> s // We ignore the `null` event by returning current State/s. Only the View that can handle `null` event can be combined (Monoid) with other Views.
 
         }
@@ -288,7 +276,11 @@ fun restaurantOrderSaga() = Saga<RestaurantEvent?, RestaurantOrderCommand?>(
 )
 ```
 
-> The essence of functional programming lies in the power of pure functions. Add static types to the mix, and you have algebraic abstractions—functions operating on types and honoring certain laws. Make the functions generic on types, and you have parametricity. The function becomes polymorphic, which implies more reusability, and if you’re disciplined enough not to leak any implementation details by sneaking in specialized types (or unmanaged hazards such as exceptions), you get free theorems.
+> The essence of functional programming lies in the power of pure functions. Add static types to the mix, and you have
+> algebraic abstractions—functions operating on types and honoring certain laws. Make the functions generic on types, and
+> you have parametricity. The function becomes polymorphic, which implies more reusability, and if you’re disciplined
+> enough not to leak any implementation details by sneaking in specialized types (or unmanaged hazards such as exceptions)
+> , you get free theorems.
 
 ## References and further reading
 

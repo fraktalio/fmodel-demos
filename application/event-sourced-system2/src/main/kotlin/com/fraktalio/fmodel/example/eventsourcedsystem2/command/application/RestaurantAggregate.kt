@@ -25,7 +25,7 @@ import com.fraktalio.fmodel.example.domain.RestaurantEvent
 import com.fraktalio.fmodel.example.eventsourcedsystem2.command.adapter.persistence.RestaurantAggregateEventStoreRepository
 
 /**
- * A convenient type alias for  EventSourcingAggregate<RestaurantCommand?, Restaurant?, RestaurantEvent?>
+ * A convenient type alias for EventSourcingAggregate<RestaurantCommand?, Restaurant?, RestaurantEvent?>
  */
 typealias RestaurantAggregate = EventSourcingAggregate<RestaurantCommand?, Restaurant?, RestaurantEvent?>
 
@@ -40,8 +40,7 @@ typealias RestaurantAggregate = EventSourcingAggregate<RestaurantCommand?, Resta
 internal fun restaurantAggregate(
     restaurantDecider: RestaurantDecider,
     eventRepository: RestaurantAggregateEventStoreRepository
-) = eventSourcingAggregate(
-
+): RestaurantAggregate = eventSourcingAggregate(
     decider = restaurantDecider,
     eventRepository = eventRepository,
 )

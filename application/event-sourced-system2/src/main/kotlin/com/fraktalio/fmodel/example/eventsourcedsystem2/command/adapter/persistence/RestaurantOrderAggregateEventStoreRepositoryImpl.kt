@@ -45,7 +45,8 @@ internal open class RestaurantOrderAggregateEventStoreRepositoryImpl(
      */
     override fun RestaurantOrderCommand?.fetchEvents(): Flow<RestaurantOrderEvent> =
         when (this) {
-            is RestaurantOrderCommand -> axonServerEventStore.fetchEvents<RestaurantOrderEvent>(getId()).flowOn(axonServer)
+            is RestaurantOrderCommand -> axonServerEventStore.fetchEvents<RestaurantOrderEvent>(getId())
+                .flowOn(axonServer)
             null -> emptyFlow()
         }
 
@@ -73,7 +74,7 @@ internal open class RestaurantOrderAggregateEventStoreRepositoryImpl(
      *
      * @return the [Flow] of saved [Event]s
      */
-    override fun Flow<RestaurantOrderEvent?>.save(): Flow<RestaurantOrderEvent?> =
+    override fun Flow<RestaurantOrderEvent?>.save(): Flow<RestaurantOrderEvent> =
         flow {
             withContext(axonServer) {
                 with(axonServerEventStore) {

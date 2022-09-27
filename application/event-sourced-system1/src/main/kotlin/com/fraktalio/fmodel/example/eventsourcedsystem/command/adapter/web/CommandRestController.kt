@@ -18,7 +18,7 @@ package com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.web
 
 import com.fraktalio.fmodel.application.publishTo
 import com.fraktalio.fmodel.example.domain.*
-import com.fraktalio.fmodel.example.eventsourcedsystem.command.application.OrderRestaurantAggregate
+import com.fraktalio.fmodel.example.eventsourcedsystem.command.application.Aggregate
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
@@ -41,7 +41,7 @@ import java.util.*
  */
 @RestController
 internal class CommandRestController(
-    private val aggregate: OrderRestaurantAggregate,
+    private val aggregate: Aggregate,
     private val commandGateway: CommandGateway
 ) {
     @OptIn(ExperimentalCoroutinesApi::class)

@@ -46,10 +46,8 @@ fun restaurantOrderView() = RestaurantOrderView(
                 CREATED,
                 e.lineItems
             )
-            is RestaurantOrderPreparedEvent ->
-                if (s != null) RestaurantOrderViewState(s.id, s.restaurantId, PREPARED, s.lineItems)
-                else s
-            is RestaurantOrderErrorEvent -> s
+            is RestaurantOrderPreparedEvent -> s?.copy(status = PREPARED)
+            is RestaurantOrderErrorEvent -> s // We ignore the `error` event by returning current State/s.
             null -> s // We ignore the `null` event by returning current State/s. Only the View that can handle `null` event can be combined (Monoid) with other Views.
 
         }

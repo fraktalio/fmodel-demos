@@ -55,42 +55,45 @@ fun restaurantView() = RestaurantView(
                 Status.OPEN
             )
             is RestaurantMenuChangedEvent ->
-                if (s != null) RestaurantViewState(
-                    s.id,
-                    s.name,
-                    RestaurantMenu(
-                        e.menu.menuId,
-                        e.menu.menuItems.map { MenuItem(it.id, it.menuItemId, it.name, it.price) }.toImmutableList(),
-                        e.menu.cuisine
-                    ), s.status
-                )
-                else s
+                s?.let { restaurantViewState ->
+                    RestaurantViewState(
+                        restaurantViewState.id,
+                        s.name,
+                        RestaurantMenu(
+                            e.menu.menuId,
+                            e.menu.menuItems.map { MenuItem(it.id, it.menuItemId, it.name, it.price) }.toImmutableList(),
+                            e.menu.cuisine
+                        ), s.status
+                    )
+                }
             is RestaurantMenuActivatedEvent ->
-                if (s != null) RestaurantViewState(
-                    s.id,
-                    s.name,
-                    RestaurantMenu(
-                        s.menu.menuId,
-                        s.menu.items,
-                        s.menu.cuisine,
-                        ACTIVE
-                    ), s.status
-                )
-                else s
+                s?.let {
+                    RestaurantViewState(
+                        it.id,
+                        s.name,
+                        RestaurantMenu(
+                            s.menu.menuId,
+                            s.menu.items,
+                            s.menu.cuisine,
+                            ACTIVE
+                        ), s.status
+                    )
+                }
             is RestaurantMenuPassivatedEvent ->
-                if (s != null) RestaurantViewState(
-                    s.id,
-                    s.name,
-                    RestaurantMenu(
-                        s.menu.menuId,
-                        s.menu.items,
-                        s.menu.cuisine,
-                        PASSIVE
-                    ), s.status
-                )
-                else s
+                s?.let {
+                    RestaurantViewState(
+                        it.id,
+                        s.name,
+                        RestaurantMenu(
+                            s.menu.menuId,
+                            s.menu.items,
+                            s.menu.cuisine,
+                            PASSIVE
+                        ), s.status
+                    )
+                }
             is RestaurantOrderPlacedAtRestaurantEvent -> s
-            is RestaurantErrorEvent -> s
+            is RestaurantErrorEvent -> s// We ignore the `error` event by returning current State/s.
             null -> s // We ignore the `null` event by returning current State/s. Only the View that can handle `null` event can be combined (Monoid) with other Views.
         }
     }

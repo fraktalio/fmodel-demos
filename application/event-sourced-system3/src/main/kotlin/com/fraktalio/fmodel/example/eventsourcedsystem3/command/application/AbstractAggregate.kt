@@ -6,9 +6,17 @@ import org.axonframework.eventsourcing.EventSourcingHandler
 import org.axonframework.modelling.command.AggregateIdentifier
 import org.axonframework.modelling.command.AggregateLifecycle
 
+/**
+ * Abstract and generic aggregate
+ */
 abstract class AbstractAggregate<C, S, E> {
+    // Main decision-making component
     abstract val decider: Decider<C, S, E>
+
+    // The state of this aggregate
     abstract var state: S
+
+    // An aggregate identifier
     abstract fun E.getAggregateIdentifier(): String?
 
     @AggregateIdentifier

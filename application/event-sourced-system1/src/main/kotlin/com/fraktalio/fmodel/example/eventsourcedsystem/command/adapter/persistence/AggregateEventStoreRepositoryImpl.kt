@@ -83,9 +83,8 @@ internal open class AggregateEventStoreRepositoryImpl(
      *
      * @return the [Flow] of saved [Event]s
      */
-    override fun Flow<Event?>.save(): Flow<Event?> =
+    override fun Flow<Event?>.save(): Flow<Event> =
         runBlocking {
-
             val restaurantEvent = this@save.filterIsInstance<RestaurantEvent>().firstOrNull()
             val lastRestaurantSequenceNumber =
                 if (restaurantEvent != null) axonServerEventStore.lastSequenceNumber(restaurantEvent.getId()) else -1

@@ -194,6 +194,7 @@ class Configuration {
 }
 
 
+@Suppress("UNCHECKED_CAST")
 class RoutingInterceptor<T : Message<*>> : MessageDispatchInterceptor<T> {
     override fun handle(messages: List<T>): BiFunction<Int, T, T> {
         return BiFunction { _: Int?, message: T ->

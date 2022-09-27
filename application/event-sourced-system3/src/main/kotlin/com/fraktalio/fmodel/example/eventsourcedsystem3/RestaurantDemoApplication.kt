@@ -111,6 +111,7 @@ class Configuration {
     }
 }
 
+@Suppress("UNCHECKED_CAST")
 class RoutingInterceptor<T : Message<*>> : MessageDispatchInterceptor<T> {
 
 

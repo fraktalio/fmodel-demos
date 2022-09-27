@@ -21,7 +21,7 @@ import com.fraktalio.fmodel.example.domain.*
 import com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.commandhandler.AxonCommandHandler
 import com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.persistence.AggregateEventStoreRepository
 import com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.persistence.AggregateEventStoreRepositoryImpl
-import com.fraktalio.fmodel.example.eventsourcedsystem.command.application.OrderRestaurantAggregate
+import com.fraktalio.fmodel.example.eventsourcedsystem.command.application.Aggregate
 import com.fraktalio.fmodel.example.eventsourcedsystem.command.application.aggregate
 import com.fraktalio.fmodel.example.eventsourcedsystem.query.adapter.persistance.*
 import com.fraktalio.fmodel.example.eventsourcedsystem.query.application.materializedView
@@ -82,7 +82,7 @@ class Configuration {
     ) = aggregate(restaurantOrderDecider, restaurantDecider, restaurantOrderSaga, restaurantSaga, eventRepository)
 
     @Bean
-    internal fun commandHandlerBean(aggregate: OrderRestaurantAggregate) =
+    internal fun commandHandlerBean(aggregate: Aggregate) =
         AxonCommandHandler(aggregate)
 
     // VIEW - QUERY
