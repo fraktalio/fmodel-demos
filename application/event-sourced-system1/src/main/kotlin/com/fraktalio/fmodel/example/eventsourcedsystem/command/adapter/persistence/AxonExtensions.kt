@@ -54,8 +54,7 @@ suspend fun EventStore.publishEvents(
 
         val result = publishEventMessages(
             events
-                .withIndex()
-                .map { (index, event) ->
+                .map { event ->
                     GenericDomainEventMessage(
                         event.getAggregateType(),
                         event.getId(),

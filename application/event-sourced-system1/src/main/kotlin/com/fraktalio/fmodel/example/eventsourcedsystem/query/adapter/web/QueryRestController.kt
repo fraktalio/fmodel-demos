@@ -18,6 +18,7 @@ package com.fraktalio.fmodel.example.eventsourcedsystem.query.adapter.web
 
 import com.fraktalio.fmodel.example.eventsourcedsystem.query.adapter.FindAllRestaurantsQuery
 import com.fraktalio.fmodel.example.eventsourcedsystem.query.adapter.persistance.RestaurantCoroutineRepository
+import com.fraktalio.fmodel.example.eventsourcedsystem.query.adapter.persistance.RestaurantR2DBCEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.emitAll
@@ -58,7 +59,7 @@ internal class QueryRestController(
      **/
     @GetMapping("/example/bus/restaurant")
     fun getRestaurantsViaQueryBus() =
-        flow {
+        flow<RestaurantR2DBCEntity> {
             emitAll(
                 withContext(axonServerBusses) {
                     queryGateway.queryFlow(

@@ -9,7 +9,7 @@ import kotlinx.coroutines.runInterruptible
 import org.axonframework.messaging.responsetypes.ResponseTypes
 import org.axonframework.queryhandling.QueryGateway
 
-suspend inline fun <reified R, reified Q> QueryGateway.queryMany(query: Q): List<R> =
+suspend inline fun <reified R, reified Q : Any> QueryGateway.queryMany(query: Q): List<R> =
     runInterruptible(currentCoroutineContext()) {
         this@queryMany.query(
             query,
@@ -17,7 +17,7 @@ suspend inline fun <reified R, reified Q> QueryGateway.queryMany(query: Q): List
         ).get()
     }
 
-inline fun <reified R, reified Q> QueryGateway.queryFlow(query: Q): Flow<R> =
+inline fun <reified R, reified Q : Any> QueryGateway.queryFlow(query: Q): Flow<R> =
     flow {
         emitAll(
             runInterruptible(currentCoroutineContext()) {
