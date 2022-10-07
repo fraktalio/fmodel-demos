@@ -11,18 +11,18 @@ import org.axonframework.eventhandling.GenericDomainEventMessage
 import org.axonframework.eventsourcing.eventstore.DomainEventStream
 import org.axonframework.eventsourcing.eventstore.EventStore
 
-suspend fun EventStore.fetchEventStream(aggregateIdentifier: String): DomainEventStream =
+private suspend fun EventStore.fetchEventStream(aggregateIdentifier: String): DomainEventStream =
     runInterruptible(currentCoroutineContext()) {
         readEvents(aggregateIdentifier)
     }
 
 @Suppress("UNCHECKED_CAST")
-fun <E> EventStore.fetchEvents(aggregateIdentifier: String): Flow<E> where E : Event =
+fun <E : Event?> EventStore.fetchEvents(aggregateIdentifier: String): Flow<E> =
     flow {
         emitAll(fetchEventStream(aggregateIdentifier).asFlow().map { it.payload as E })
     }
 
-suspend fun EventStore.publishEventMessages(events: List<EventMessage<*>>): Unit =
+private suspend fun EventStore.publishEventMessages(events: List<EventMessage<*>>): Unit =
     runInterruptible(currentCoroutineContext()) {
         publish(events)
     }
