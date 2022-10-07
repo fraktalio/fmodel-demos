@@ -20,6 +20,7 @@ import com.fraktalio.fmodel.application.ViewStateRepository
 import com.fraktalio.fmodel.example.domain.*
 import com.fraktalio.fmodel.example.domain.RestaurantViewState.MenuItem
 import com.fraktalio.fmodel.example.domain.RestaurantViewState.RestaurantMenu
+import com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.getId
 import com.fraktalio.fmodel.example.eventsourcedsystem.query.application.MaterializedViewState
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -63,17 +64,16 @@ internal open class MaterializedViewStateRepositoryImpl(
         when (this) {
             is RestaurantOrderEvent -> MaterializedViewState(
                 null,
-                restaurantOrderRepository.findById(this.identifier.identifier.toString()).toRestaurantOrder(
-                    restaurantOrderItemRepository.findByOrderId(this.identifier.identifier.toString())
-                        .map { it.toRestaurantOrderLineItem() }
-                        .toImmutableList()
+                restaurantOrderRepository.findById(getId()).toRestaurantOrder(restaurantOrderItemRepository
+                    .findByOrderId(getId())
+                    .map { it.toRestaurantOrderLineItem() }
+                    .toImmutableList()
                 )
             )
+
             is RestaurantEvent -> {
-                val restaurantEntity: RestaurantR2DBCEntity? =
-                    restaurantRepository.findById(this.identifier.identifier.toString())
-                val menuItemEntities =
-                    menuItemRepository.findByRestaurantId(this.identifier.identifier.toString())
+                val restaurantEntity: RestaurantR2DBCEntity? = restaurantRepository.findById(getId())
+                val menuItemEntities = menuItemRepository.findByRestaurantId(getId())
                 MaterializedViewState(
                     restaurantEntity?.toRestaurant(
                         RestaurantMenu(
@@ -86,6 +86,7 @@ internal open class MaterializedViewStateRepositoryImpl(
                 )
 
             }
+
             null -> MaterializedViewState(null, null)
         }
 
@@ -96,13 +97,11 @@ internal open class MaterializedViewStateRepositoryImpl(
      * @return new State
      */
     override suspend fun MaterializedViewState.save(): MaterializedViewState {
-
         operator.executeAndAwait { transaction ->
             try {
-
                 this.order?.let { order ->
                     val restaurantOrderEntity = order.toRestaurantOrderEntity()
-                    // check if it is Creat or Update
+                    // check if it is Create or Update
                     restaurantOrderEntity.newRestaurantOrder =
                         !restaurantOrderRepository.existsById(order.id.identifier.toString())
                     restaurantOrderRepository.save(restaurantOrderEntity)
@@ -112,9 +111,7 @@ internal open class MaterializedViewStateRepositoryImpl(
                         orderItemEntity.newRestaurantOrderItem = !restaurantOrderItemRepository.existsById(it.id)
                         restaurantOrderItemRepository.save(orderItemEntity)
                     }
-
                 }
-
                 this.restaurant?.let { restaurant ->
                     val restaurantEntity = restaurant.toRestaurantEntity()
                     // check if it is Creat or Update
@@ -131,12 +128,10 @@ internal open class MaterializedViewStateRepositoryImpl(
                         menuItemRepository.save(menuItemEntity)
                     }
                 }
-
             } catch (e: Exception) {
                 transaction.setRollbackOnly()
                 throw e
             }
-
         }
         return this
     }
@@ -151,6 +146,7 @@ internal open class MaterializedViewStateRepositoryImpl(
             menu,
             this.status
         )
+
         else -> null
     }
 
@@ -163,6 +159,7 @@ internal open class MaterializedViewStateRepositoryImpl(
                 this.state,
                 lineItems
             )
+
             else -> null
         }
 
