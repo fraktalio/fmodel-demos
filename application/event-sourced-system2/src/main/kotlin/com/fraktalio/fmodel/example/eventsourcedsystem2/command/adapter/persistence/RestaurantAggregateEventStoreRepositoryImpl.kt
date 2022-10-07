@@ -73,7 +73,7 @@ internal open class RestaurantAggregateEventStoreRepositoryImpl(
      *
      * @return the [Flow] of saved [Event]s
      */
-    override fun Flow<RestaurantEvent?>.save(): Flow<RestaurantEvent?> =
+    override fun Flow<RestaurantEvent?>.save(): Flow<RestaurantEvent> =
         flow {
             withContext(axonServer) {
                 with(axonServerEventStore) {

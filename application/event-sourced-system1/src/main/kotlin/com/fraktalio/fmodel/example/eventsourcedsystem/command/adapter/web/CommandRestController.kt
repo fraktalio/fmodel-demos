@@ -16,7 +16,7 @@
 
 package com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.web
 
-import com.fraktalio.fmodel.application.publishTo
+import com.fraktalio.fmodel.application.publishOptimisticallyTo
 import com.fraktalio.fmodel.example.domain.*
 import com.fraktalio.fmodel.example.eventsourcedsystem.command.application.Aggregate
 import kotlinx.collections.immutable.persistentListOf
@@ -60,7 +60,7 @@ internal class CommandRestController(
     suspend fun createRestaurant() =
         CreateRestaurantRequest()
             .convertToCommand()
-            .publishTo(aggregate)
+            .publishOptimisticallyTo(aggregate)
 
     /**
      * Create restaurant via axon command bus

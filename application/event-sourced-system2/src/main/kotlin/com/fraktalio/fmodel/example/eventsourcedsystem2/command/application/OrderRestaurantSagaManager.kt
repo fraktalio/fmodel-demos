@@ -42,7 +42,7 @@ internal fun sagaManager(
     restaurantOrderSaga: RestaurantOrderSaga,
     restaurantSaga: RestaurantSaga,
     actionPublisher: ActionPublisher<Command>
-) = sagaManager(
+): OrderRestaurantSagaManager = sagaManager(
     // Combining individual choreography Sagas into one orchestrating Saga.
     saga = restaurantOrderSaga.combine(restaurantSaga),
     // How and where do you want to publish new commands.

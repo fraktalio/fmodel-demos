@@ -16,7 +16,7 @@
 
 package com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.commandhandler
 
-import com.fraktalio.fmodel.application.publishTo
+import com.fraktalio.fmodel.application.publishOptimisticallyTo
 import com.fraktalio.fmodel.example.domain.*
 import com.fraktalio.fmodel.example.eventsourcedsystem.command.application.Aggregate
 import kotlinx.coroutines.FlowPreview
@@ -41,7 +41,7 @@ internal open class AxonCommandHandler(private val aggregate: Aggregate) {
     @OptIn(FlowPreview::class)
     private fun publish(command: Command) {
         runBlocking {
-            command.publishTo(aggregate).collect()
+            command.publishOptimisticallyTo(aggregate).collect()
         }
     }
 

@@ -16,11 +16,12 @@
 
 package com.fraktalio.fmodel.example.eventsourcedsystem
 
+import com.fraktalio.fmodel.application.EventLockingRepository
 import com.fraktalio.fmodel.application.EventRepository
 import com.fraktalio.fmodel.example.domain.*
 import com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.commandhandler.AxonCommandHandler
-import com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.persistence.AggregateEventStoreRepository
-import com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.persistence.AggregateEventStoreRepositoryImpl
+import com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.persistence.AggregateEventStoreLockingRepository
+import com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.persistence.AggregateEventStoreLockingRepositoryImpl
 import com.fraktalio.fmodel.example.eventsourcedsystem.command.application.Aggregate
 import com.fraktalio.fmodel.example.eventsourcedsystem.command.application.aggregate
 import com.fraktalio.fmodel.example.eventsourcedsystem.query.adapter.persistance.*
@@ -69,8 +70,8 @@ class Configuration {
     internal fun restaurantOrderSagaBean() = restaurantOrderSaga()
 
     @Bean
-    internal fun aggregateRepositoryBean(axonServerEventStore: EventStore): EventRepository<Command?, Event?> =
-        AggregateEventStoreRepositoryImpl(axonServerEventStore)
+    internal fun aggregateRepositoryBean(axonServerEventStore: EventStore): EventLockingRepository<Command?, Event?, Long> =
+        AggregateEventStoreLockingRepositoryImpl(axonServerEventStore)
 
     @Bean
     internal fun aggregateBean(
@@ -78,7 +79,7 @@ class Configuration {
         restaurantOrderDecider: RestaurantOrderDecider,
         restaurantSaga: RestaurantSaga,
         restaurantOrderSaga: RestaurantOrderSaga,
-        eventRepository: AggregateEventStoreRepository
+        eventRepository: AggregateEventStoreLockingRepository
     ) = aggregate(restaurantOrderDecider, restaurantDecider, restaurantOrderSaga, restaurantSaga, eventRepository)
 
     @Bean

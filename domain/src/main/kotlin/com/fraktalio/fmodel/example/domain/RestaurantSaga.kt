@@ -32,7 +32,7 @@ typealias RestaurantSaga = Saga<RestaurantOrderEvent?, RestaurantCommand>
  *
  * `react` is a pure function/lambda that takes any event/action-result of type [RestaurantOrderEvent] as parameter, and returns the flow of commands/actions Flow<[RestaurantCommand]> to be published further downstream.
  */
-fun restaurantSaga() = RestaurantSaga(
+fun restaurantSaga() = Saga<RestaurantOrderEvent?, RestaurantCommand>(
     react = { e ->
         when (e) {
             //TODO evolve the example ;), it does not do much at the moment.

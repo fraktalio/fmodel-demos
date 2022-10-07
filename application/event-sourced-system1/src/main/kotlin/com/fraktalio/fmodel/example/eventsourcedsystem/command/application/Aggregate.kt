@@ -16,17 +16,17 @@
 
 package com.fraktalio.fmodel.example.eventsourcedsystem.command.application
 
-import com.fraktalio.fmodel.application.EventSourcingOrchestratingAggregate
-import com.fraktalio.fmodel.application.eventSourcingOrchestratingAggregate
+import com.fraktalio.fmodel.application.EventSourcingLockingOrchestratingAggregate
+import com.fraktalio.fmodel.application.eventSourcingLockingOrchestratingAggregate
 import com.fraktalio.fmodel.domain.combine
 import com.fraktalio.fmodel.example.domain.*
-import com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.persistence.AggregateEventStoreRepository
+import com.fraktalio.fmodel.example.eventsourcedsystem.command.adapter.persistence.AggregateEventStoreLockingRepository
 import kotlinx.coroutines.FlowPreview
 
 /**
  * A convenient type alias for EventSourcingAggregate<Command?, Pair<RestaurantOrder?, Restaurant?>, Event?>
  */
-typealias Aggregate = EventSourcingOrchestratingAggregate<Command?, Pair<RestaurantOrder?, Restaurant?>, Event?>
+typealias Aggregate = EventSourcingLockingOrchestratingAggregate<Command?, Pair<RestaurantOrder?, Restaurant?>, Event?, Long>
 
 /**
  * One, big aggregate that is `combining` all deciders: [restaurantOrderDecider], [restaurantDecider].
@@ -47,8 +47,8 @@ internal fun aggregate(
     restaurantDecider: RestaurantDecider,
     restaurantOrderSaga: RestaurantOrderSaga,
     restaurantSaga: RestaurantSaga,
-    eventRepository: AggregateEventStoreRepository
-): Aggregate = eventSourcingOrchestratingAggregate(
+    eventRepository: AggregateEventStoreLockingRepository
+): Aggregate = eventSourcingLockingOrchestratingAggregate(
     // Combining two deciders into one.
     decider = restaurantOrderDecider.combine(restaurantDecider),
     // How and where do you want to store new events.

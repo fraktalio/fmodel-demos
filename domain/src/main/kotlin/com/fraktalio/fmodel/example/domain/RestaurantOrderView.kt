@@ -34,7 +34,7 @@ typealias RestaurantOrderView = View<RestaurantOrderViewState?, RestaurantOrderE
  * `evolve / event handlers` is a pure function/lambda that takes input state of type [RestaurantOrderViewState] and input event of type [RestaurantOrderEvent] as parameters, and returns the output/new state [RestaurantOrderViewState]
  * `initialState` is a starting point / An initial state of [RestaurantOrderViewState]. In our case, it is `null`
  */
-fun restaurantOrderView() = RestaurantOrderView(
+fun restaurantOrderView() = View<RestaurantOrderViewState?, RestaurantOrderEvent?>(
     // Initial state of the [RestaurantOrderViewState] is `null`. It does not exist.
     initialState = null,
     // Exhaustive event-sourcing handling part: for each event of type [RestaurantOrderEvent] you are going to evolve from the current state/s of the [RestaurantOrderViewState] to a new state of the [RestaurantOrderViewState].
