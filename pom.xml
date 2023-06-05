@@ -28,7 +28,7 @@
 
     <properties>
         <java.version>17</java.version>
-        <kotlin.version>1.8.10</kotlin.version>
+        <kotlin.version>1.8.21</kotlin.version>
         <fmodel.version>3.2.1-SNAPSHOT</fmodel.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
